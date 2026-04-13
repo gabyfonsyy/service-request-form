@@ -263,23 +263,9 @@ function initApp(email, role) {
       'View your submitted service requests and their current status.';
   }
 
-  // Pre-load form iframe immediately in background (hidden)
-  // so it's ready by the time user clicks the card
-  const formFrame = document.getElementById('frame-form');
-  const formLoader = document.getElementById('loader-form');
-  formFrame.src = 'form.html';
-  formFrame.onload = () => {
-    loaded.form = true;
-    // Only hide loader if user is already on the form tab
-    if (formFrame.classList.contains('on')) {
-      formLoader.classList.add('gone');
-    }
-  };
-
-  // Pre-fetch tracker data into sessionStorage
+  // Pre-fetch tracker data into sessionStorage in background
   const cacheKey = 'tracker_cache_' + email;
-  const existing = sessionStorage.getItem(cacheKey);
-  if (!existing) {
+  if (!sessionStorage.getItem(cacheKey)) {
     fetch(GAS_URL + '?action=list&email=' + encodeURIComponent(email))
       .then(r => r.json())
       .then(d => sessionStorage.setItem(cacheKey, JSON.stringify({ data: d, ts: Date.now() })))
@@ -302,34 +288,31 @@ function switchTab(view) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.getElementById('tab-' + view).classList.add('active');
   document.querySelectorAll('.view-frame').forEach(f => f.classList.remove('on'));
-  document.getElementById('frame-' + view).classList.add('on');
 
-  const ldr   = document.getElementById('loader-' + view);
   const frame = document.getElementById('frame-' + view);
+  const ldr   = document.getElementById('loader-' + view);
+  frame.classList.add('on');
 
-  // If already loaded, hide spinner immediately
+  // Already loaded — show immediately
   if (loaded[view]) {
     ldr.classList.add('gone');
     return;
   }
 
-  // If frame already has a src (pre-warmed) but onload hasn't fired yet,
-  // set a short poll to check readiness
-  if (frame.src && frame.src !== location.href) {
-    const check = setInterval(() => {
-      if (loaded[view]) { ldr.classList.add('gone'); clearInterval(check); }
-    }, 100);
-    setTimeout(() => { ldr.classList.add('gone'); clearInterval(check); }, 3000);
-    return;
-  }
-
-  // Fresh load
   let src;
-  if (view === 'form') src = 'form.html';
-  else if (view === 'tracker') src = 'dashboard.html?email=' + encodeURIComponent(userEmail) + '&internal=' + (isInternal ? '1' : '0');
+  if (view === 'form')           src = 'form.html';
+  else if (view === 'tracker')   src = 'dashboard.html?email=' + encodeURIComponent(userEmail) + '&internal=' + (isInternal ? '1' : '0');
   else if (view === 'analytics') src = 'analytics.html?email=' + encodeURIComponent(userEmail);
-  frame.src   = src;
-  frame.onload = () => { ldr.classList.add('gone'); loaded[view] = true; };
+
+  frame.src = src;
+
+  if (view === 'form') {
+    // Form loads from cache — force hide spinner after 1.5s max
+    frame.onload = () => { ldr.classList.add('gone'); loaded.form = true; };
+    setTimeout(() => { ldr.classList.add('gone'); loaded.form = true; }, 1500);
+  } else {
+    frame.onload = () => { ldr.classList.add('gone'); loaded[view] = true; };
+  }
 }
 
 function logout() {
