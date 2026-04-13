@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Analytics</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green:#1B4332;--green-mid:#2D6A4F;--green-light:#D8F3DC;--green-muted:#95D5B2;
+  --cream:#FAFAF7;--ink:#1A1A18;--ink-muted:#6B6B60;--border:#D4D4C8;--white:#FFFFFF;
+  --serif:'DM Serif Display',Georgia,serif;--sans:'DM Sans',system-ui,sans-serif;
+}
+body{font-family:var(--sans);background:var(--cream);color:var(--ink);min-height:100vh;padding:1.75rem}
+
+/* ── TOOLBAR ── */
+.toolbar{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap}
+.toolbar h2{font-family:var(--serif);font-size:1.375rem;font-weight:400;color:var(--ink)}
+.toolbar-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.date-group{display:flex;align-items:center;gap:6px}
+.date-group label{font-size:0.75rem;color:var(--ink-muted)}
+.date-group input{font-family:var(--sans);font-size:0.8rem;color:var(--ink);background:var(--white);border:1px solid var(--border);border-radius:6px;padding:5px 8px;outline:none;transition:border-color 0.15s}
+.date-group input:focus{border-color:var(--green-mid)}
+.btn{font-family:var(--sans);font-size:0.8rem;font-weight:500;padding:6px 14px;border-radius:6px;cursor:pointer;transition:all 0.15s;border:1px solid var(--border);background:var(--white);color:var(--ink-muted)}
+.btn:hover{border-color:var(--green-mid);color:var(--green)}
+.btn-primary{background:var(--green);color:var(--white);border-color:var(--green)}
+.btn-primary:hover{background:var(--green-mid);color:var(--white)}
+
+/* ── SCORECARDS ── */
+.sc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:1.5rem}
+.sc{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
+.sc-label{font-size:0.65rem;font-weight:500;text-transform:uppercase;letter-spacing:0.07em;color:var(--ink-muted);margin-bottom:6px}
+.sc-value{font-family:var(--serif);font-size:2rem;font-weight:400;color:var(--ink);line-height:1}
+.sc-sub{font-size:0.68rem;color:var(--ink-muted);margin-top:4px}
+.sc.highlight{border-color:var(--green-mid);background:var(--green-light)}
+.sc.highlight .sc-label,.sc.highlight .sc-sub{color:var(--green-mid)}
+.sc.highlight .sc-value{color:var(--green)}
+
+/* ── CHART GRID ── */
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem}
+.chart-grid.full{grid-template-columns:1fr}
+.chart-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:1.25rem}
+.chart-card h3{font-size:0.72rem;font-weight:500;text-transform:uppercase;letter-spacing:0.07em;color:var(--ink-muted);margin-bottom:1rem}
+.chart-wrap{position:relative;height:220px}
+.chart-wrap.tall{height:280px}
+
+/* ── TABLE ── */
+.table-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:1.25rem;margin-bottom:1rem}
+.table-card h3{font-size:0.72rem;font-weight:500;text-transform:uppercase;letter-spacing:0.07em;color:var(--ink-muted);margin-bottom:1rem}
+table{width:100%;border-collapse:collapse;font-size:0.8125rem}
+th{text-align:left;font-size:0.65rem;font-weight:500;text-transform:uppercase;letter-spacing:0.06em;color:var(--ink-muted);padding:6px 10px;border-bottom:1px solid var(--border)}
+td{padding:8px 10px;border-bottom:1px solid var(--border);color:var(--ink)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--cream)}
+
+/* ── LOADING ── */
+.loading-state{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:12px;color:var(--ink-muted)}
+.spinner{width:22px;height:22px;border:2px solid var(--border);border-top-color:var(--green-mid);border-radius:50%;animation:spin 0.7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── BADGE ── */
+.badge{display:inline-flex;align-items:center;gap:3px;font-size:0.65rem;font-weight:500;padding:2px 8px;border-radius:20px}
+.b-green{background:#D8F3DC;color:#085041}
+.b-blue{background:#E6F1FB;color:#0C447C}
+.b-amber{background:#FAEEDA;color:#633806}
+.b-gray{background:#F1EFE8;color:#444441}
+.b-red{background:#FCEBEB;color:#791F1F}
+.b-purple{background:#EEEDFE;color:#3C3489}
+.b-teal{background:#E1F5EE;color:#085041}
+
+@media(max-width:640px){
+  .chart-grid{grid-template-columns:1fr}
+  .sc-grid{grid-template-columns:repeat(2,1fr)}
+  body{padding:1rem}
+}
+</style>
+</head>
+<body>
+
+<div id="loadingState" class="loading-state">
+  <span class="spinner"></span>
+  <p>Loading analytics…</p>
+</div>
+
+<div id="content" style="display:none">
+  <!-- TOOLBAR -->
+  <div class="toolbar">
+    <h2>Analytics &amp; Reports</h2>
+    <div class="toolbar-right">
+      <div class="date-group">
+        <label>From</label>
+        <input type="date" id="fromDate"/>
+      </div>
+      <div class="date-group">
+        <label>To</label>
+        <input type="date" id="toDate"/>
+      </div>
+      <button class="btn btn-primary" onclick="applyFilter()">Apply</button>
+      <button class="btn" onclick="clearFilter()">All time</button>
+    </div>
+  </div>
+
+  <!-- SCORECARDS -->
+  <div class="sc-grid">
+    <div class="sc highlight">
+      <div class="sc-label">Total Requests</div>
+      <div class="sc-value" id="sc-total">—</div>
+      <div class="sc-sub">In selected period</div>
+    </div>
+    <div class="sc">
+      <div class="sc-label">For Quotation</div>
+      <div class="sc-value" id="sc-fq">—</div>
+      <div class="sc-sub">Awaiting review</div>
+    </div>
+    <div class="sc">
+      <div class="sc-label">Ongoing Review</div>
+      <div class="sc-value" id="sc-or">—</div>
+      <div class="sc-sub">Being reviewed</div>
+    </div>
+    <div class="sc">
+      <div class="sc-label">Quotation Provided</div>
+      <div class="sc-value" id="sc-qp">—</div>
+      <div class="sc-sub">Awaiting CRF</div>
+    </div>
+    <div class="sc">
+      <div class="sc-label">For Execution</div>
+      <div class="sc-value" id="sc-fe">—</div>
+      <div class="sc-sub">CRF raised</div>
+    </div>
+    <div class="sc">
+      <div class="sc-label">Ongoing Activity</div>
+      <div class="sc-value" id="sc-oe">—</div>
+      <div class="sc-sub">In execution</div>
+    </div>
+    <div class="sc">
+      <div class="sc-label">Request Done</div>
+      <div class="sc-value" id="sc-rd">—</div>
+      <div class="sc-sub">Completed</div>
+    </div>
+    <div class="sc">
+      <div class="sc-label">Avg. Resolution</div>
+      <div class="sc-value" id="sc-avg">—</div>
+      <div class="sc-sub">Days to complete</div>
+    </div>
+  </div>
+
+  <!-- ROW 1: Monthly trend + Lifecycle -->
+  <div class="chart-grid">
+    <div class="chart-card">
+      <h3>Requests over time</h3>
+      <div class="chart-wrap tall"><canvas id="chartMonthly"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>By lifecycle stage</h3>
+      <div class="chart-wrap tall"><canvas id="chartLifecycle"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ROW 2: By service + Cost + Urgency -->
+  <div class="chart-grid">
+    <div class="chart-card">
+      <h3>By service type</h3>
+      <div class="chart-wrap"><canvas id="chartService"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Cost status</h3>
+      <div class="chart-wrap"><canvas id="chartCost"></canvas></div>
+    </div>
+  </div>
+
+  <div class="chart-grid">
+    <div class="chart-card">
+      <h3>By urgency</h3>
+      <div class="chart-wrap"><canvas id="chartUrgency"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Service type breakdown</h3>
+      <div class="table-card" style="border:none;padding:0;margin:0">
+        <table id="serviceTable">
+          <thead><tr><th>Service Type</th><th>Count</th><th>Share</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var GAS_URL    = 'YOUR_GAS_WEB_APP_URL_HERE';
+var params     = new URLSearchParams(location.search);
+var USER_EMAIL = params.get('email') || '';
+var charts     = {};
+
+var COLORS = {
+  green:  '#1D9E75', blue: '#185FA5', amber: '#854F0B',
+  red:    '#A32D2D', gray: '#888780', purple:'#534AB7', teal:'#0F6E56',
+  greenL: '#D8F3DC', blueL:'#E6F1FB', amberL:'#FAEEDA',
+  redL:   '#FCEBEB', grayL:'#F1EFE8', purpleL:'#EEEDFE', tealL:'#E1F5EE',
+};
+
+var LC_COLORS = [
+  COLORS.grayL, COLORS.amberL, COLORS.blueL, COLORS.purpleL, COLORS.tealL, COLORS.greenL
+];
+var LC_BORDERS = [
+  COLORS.gray, COLORS.amber, COLORS.blue, COLORS.purple, COLORS.teal, COLORS.green
+];
+
+async function load(from, to) {
+  document.getElementById('loadingState').style.display = 'flex';
+  document.getElementById('content').style.display = 'none';
+  try {
+    let url = GAS_URL + '?action=analytics';
+    if (from) url += '&from=' + from;
+    if (to)   url += '&to='   + to;
+    const res  = await fetch(url);
+    const data = await res.json();
+    render(data);
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('content').style.display = 'block';
+  } catch(e) {
+    document.getElementById('loadingState').innerHTML =
+      '<p style="color:var(--ink-muted)">Failed to load analytics. <span style="color:var(--green-mid);cursor:pointer;text-decoration:underline" onclick="load()">Retry</span></p>';
+  }
+}
+
+function render(data) {
+  // Scorecards
+  const lc = data.lifecycleCounts || {};
+  document.getElementById('sc-total').textContent = data.total ?? '—';
+  document.getElementById('sc-fq').textContent    = lc['For Quotation']               ?? '—';
+  document.getElementById('sc-or').textContent    = lc['Ongoing Review']              ?? '—';
+  document.getElementById('sc-qp').textContent    = lc['Quotation Provided']          ?? '—';
+  document.getElementById('sc-fe').textContent    = lc['For Execution / Schedule']    ?? '—';
+  document.getElementById('sc-oe').textContent    = lc['Ongoing Execution / Activity']?? '—';
+  document.getElementById('sc-rd').textContent    = lc['Request Done']                ?? '—';
+  document.getElementById('sc-avg').textContent   = data.avgDays != null ? data.avgDays + 'd' : '—';
+
+  // Monthly trend (bar)
+  const monthly = data.monthlyArr || [];
+  buildChart('chartMonthly', 'bar', {
+    labels: monthly.map(m => fmtMonth(m.month)),
+    datasets: [{
+      label: 'Requests',
+      data:  monthly.map(m => m.count),
+      backgroundColor: COLORS.greenL,
+      borderColor:     COLORS.green,
+      borderWidth: 1.5,
+      borderRadius: 4,
+    }]
+  }, { scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } });
+
+  // Lifecycle (horizontal bar)
+  const lcLabels = ['For Quotation','Ongoing Review','Quotation Provided','For Execution / Schedule','Ongoing Execution / Activity','Request Done'];
+  const lcShort  = ['For Quotation','Ongoing Review','Quotation Provided','For Execution','Ongoing Activity','Request Done'];
+  buildChart('chartLifecycle', 'bar', {
+    labels: lcShort,
+    datasets: [{
+      label: 'Requests',
+      data:  lcLabels.map(l => lc[l] || 0),
+      backgroundColor: LC_COLORS,
+      borderColor:     LC_BORDERS,
+      borderWidth: 1.5,
+      borderRadius: 4,
+    }]
+  }, { indexAxis: 'y', scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } }, plugins: { legend: { display: false } } });
+
+  // By service (doughnut)
+  const svc    = data.byService || {};
+  const svcKeys= Object.keys(svc).sort((a,b) => svc[b]-svc[a]);
+  const svcColors = [COLORS.green, COLORS.blue, COLORS.amber, COLORS.purple, COLORS.teal, COLORS.red, COLORS.gray];
+  buildChart('chartService', 'doughnut', {
+    labels: svcKeys,
+    datasets: [{ data: svcKeys.map(k => svc[k]), backgroundColor: svcColors.slice(0, svcKeys.length), borderWidth: 2, borderColor: '#fff' }]
+  }, { plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 12 } } } });
+
+  // Cost status (doughnut)
+  const cost = data.byCost || {};
+  buildChart('chartCost', 'doughnut', {
+    labels: ['Paid', 'Waived', 'Pending'],
+    datasets: [{ data: [cost.Paid||0, cost.Waived||0, cost.Pending||0], backgroundColor: [COLORS.blue, COLORS.purple, COLORS.gray], borderWidth: 2, borderColor: '#fff' }]
+  }, { plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 12 } } } });
+
+  // Urgency (bar)
+  const urg = data.byUrgency || {};
+  buildChart('chartUrgency', 'bar', {
+    labels: ['High', 'Medium', 'Low'],
+    datasets: [{
+      label: 'Requests',
+      data:  [urg.High||0, urg.Medium||0, urg.Low||0],
+      backgroundColor: [COLORS.redL, COLORS.amberL, COLORS.greenL],
+      borderColor:     [COLORS.red,  COLORS.amber,  COLORS.green],
+      borderWidth: 1.5, borderRadius: 4,
+    }]
+  }, { scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }, plugins: { legend: { display: false } } });
+
+  // Service table
+  const tbody = document.querySelector('#serviceTable tbody');
+  tbody.innerHTML = '';
+  const total = Object.values(svc).reduce((a,b) => a+b, 0) || 1;
+  svcKeys.forEach(k => {
+    const pct = Math.round((svc[k] / total) * 100);
+    tbody.innerHTML += `<tr><td>${k}</td><td>${svc[k]}</td><td>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="flex:1;height:6px;background:var(--border);border-radius:3px">
+          <div style="width:${pct}%;height:100%;background:var(--green-mid);border-radius:3px"></div>
+        </div>
+        <span style="font-size:0.72rem;color:var(--ink-muted);min-width:30px">${pct}%</span>
+      </div>
+    </td></tr>`;
+  });
+}
+
+function buildChart(id, type, data, options) {
+  if (charts[id]) charts[id].destroy();
+  const ctx = document.getElementById(id).getContext('2d');
+  charts[id] = new Chart(ctx, {
+    type,
+    data,
+    options: Object.assign({
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: type === 'doughnut', labels: { font: { family: "'DM Sans'" } } } },
+      scales: type === 'doughnut' ? {} : {
+        x: { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { family: "'DM Sans'", size: 11 } } },
+        y: { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { family: "'DM Sans'", size: 11 } } },
+      }
+    }, options || {})
+  });
+}
+
+function applyFilter() {
+  const from = document.getElementById('fromDate').value;
+  const to   = document.getElementById('toDate').value;
+  load(from, to);
+}
+
+function clearFilter() {
+  document.getElementById('fromDate').value = '';
+  document.getElementById('toDate').value   = '';
+  load();
+}
+
+function fmtMonth(ym) {
+  if (!ym) return '';
+  const [y, m] = ym.split('-');
+  const names = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return (names[parseInt(m,10)-1] || m) + ' ' + y;
+}
+
+// Set default date range to current month
+const now   = new Date();
+const y     = now.getFullYear();
+const m     = String(now.getMonth()+1).padStart(2,'0');
+document.getElementById('fromDate').value = y + '-' + m + '-01';
+document.getElementById('toDate').value   = now.toISOString().split('T')[0];
+
+load(document.getElementById('fromDate').value, document.getElementById('toDate').value);
+</script>
+</body>
+</html>
