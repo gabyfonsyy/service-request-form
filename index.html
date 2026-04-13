@@ -76,13 +76,6 @@ html,body{height:100%;font-family:var(--sans);background:var(--cream);color:var(
 .lcard p{font-size:0.8rem;color:var(--ink-muted);line-height:1.6}
 
 /* ── TRACKER CSS ── */
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --green:#1B4332;--green-mid:#2D6A4F;--green-light:#D8F3DC;--green-muted:#95D5B2;
-  --cream:#FAFAF7;--ink:#1A1A18;--ink-muted:#6B6B60;--border:#D4D4C8;--white:#FFFFFF;
-  --sw:300px;--serif:'DM Serif Display',Georgia,serif;--sans:'DM Sans',system-ui,sans-serif;
-}
-body{font-family:var(--sans);background:var(--cream);color:var(--ink);height:100vh;display:flex;flex-direction:column;overflow:hidden}
 
 /* ── ANALYTICS BAR (internal only) ── */
 .analytics{background:var(--white);border-bottom:1px solid var(--border);padding:14px 20px;display:none;flex-direction:column;gap:12px;flex-shrink:0}
@@ -214,13 +207,6 @@ body{font-family:var(--sans);background:var(--cream);color:var(--ink);height:100
 }
 
 /* ── ANALYTICS CSS ── */
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --green:#1B4332;--green-mid:#2D6A4F;--green-light:#D8F3DC;--green-muted:#95D5B2;
-  --cream:#FAFAF7;--ink:#1A1A18;--ink-muted:#6B6B60;--border:#D4D4C8;--white:#FFFFFF;
-  --serif:'DM Serif Display',Georgia,serif;--sans:'DM Sans',system-ui,sans-serif;
-}
-
 
 /* ── TOOLBAR ── */
 .toolbar{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap}
@@ -264,23 +250,13 @@ tr:hover td{background:var(--cream)}
 
 /* ── LOADING ── */
 .loading-state{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:12px;color:var(--ink-muted)}
-.spinner{width:22px;height:22px;border:2px solid var(--border);border-top-color:var(--green-mid);border-radius:50%;animation:spin 0.7s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
 
-/* ── BADGE ── */
-.badge{display:inline-flex;align-items:center;gap:3px;font-size:0.65rem;font-weight:500;padding:2px 8px;border-radius:20px}
-.b-green{background:#D8F3DC;color:#085041}
-.b-blue{background:#E6F1FB;color:#0C447C}
-.b-amber{background:#FAEEDA;color:#633806}
-.b-gray{background:#F1EFE8;color:#444441}
-.b-red{background:#FCEBEB;color:#791F1F}
-.b-purple{background:#EEEDFE;color:#3C3489}
-.b-teal{background:#E1F5EE;color:#085041}
+
+/* badges defined above */
 
 @media(max-width:640px){
   .chart-grid{grid-template-columns:1fr}
   .sc-grid{grid-template-columns:repeat(2,1fr)}
-  body{padding:1rem}
 }
 
 /* ── ANALYTICS VIEW WRAPPER ── */
@@ -1087,8 +1063,9 @@ async function load_analytics(from, to) {
     document.getElementById('an-loadingState').style.display = 'none';
     document.getElementById('an-content').style.display = 'block';
   } catch(e) {
-    document.getElementById('an-loadingState').innerHTML =
-      '<p style="color:var(--ink-muted)">Failed to load analytics. <span style="color:var(--green-mid);cursor:pointer;text-decoration:underline" onclick="load_analytics()">Retry</span></p>';
+    console.error('load_analytics error:', e);
+    const ls = document.getElementById('an-loadingState');
+    if (ls) ls.innerHTML = '<p style="color:var(--ink-muted)">Failed to load analytics. <span style="color:var(--green-mid);cursor:pointer;text-decoration:underline" onclick="load_analytics()">Retry</span></p>';
   }
 }
 
@@ -1106,6 +1083,9 @@ function render_analytics(data) {
   document.getElementById('an-avg').textContent   = data.avgDays != null ? data.avgDays + 'd' : '—';
 
   if (!chartAvailable) { console.warn('Chart.js not available — charts skipped'); return; }
+  // Safety check - all chart elements must exist
+  const chartIds = ['an-chartMonthly','an-chartLifecycle','an-chartService','an-chartCost','an-chartUrgency'];
+  if (chartIds.some(id => !document.getElementById(id))) { console.warn('Chart elements not found'); return; }
   // Monthly trend (bar)
   const monthly = data.monthlyArr || [];
   buildChart('chartMonthly', 'bar', {
