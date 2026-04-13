@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Platform Operations · Sprout Solutions</title>
+<title>Service Requests · Platform Operations</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -15,269 +15,237 @@
 html,body{height:100%;font-family:var(--sans);background:var(--cream);color:var(--ink)}
 
 /* ── GATE ── */
-.gate{
-  position:fixed;inset:0;background:var(--green);
-  display:flex;align-items:center;justify-content:center;
-  z-index:9999;padding:1.5rem;
-  transition:opacity 0.4s ease;
-}
-.gate.hiding{opacity:0;pointer-events:none}
-.gate-card{
-  background:var(--white);border-radius:14px;
-  padding:2.75rem 2.25rem;width:100%;max-width:380px;text-align:center;
-}
+.gate{position:fixed;inset:0;background:var(--green);display:flex;align-items:center;justify-content:center;z-index:9999;padding:1.5rem;transition:opacity 0.4s}
+.gate.out{opacity:0;pointer-events:none}
+.gate-card{background:var(--white);border-radius:14px;padding:2.75rem 2.25rem;width:100%;max-width:400px;text-align:center}
 .gate-accent{width:3px;height:52px;background:var(--green-muted);border-radius:2px;margin:0 auto 1.75rem}
-.gate-card h1{font-family:var(--serif);font-size:1.5rem;font-weight:400;color:var(--ink);margin-bottom:4px}
-.gate-card .sub{font-size:0.75rem;color:var(--ink-muted);margin-bottom:2rem;letter-spacing:0.04em;text-transform:uppercase}
-.gate-input-wrap{position:relative;margin-bottom:8px}
-.gate-input-wrap input{
-  width:100%;font-family:var(--sans);font-size:0.9rem;color:var(--ink);
-  background:var(--cream);border:1px solid var(--border);border-radius:7px;
-  padding:0.7rem 2.75rem 0.7rem 1rem;outline:none;
-  transition:border-color 0.15s,box-shadow 0.15s;
-  text-align:center;letter-spacing:0.08em;
-}
-.gate-input-wrap input:focus{border-color:var(--green-mid);box-shadow:0 0 0 3px rgba(45,106,79,0.12)}
-.gate-input-wrap input.shake{animation:shake 0.4s ease}
-.gate-eye{
-  position:absolute;right:11px;top:50%;transform:translateY(-50%);
-  background:none;border:none;cursor:pointer;color:var(--ink-muted);padding:2px;line-height:1;
-}
-.gate-error{font-size:0.75rem;color:var(--red);min-height:18px;margin-bottom:10px;transition:opacity 0.2s}
-.gate-btn{
-  width:100%;font-family:var(--sans);font-size:0.875rem;font-weight:500;
-  color:var(--white);background:var(--green);border:none;border-radius:7px;
-  padding:0.7rem;cursor:pointer;transition:background 0.15s;
-}
+.gate-card h1{font-family:var(--serif);font-size:1.625rem;font-weight:400;color:var(--ink);margin-bottom:4px}
+.gate-sub{font-size:0.72rem;color:var(--ink-muted);margin-bottom:2.25rem;letter-spacing:0.05em;text-transform:uppercase}
+.gate-field{margin-bottom:10px;position:relative}
+.gate-field input{width:100%;font-family:var(--sans);font-size:0.875rem;color:var(--ink);background:var(--cream);border:1px solid var(--border);border-radius:7px;padding:0.7rem 1rem;outline:none;transition:border-color 0.15s,box-shadow 0.15s}
+.gate-field input:focus{border-color:var(--green-mid);box-shadow:0 0 0 3px rgba(45,106,79,0.12)}
+.gate-field input.err{border-color:var(--red)}
+.gate-field input.shake{animation:shake 0.4s}
+.gate-eye{position:absolute;right:11px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--ink-muted);padding:2px;line-height:1}
+.gate-error{font-size:0.75rem;color:var(--red);min-height:18px;margin-bottom:8px}
+.gate-btn{width:100%;font-family:var(--sans);font-size:0.875rem;font-weight:500;color:var(--white);background:var(--green);border:none;border-radius:7px;padding:0.75rem;cursor:pointer;transition:background 0.15s}
 .gate-btn:hover{background:var(--green-mid)}
-.gate-hint{font-size:0.7rem;color:var(--ink-muted);margin-top:14px;line-height:1.5}
+.gate-hint{font-size:0.7rem;color:var(--ink-muted);margin-top:14px;line-height:1.6}
 @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
 
-/* ── HOME (choose view) ── */
-.home{
-  display:none;flex-direction:column;
-  min-height:100vh;
-}
-.home.visible{display:flex}
-.home-header{
-  background:var(--green);padding:1.375rem 2rem;
-  display:flex;align-items:center;justify-content:space-between;gap:1rem;
-}
-.home-header-left{display:flex;align-items:center;gap:12px}
-.home-header-accent{width:3px;height:40px;background:var(--green-muted);border-radius:2px;flex-shrink:0}
-.home-header h1{font-family:var(--serif);font-size:1.25rem;color:var(--white);font-weight:400}
-.home-header p{font-size:0.7rem;color:var(--green-muted);margin-top:2px;letter-spacing:0.05em;text-transform:uppercase}
+/* ── APP ── */
+.app{display:none;flex-direction:column;height:100vh}
+.app.on{display:flex}
 
-/* ── LANDING ── */
-.landing{
-  flex:1;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;
-  padding:3rem 1.5rem;
-}
-.landing-title{
-  font-family:var(--serif);font-size:2rem;font-weight:400;
-  color:var(--ink);text-align:center;margin-bottom:6px;
-}
-.landing-sub{font-size:0.875rem;color:var(--ink-muted);text-align:center;margin-bottom:3rem}
-.landing-cards{display:grid;grid-template-columns:1fr 1fr;gap:1rem;width:100%;max-width:540px}
-.lcard{
-  background:var(--white);border:1px solid var(--border);border-radius:12px;
-  padding:2rem 1.5rem;cursor:pointer;
-  transition:border-color 0.15s,box-shadow 0.15s,transform 0.15s;
-  text-align:center;
-}
-.lcard:hover{
-  border-color:var(--green-mid);
-  box-shadow:0 4px 20px rgba(27,67,50,0.1);
-  transform:translateY(-2px);
-}
-.lcard-icon{
-  width:48px;height:48px;border-radius:10px;
-  background:var(--green-light);display:flex;align-items:center;justify-content:center;
-  margin:0 auto 1rem;
-}
-.lcard-icon svg{width:22px;height:22px;stroke:var(--green-mid)}
-.lcard h2{font-size:0.9375rem;font-weight:500;color:var(--ink);margin-bottom:6px}
-.lcard p{font-size:0.8rem;color:var(--ink-muted);line-height:1.5}
-
-/* ── APP SHELL (after card selected) ── */
-.app-shell{display:none;flex:1;flex-direction:column}
-.app-shell.visible{display:flex}
+/* ── SHELL HEADER ── */
+.shell-header{background:var(--green);padding:1rem 1.75rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-shrink:0}
+.sh-left{display:flex;align-items:center;gap:12px}
+.sh-accent{width:3px;height:38px;background:var(--green-muted);border-radius:2px;flex-shrink:0}
+.sh-title{font-family:var(--serif);font-size:1.25rem;color:var(--white);font-weight:400;line-height:1.2}
+.sh-sub{font-size:0.7rem;color:var(--green-muted);letter-spacing:0.05em;text-transform:uppercase;margin-top:1px}
+.sh-right{display:flex;align-items:center;gap:10px}
+.sh-user{font-size:0.75rem;color:var(--green-muted);padding:4px 10px;background:rgba(255,255,255,0.08);border-radius:20px}
+.sh-logout{font-size:0.75rem;color:var(--green-muted);background:none;border:1px solid rgba(149,213,178,0.25);border-radius:5px;padding:5px 11px;cursor:pointer;transition:all 0.15s;font-family:var(--sans)}
+.sh-logout:hover{border-color:var(--green-muted);color:var(--white)}
 
 /* ── TAB BAR ── */
-.tab-bar{
-  background:var(--white);border-bottom:1px solid var(--border);
-  display:flex;align-items:center;padding:0 1.5rem;gap:0;flex-shrink:0;
-}
-.tab{
-  font-family:var(--sans);font-size:0.8125rem;font-weight:400;
-  color:var(--ink-muted);padding:0.75rem 1.125rem;
-  border-bottom:2px solid transparent;cursor:pointer;
-  transition:color 0.15s,border-color 0.15s;
-  background:none;border-top:none;border-left:none;border-right:none;
-  display:flex;align-items:center;gap:7px;white-space:nowrap;
-}
+.tab-bar{background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 1.5rem;flex-shrink:0}
+.tab{font-family:var(--sans);font-size:0.8125rem;color:var(--ink-muted);padding:0.75rem 1.125rem;border:none;border-bottom:2px solid transparent;background:none;cursor:pointer;display:flex;align-items:center;gap:7px;transition:color 0.15s,border-color 0.15s;white-space:nowrap}
+.tab svg{width:14px;height:14px}
 .tab:hover{color:var(--ink)}
 .tab.active{color:var(--green);border-bottom-color:var(--green-mid);font-weight:500}
-.tab svg{width:14px;height:14px;flex-shrink:0}
-.tab-spacer{flex:1}
-.tab-logout{
-  font-size:0.75rem;color:var(--ink-muted);background:none;border:none;
-  cursor:pointer;padding:6px 10px;border-radius:5px;transition:all 0.15s;
-}
-.tab-logout:hover{background:var(--cream);color:var(--ink)}
 
-/* ── IFRAME VIEWS ── */
-.view-wrap{flex:1;position:relative;overflow:hidden}
-.view-frame{
-  position:absolute;inset:0;width:100%;height:100%;
-  border:none;opacity:0;pointer-events:none;
-  transition:opacity 0.2s ease;
-}
-.view-frame.active{opacity:1;pointer-events:all}
+/* ── LANDING ── */
+.landing{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3rem 1.5rem}
+.landing h2{font-family:var(--serif);font-size:1.875rem;font-weight:400;color:var(--ink);margin-bottom:6px;text-align:center}
+.landing-sub{font-size:0.875rem;color:var(--ink-muted);margin-bottom:3rem;text-align:center}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:1rem;max-width:560px;width:100%}
+.lcard{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:2rem 1.5rem;cursor:pointer;transition:border-color 0.15s,box-shadow 0.15s,transform 0.15s;text-align:center}
+.lcard:hover{border-color:var(--green-mid);box-shadow:0 6px 24px rgba(27,67,50,0.1);transform:translateY(-2px)}
+.lcard-icon{width:48px;height:48px;border-radius:10px;background:var(--green-light);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem}
+.lcard-icon svg{width:22px;height:22px;stroke:var(--green-mid);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.lcard h3{font-size:1rem;font-weight:500;color:var(--ink);margin-bottom:6px}
+.lcard p{font-size:0.8rem;color:var(--ink-muted);line-height:1.6}
 
-/* ── LOADING OVERLAY ── */
-.frame-loader{
-  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-  background:var(--cream);z-index:10;transition:opacity 0.3s;
-}
-.frame-loader.hidden{opacity:0;pointer-events:none}
-.spinner{width:22px;height:22px;border:2px solid var(--border);border-top-color:var(--green-mid);border-radius:50%;animation:spin 0.7s linear infinite}
+/* ── VIEWS (iframes) ── */
+.views{flex:1;position:relative;overflow:hidden}
+.view-frame{position:absolute;inset:0;width:100%;height:100%;border:none;opacity:0;pointer-events:none;transition:opacity 0.2s}
+.view-frame.on{opacity:1;pointer-events:all}
+.frame-loader{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:var(--cream);z-index:5;transition:opacity 0.3s}
+.frame-loader.gone{opacity:0;pointer-events:none}
+.spinner{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--green-mid);border-radius:50%;animation:spin 0.7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-@media(max-width:540px){
-  .landing-cards{grid-template-columns:1fr}
-  .landing-title{font-size:1.5rem}
-  .home-header{padding:1rem 1.25rem}
+/* ── SHELL (after card pick) ── */
+.shell{display:none;flex:1;flex-direction:column;overflow:hidden}
+.shell.on{display:flex}
+
+@media(max-width:520px){
+  .cards{grid-template-columns:1fr}
+  .landing h2{font-size:1.375rem}
+  .shell-header{padding:0.875rem 1rem}
 }
 </style>
 </head>
 <body>
 
-<!-- ── GATE ── -->
+<!-- GATE -->
 <div class="gate" id="gate">
   <div class="gate-card">
     <div class="gate-accent"></div>
-    <h1>Platform Operations</h1>
-    <p class="sub">Sprout Solutions · Service Portal</p>
-    <div class="gate-input-wrap">
-      <input type="password" id="gateInput" placeholder="Enter passphrase"
-             onkeydown="if(event.key==='Enter')checkPass()"/>
-      <button class="gate-eye" onclick="toggleEye()" title="Show/hide">
+    <h1>Service Requests</h1>
+    <p class="gate-sub">Platform Operations · Sprout Solutions</p>
+    <div class="gate-field">
+      <input type="email" id="gEmail" placeholder="Email address" autocomplete="email"
+             onkeydown="if(event.key==='Enter')document.getElementById('gPass').focus()"/>
+    </div>
+    <div class="gate-field">
+      <input type="password" id="gPass" placeholder="Passphrase"
+             onkeydown="if(event.key==='Enter')login()"/>
+      <button class="gate-eye" onclick="togglePw()" title="Show/hide">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
         </svg>
       </button>
     </div>
-    <div class="gate-error" id="gateError"></div>
-    <button class="gate-btn" onclick="checkPass()">Continue</button>
+    <div class="gate-error" id="gErr"></div>
+    <button class="gate-btn" onclick="login()">Continue</button>
     <p class="gate-hint">Restricted access. Contact Platform Operations<br>if you need credentials.</p>
   </div>
 </div>
 
-<!-- ── HOME ── -->
-<div class="home" id="home">
-
-  <div class="home-header">
-    <div class="home-header-left">
-      <div class="home-header-accent"></div>
+<!-- APP -->
+<div class="app" id="app">
+  <div class="shell-header">
+    <div class="sh-left">
+      <div class="sh-accent"></div>
       <div>
-        <h1>Platform Operations</h1>
-        <p>Sprout Solutions · Service Portal</p>
+        <div class="sh-title">Service Requests</div>
+        <div class="sh-sub">Platform Operations · Sprout Solutions</div>
       </div>
+    </div>
+    <div class="sh-right">
+      <span class="sh-user" id="shUser"></span>
+      <button class="sh-logout" onclick="logout()">Sign out</button>
     </div>
   </div>
 
-  <!-- LANDING (choose view) -->
+  <!-- LANDING -->
   <div class="landing" id="landing">
-    <h2 class="landing-title">What would you like to do?</h2>
-    <p class="landing-sub">Select an option below to get started.</p>
-    <div class="landing-cards">
+    <h2>What would you like to do?</h2>
+    <p class="landing-sub">Select an option to get started.</p>
+    <div class="cards" id="landingCards">
       <div class="lcard" onclick="openView('form')">
         <div class="lcard-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M11 5H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-5"/><path d="M17.5 2.5a2.121 2.121 0 0 1 3 3L12 14l-4 1 1-4 7.5-7.5z"/>
-          </svg>
+          <svg viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-5"/><path d="M17.5 2.5a2.121 2.121 0 0 1 3 3L12 14l-4 1 1-4 7.5-7.5z"/></svg>
         </div>
-        <h2>Submit a Request</h2>
+        <h3>Submit a Request</h3>
         <p>Log a new paid service request for review and quotation.</p>
       </div>
-      <div class="lcard" onclick="openView('tracker')">
+      <div class="lcard" id="trackerCard" onclick="openView('tracker')">
         <div class="lcard-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 9h6M9 12h6M9 15h4"/>
-          </svg>
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 9h6M9 12h6M9 15h4"/></svg>
         </div>
-        <h2>View Tracker</h2>
-        <p>Monitor the status of all service requests and activity tickets.</p>
+        <h3>View Tracker</h3>
+        <p>Monitor the status of service requests and activity tickets.</p>
       </div>
     </div>
   </div>
 
-  <!-- APP SHELL (tabs + iframes) -->
-  <div class="app-shell" id="appShell">
-    <div class="tab-bar">
+  <!-- SHELL (tabs + iframes) -->
+  <div class="shell" id="shell">
+    <div class="tab-bar" id="tabBar">
       <button class="tab" id="tab-form" onclick="switchTab('form')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M11 5H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-5"/><path d="M17.5 2.5a2.121 2.121 0 0 1 3 3L12 14l-4 1 1-4 7.5-7.5z"/>
-        </svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-5"/><path d="M17.5 2.5a2.121 2.121 0 0 1 3 3L12 14l-4 1 1-4 7.5-7.5z"/></svg>
         Submit a Request
       </button>
       <button class="tab" id="tab-tracker" onclick="switchTab('tracker')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 9h6M9 12h6M9 15h4"/>
-        </svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 9h6M9 12h6M9 15h4"/></svg>
         Tracker
       </button>
-      <div class="tab-spacer"></div>
-      <button class="tab-logout" onclick="logout()">Sign out</button>
     </div>
-
-    <div class="view-wrap">
-      <div class="frame-loader" id="loader-form">
-        <span class="spinner"></span>
-      </div>
-      <div class="frame-loader" id="loader-tracker">
-        <span class="spinner"></span>
-      </div>
+    <div class="views">
+      <div class="frame-loader" id="loader-form"><span class="spinner"></span></div>
+      <div class="frame-loader" id="loader-tracker"><span class="spinner"></span></div>
       <iframe id="frame-form"    class="view-frame" title="Submit a Request"></iframe>
       <iframe id="frame-tracker" class="view-frame" title="Service Request Tracker"></iframe>
     </div>
   </div>
-
-</div><!-- /home -->
+</div>
 
 <script>
-const PASSPHRASE  = 'sprout-2026';
-const SESSION_KEY = 'platops_auth';
-let framesLoaded  = { form: false, tracker: false };
-let activeTab     = null;
+const PASSPHRASE  = 'sprout2026';
+const SESSION_KEY = 'platops_v2';
+let loaded = { form: false, tracker: false };
+let userEmail = '';
+let isInternal = false;
 
-// ── GATE ──────────────────────────────────────
-function checkPass() {
-  const input = document.getElementById('gateInput');
-  const err   = document.getElementById('gateError');
-  if (input.value === PASSPHRASE) {
-    sessionStorage.setItem(SESSION_KEY, '1');
-    const gate = document.getElementById('gate');
-    gate.classList.add('hiding');
-    setTimeout(() => {
-      gate.style.display = 'none';
-      showHome();
-    }, 400);
-  } else {
-    err.textContent = 'Incorrect passphrase. Please try again.';
-    input.classList.add('shake');
-    input.value = '';
-    setTimeout(() => input.classList.remove('shake'), 400);
-    setTimeout(() => err.textContent = '', 3000);
-    input.focus();
+function login() {
+  const emailEl = document.getElementById('gEmail');
+  const passEl  = document.getElementById('gPass');
+  const errEl   = document.getElementById('gErr');
+  const email   = emailEl.value.trim().toLowerCase();
+  const pass    = passEl.value;
+
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    errEl.textContent = 'Please enter a valid email address.';
+    emailEl.classList.add('err','shake');
+    setTimeout(() => emailEl.classList.remove('shake'), 400);
+    return;
+  }
+  if (pass !== PASSPHRASE) {
+    errEl.textContent = 'Incorrect passphrase. Please try again.';
+    passEl.classList.add('err','shake');
+    passEl.value = '';
+    setTimeout(() => passEl.classList.remove('shake'), 400);
+    setTimeout(() => errEl.textContent = '', 3000);
+    return;
+  }
+
+  sessionStorage.setItem(SESSION_KEY, JSON.stringify({ email, ts: Date.now() }));
+  document.getElementById('gate').classList.add('out');
+  setTimeout(() => { document.getElementById('gate').style.display = 'none'; }, 400);
+  initApp(email);
+}
+
+function initApp(email) {
+  userEmail  = email;
+  isInternal = email.endsWith('@sprout.ph');
+  document.getElementById('shUser').textContent = email;
+  document.getElementById('app').classList.add('on');
+
+  // Hide tracker card for non-internal with no prior requests
+  // (tracker is always shown; filtering happens inside dashboard)
+  if (!isInternal) {
+    document.getElementById('trackerCard').querySelector('p').textContent =
+      'View your submitted service requests and their current status.';
   }
 }
 
-function toggleEye() {
-  const input = document.getElementById('gateInput');
-  input.type  = input.type === 'password' ? 'text' : 'password';
+function togglePw() {
+  const el = document.getElementById('gPass');
+  el.type  = el.type === 'password' ? 'text' : 'password';
+}
+
+function openView(view) {
+  document.getElementById('landing').style.display = 'none';
+  document.getElementById('shell').classList.add('on');
+  switchTab(view);
+}
+
+function switchTab(view) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + view).classList.add('active');
+  document.querySelectorAll('.view-frame').forEach(f => f.classList.remove('on'));
+  document.getElementById('frame-' + view).classList.add('on');
+
+  if (!loaded[view]) {
+    const src   = view === 'form' ? 'form.html' : 'dashboard.html?email=' + encodeURIComponent(userEmail) + '&internal=' + (isInternal ? '1' : '0');
+    const frame = document.getElementById('frame-' + view);
+    const ldr   = document.getElementById('loader-' + view);
+    frame.src   = src;
+    frame.onload = () => { ldr.classList.add('gone'); loaded[view] = true; };
+  }
 }
 
 function logout() {
@@ -285,45 +253,14 @@ function logout() {
   location.reload();
 }
 
-// ── HOME ──────────────────────────────────────
-function showHome() {
-  document.getElementById('home').classList.add('visible');
-}
-
-function openView(view) {
-  document.getElementById('landing').style.display    = 'none';
-  document.getElementById('appShell').classList.add('visible');
-  switchTab(view);
-}
-
-function switchTab(view) {
-  // Update tab styles
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('tab-' + view).classList.add('active');
-
-  // Update frames
-  document.querySelectorAll('.view-frame').forEach(f => f.classList.remove('active'));
-  document.getElementById('frame-' + view).classList.add('active');
-
-  // Lazy-load iframe src on first switch
-  if (!framesLoaded[view]) {
-    const src = view === 'form' ? 'form.html' : 'dashboard.html';
-    const frame = document.getElementById('frame-' + view);
-    const loader = document.getElementById('loader-' + view);
-    frame.src = src;
-    frame.onload = () => {
-      loader.classList.add('hidden');
-      framesLoaded[view] = true;
-    };
-  }
-
-  activeTab = view;
-}
-
-// ── INIT ──────────────────────────────────────
-if (sessionStorage.getItem(SESSION_KEY) === '1') {
-  document.getElementById('gate').style.display = 'none';
-  showHome();
+// Auto-login if session exists
+const saved = sessionStorage.getItem(SESSION_KEY);
+if (saved) {
+  try {
+    const { email } = JSON.parse(saved);
+    document.getElementById('gate').style.display = 'none';
+    initApp(email);
+  } catch(e) { sessionStorage.removeItem(SESSION_KEY); }
 }
 </script>
 </body>
