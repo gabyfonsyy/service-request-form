@@ -254,7 +254,6 @@ function initApp(email, role) {
   document.getElementById('shUser').textContent = email;
   document.getElementById('app').classList.add('on');
 
-  // Show analytics tab only for admin
   if (userRole === 'admin') {
     document.getElementById('tab-analytics').style.display = 'flex';
   }
@@ -262,6 +261,26 @@ function initApp(email, role) {
   if (!isInternal) {
     document.getElementById('trackerCard').querySelector('p').textContent =
       'View your submitted service requests and their current status.';
+  }
+
+  // Pre-warm form iframe immediately so it's ready when user clicks
+  const formFrame = document.getElementById('frame-form');
+  if (!loaded.form) {
+    formFrame.src = 'form.html';
+    formFrame.onload = () => {
+      document.getElementById('loader-form').classList.add('gone');
+      loaded.form = true;
+    };
+  }
+
+  // Pre-fetch tracker data into sessionStorage so dashboard loads fast
+  const cacheKey = 'tracker_cache_' + email;
+  const existing = sessionStorage.getItem(cacheKey);
+  if (!existing) {
+    fetch(GAS_URL + '?action=list&email=' + encodeURIComponent(email))
+      .then(r => r.json())
+      .then(d => sessionStorage.setItem(cacheKey, JSON.stringify({ data: d, ts: Date.now() })))
+      .catch(() => {});
   }
 }
 
