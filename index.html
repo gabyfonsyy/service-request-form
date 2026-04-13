@@ -263,17 +263,20 @@ function initApp(email, role) {
       'View your submitted service requests and their current status.';
   }
 
-  // Pre-warm form iframe immediately so it's ready when user clicks
+  // Pre-load form iframe immediately in background (hidden)
+  // so it's ready by the time user clicks the card
   const formFrame = document.getElementById('frame-form');
-  if (!loaded.form) {
-    formFrame.src = 'form.html';
-    formFrame.onload = () => {
-      document.getElementById('loader-form').classList.add('gone');
-      loaded.form = true;
-    };
-  }
+  const formLoader = document.getElementById('loader-form');
+  formFrame.src = 'form.html';
+  formFrame.onload = () => {
+    loaded.form = true;
+    // Only hide loader if user is already on the form tab
+    if (formFrame.classList.contains('on')) {
+      formLoader.classList.add('gone');
+    }
+  };
 
-  // Pre-fetch tracker data into sessionStorage so dashboard loads fast
+  // Pre-fetch tracker data into sessionStorage
   const cacheKey = 'tracker_cache_' + email;
   const existing = sessionStorage.getItem(cacheKey);
   if (!existing) {
@@ -301,13 +304,20 @@ function switchTab(view) {
   document.querySelectorAll('.view-frame').forEach(f => f.classList.remove('on'));
   document.getElementById('frame-' + view).classList.add('on');
 
+  const ldr = document.getElementById('loader-' + view);
+
+  // Form is pre-loaded — hide spinner immediately if already done
+  if (view === 'form' && loaded.form) {
+    ldr.classList.add('gone');
+    return;
+  }
+
   if (!loaded[view]) {
     let src;
     if (view === 'form') src = 'form.html';
     else if (view === 'tracker') src = 'dashboard.html?email=' + encodeURIComponent(userEmail) + '&internal=' + (isInternal ? '1' : '0');
     else if (view === 'analytics') src = 'analytics.html?email=' + encodeURIComponent(userEmail);
     const frame = document.getElementById('frame-' + view);
-    const ldr   = document.getElementById('loader-' + view);
     frame.src   = src;
     frame.onload = () => { ldr.classList.add('gone'); loaded[view] = true; };
   }
