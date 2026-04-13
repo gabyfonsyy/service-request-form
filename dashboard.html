@@ -135,24 +135,7 @@ header{background:var(--green);padding:1.25rem 2rem;display:flex;align-items:cen
 .spinner{width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--green-mid);border-radius:50%;animation:spin 0.7s linear infinite;display:inline-block}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* ── PASSWORD GATE ── */
-.gate{position:fixed;inset:0;background:var(--green);display:flex;align-items:center;justify-content:center;z-index:9999;padding:1.5rem}
-.gate-card{background:var(--white);border-radius:12px;padding:2.5rem 2rem;width:100%;max-width:360px;text-align:center}
-.gate-logo{width:3px;height:48px;background:var(--green-muted);border-radius:2px;margin:0 auto 1.5rem}
-.gate-card h2{font-family:var(--serif);font-size:1.375rem;font-weight:400;color:var(--ink);margin-bottom:4px}
-.gate-card p{font-size:0.8rem;color:var(--ink-muted);margin-bottom:1.5rem}
-.gate-input-wrap{position:relative;margin-bottom:10px}
-.gate-input-wrap input{width:100%;font-family:var(--sans);font-size:0.875rem;color:var(--ink);background:var(--cream);border:1px solid var(--border);border-radius:6px;padding:0.625rem 2.5rem 0.625rem 0.75rem;outline:none;transition:border-color 0.15s;text-align:center;letter-spacing:0.1em}
-.gate-input-wrap input:focus{border-color:var(--green-mid);box-shadow:0 0 0 3px rgba(45,106,79,0.12)}
-.gate-input-wrap input.shake{animation:shake 0.4s ease}
-.gate-toggle{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--ink-muted);padding:2px;font-size:14px;line-height:1}
-.gate-error{font-size:0.75rem;color:#C0392B;min-height:18px;margin-bottom:8px}
-.gate-submit{width:100%;font-family:var(--sans);font-size:0.875rem;font-weight:500;color:var(--white);background:var(--green);border:none;border-radius:6px;padding:0.625rem;cursor:pointer;transition:background 0.15s}
-.gate-submit:hover{background:var(--green-mid)}
-.gate-hint{font-size:0.7rem;color:var(--ink-muted);margin-top:12px}
-@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
-.app-wrap{display:contents}
-.app-wrap.locked{display:none}
+
 
 @media(max-width:640px){
   .app{flex-direction:column;height:auto}
@@ -164,25 +147,7 @@ header{background:var(--green);padding:1.25rem 2rem;display:flex;align-items:cen
 </head>
 <body>
 
-<!-- PASSWORD GATE -->
-<div class="gate" id="gate">
-  <div class="gate-card">
-    <div class="gate-logo"></div>
-    <h2>Service Request Tracker</h2>
-    <p>Platform Operations · Sprout Solutions</p>
-    <div class="gate-input-wrap">
-      <input type="password" id="gateInput" placeholder="Enter passphrase" onkeydown="if(event.key==='Enter')checkPass()"/>
-      <button class="gate-toggle" onclick="toggleGateVis()" id="gateToggle" title="Show/hide">
-        <svg id="eyeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-      </button>
-    </div>
-    <div class="gate-error" id="gateError"></div>
-    <button class="gate-submit" onclick="checkPass()">Access dashboard</button>
-    <p class="gate-hint">Contact Platform Operations if you need access.</p>
-  </div>
-</div>
 
-<div class="app-wrap locked" id="appWrap">
 <header>
   <div class="header-left">
     <div class="header-accent"></div>
@@ -475,43 +440,7 @@ function esc(str) {
   return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-// ── PASSWORD GATE ─────────────────────────────
-// Change this to your chosen passphrase
-const PASSPHRASE = 'sprout-platops-2026';
-const SESSION_KEY = 'srt_auth';
-
-function checkPass() {
-  const input = document.getElementById('gateInput');
-  const err = document.getElementById('gateError');
-  if (input.value === PASSPHRASE) {
-    sessionStorage.setItem(SESSION_KEY, '1');
-    document.getElementById('gate').style.display = 'none';
-    document.getElementById('appWrap').style.display = 'contents';
-    loadList();
-  } else {
-    err.textContent = 'Incorrect passphrase. Please try again.';
-    input.classList.add('shake');
-    input.value = '';
-    setTimeout(() => input.classList.remove('shake'), 400);
-    setTimeout(() => { err.textContent = ''; }, 3000);
-    input.focus();
-  }
-}
-
-function toggleGateVis() {
-  const input = document.getElementById('gateInput');
-  input.type = input.type === 'password' ? 'text' : 'password';
-}
-
-// Check if already authenticated this session
-if (sessionStorage.getItem(SESSION_KEY) === '1') {
-  document.getElementById('gate').style.display = 'none';
-  document.getElementById('appWrap').style.display = 'contents';
-  loadList();
-}
-
+loadList();
 </script>
-</div><!-- /app-wrap -->
-
 </body>
 </html>
