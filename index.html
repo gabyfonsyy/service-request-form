@@ -28,7 +28,10 @@ html,body{height:100%;font-family:var(--sans);background:var(--cream);color:var(
 .gate-field input.shake{animation:shake 0.4s}
 .gate-eye{position:absolute;right:11px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--ink-muted);padding:2px;line-height:1}
 .gate-error{font-size:0.75rem;color:var(--red);min-height:18px;margin-bottom:8px}
-.gate-btn{width:100%;font-family:var(--sans);font-size:0.875rem;font-weight:500;color:var(--white);background:var(--green);border:none;border-radius:7px;padding:0.75rem;cursor:pointer;transition:background 0.15s}
+.gate-btn{width:100%;font-family:var(--sans);font-size:0.875rem;font-weight:500;color:var(--white);background:var(--green);border:none;border-radius:7px;padding:0.75rem;cursor:pointer;transition:background 0.15s;display:flex;align-items:center;justify-content:center;gap:8px}
+.gate-spinner{width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:var(--white);border-radius:50%;animation:spin 0.7s linear infinite;display:none}
+.gate-btn.loading .gate-spinner{display:block}
+.gate-btn.loading{opacity:0.8;pointer-events:none}
 .gate-btn:hover{background:var(--green-mid)}
 .gate-hint{font-size:0.7rem;color:var(--ink-muted);margin-top:14px;line-height:1.6}
 @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
@@ -109,7 +112,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--cream);color:var(
       </button>
     </div>
     <div class="gate-error" id="gErr"></div>
-    <button class="gate-btn" onclick="login()">Continue</button>
+    <button class="gate-btn" id="gBtn" onclick="login()"><span class="gate-spinner" id="gSpinner"></span><span id="gBtnText">Continue</span></button>
     <p class="gate-hint">Restricted access. Contact Platform Operations<br>if you need credentials.</p>
   </div>
 </div>
@@ -163,27 +166,36 @@ html,body{height:100%;font-family:var(--sans);background:var(--cream);color:var(
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 9h6M9 12h6M9 15h4"/></svg>
         Tracker
       </button>
+      <button class="tab" id="tab-analytics" onclick="switchTab('analytics')" style="display:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Analytics
+      </button>
     </div>
     <div class="views">
       <div class="frame-loader" id="loader-form"><span class="spinner"></span></div>
       <div class="frame-loader" id="loader-tracker"><span class="spinner"></span></div>
+      <div class="frame-loader" id="loader-analytics"><span class="spinner"></span></div>
       <iframe id="frame-form"    class="view-frame" title="Submit a Request"></iframe>
       <iframe id="frame-tracker" class="view-frame" title="Service Request Tracker"></iframe>
+      <iframe id="frame-analytics" class="view-frame" title="Analytics"></iframe>
     </div>
   </div>
 </div>
 
 <script>
 const PASSPHRASE  = 'Sprout2026!!';
+const GAS_URL     = 'https://script.google.com/macros/s/AKfycbxpNYlKZmKBkykfvWU-cbPbJyxHxyrcRY-Vx8_wKYsESJQSprAohRKqwrtUZBTg-0el3g/exec';
 const SESSION_KEY = 'platops_v2';
-let loaded = { form: false, tracker: false };
+let loaded = { form: false, tracker: false, analytics: false };
 let userEmail = '';
 let isInternal = false;
+let userRole = 'client'; // client | internal | admin
 
-function login() {
+async function login() {
   const emailEl = document.getElementById('gEmail');
   const passEl  = document.getElementById('gPass');
   const errEl   = document.getElementById('gErr');
+  const btn     = document.getElementById('gBtn');
   const email   = emailEl.value.trim().toLowerCase();
   const pass    = passEl.value;
 
@@ -202,20 +214,51 @@ function login() {
     return;
   }
 
-  sessionStorage.setItem(SESSION_KEY, JSON.stringify({ email, ts: Date.now() }));
+  // Show spinner, check access
+  btn.classList.add('loading');
+  errEl.textContent = '';
+
+  let role = 'client';
+  try {
+    const cached = sessionStorage.getItem('role_' + email);
+    if (cached) {
+      role = cached;
+    } else {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => {
+        controller.abort();
+        // Cache fallback role based on domain
+        role = email.endsWith('@sprout.ph') ? 'internal' : 'client';
+      }, 9000);
+      const res  = await fetch(GAS_URL + '?action=checkAccess&email=' + encodeURIComponent(email), { signal: controller.signal });
+      clearTimeout(timeout);
+      const data = await res.json();
+      role = data.role || 'client';
+      sessionStorage.setItem('role_' + email, role);
+    }
+  } catch(e) {
+    role = email.endsWith('@sprout.ph') ? 'internal' : 'client';
+  }
+
+  btn.classList.remove('loading');
+  sessionStorage.setItem(SESSION_KEY, JSON.stringify({ email, role, ts: Date.now() }));
   document.getElementById('gate').classList.add('out');
   setTimeout(() => { document.getElementById('gate').style.display = 'none'; }, 400);
-  initApp(email);
+  initApp(email, role);
 }
 
-function initApp(email) {
+function initApp(email, role) {
   userEmail  = email;
-  isInternal = email.endsWith('@sprout.ph');
+  userRole   = role || 'client';
+  isInternal = userRole === 'internal' || userRole === 'admin';
   document.getElementById('shUser').textContent = email;
   document.getElementById('app').classList.add('on');
 
-  // Hide tracker card for non-internal with no prior requests
-  // (tracker is always shown; filtering happens inside dashboard)
+  // Show analytics tab only for admin
+  if (userRole === 'admin') {
+    document.getElementById('tab-analytics').style.display = 'flex';
+  }
+
   if (!isInternal) {
     document.getElementById('trackerCard').querySelector('p').textContent =
       'View your submitted service requests and their current status.';
@@ -240,7 +283,10 @@ function switchTab(view) {
   document.getElementById('frame-' + view).classList.add('on');
 
   if (!loaded[view]) {
-    const src   = view === 'form' ? 'form.html' : 'dashboard.html?email=' + encodeURIComponent(userEmail) + '&internal=' + (isInternal ? '1' : '0');
+    let src;
+    if (view === 'form') src = 'form.html';
+    else if (view === 'tracker') src = 'dashboard.html?email=' + encodeURIComponent(userEmail) + '&internal=' + (isInternal ? '1' : '0');
+    else if (view === 'analytics') src = 'analytics.html?email=' + encodeURIComponent(userEmail);
     const frame = document.getElementById('frame-' + view);
     const ldr   = document.getElementById('loader-' + view);
     frame.src   = src;
@@ -257,9 +303,9 @@ function logout() {
 const saved = sessionStorage.getItem(SESSION_KEY);
 if (saved) {
   try {
-    const { email } = JSON.parse(saved);
+    const { email, role } = JSON.parse(saved);
     document.getElementById('gate').style.display = 'none';
-    initApp(email);
+    initApp(email, role);
   } catch(e) { sessionStorage.removeItem(SESSION_KEY); }
 }
 </script>
