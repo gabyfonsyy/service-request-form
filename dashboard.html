@@ -217,9 +217,10 @@ body{font-family:var(--sans);background:var(--cream);color:var(--ink);height:100
 <script>
 const GAS_URL      = 'https://script.google.com/macros/s/AKfycbxpNYlKZmKBkykfvWU-cbPbJyxHxyrcRY-Vx8_wKYsESJQSprAohRKqwrtUZBTg-0el3g/exec';
 const LIFECYCLE    = ['For Quotation','Ongoing Review','Quotation Provided','For Execution / Schedule','Ongoing Execution / Activity','Request Done'];
-const params       = new URLSearchParams(location.search);
-const USER_EMAIL   = params.get('email') || '';
-const IS_INTERNAL  = params.get('internal') === '1';
+var params      = new URLSearchParams(location.search);
+var USER_EMAIL  = params.get('email') || '';
+var IS_INTERNAL = params.get('internal') === '1';
+console.log('Dashboard init — email:', USER_EMAIL, '| internal:', IS_INTERNAL);
 
 let all      = [];
 let activeF  = 'all';
