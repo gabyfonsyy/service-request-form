@@ -1083,7 +1083,7 @@ async function load_analytics(from, to) {
     if (to)   url += '&to='   + to;
     const res  = await fetch(url);
     const data = await res.json();
-    render(data);
+    render_analytics(data);
     document.getElementById('loadingState').style.display = 'none';
     document.getElementById('content').style.display = 'block';
   } catch(e) {
@@ -1092,7 +1092,7 @@ async function load_analytics(from, to) {
   }
 }
 
-function render(data) {
+function render_analytics(data) {
   // Scorecards
   const lc = data.lifecycleCounts || {};
   document.getElementById('sc-total').textContent = data.total ?? '—';
