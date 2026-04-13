@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Service Request Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green:#1B4332;--green-mid:#2D6A4F;--green-light:#D8F3DC;--green-muted:#95D5B2;
+  --cream:#FAFAF7;--ink:#1A1A18;--ink-muted:#6B6B60;--border:#D4D4C8;--white:#FFFFFF;
+  --sidebar-w:300px;
+  --s-green:#1D9E75;--s-blue:#185FA5;--s-teal:#0F6E56;--s-red:#A32D2D;--s-gray:#5F5E5A;--s-amber:#854F0B;
+  --serif:'DM Serif Display',Georgia,serif;--sans:'DM Sans',system-ui,sans-serif;
+}
+body{font-family:var(--sans);background:var(--cream);color:var(--ink);min-height:100vh;display:flex;flex-direction:column}
+
+/* ── HEADER ── */
+header{background:var(--green);padding:1.25rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-shrink:0}
+.header-left{display:flex;align-items:center;gap:12px}
+.header-accent{width:3px;height:40px;background:var(--green-muted);border-radius:2px;flex-shrink:0}
+.header-text h1{font-family:var(--serif);font-size:1.375rem;color:var(--white);font-weight:400;line-height:1.2}
+.header-text p{font-size:0.75rem;color:var(--green-muted);margin-top:2px;font-weight:300;letter-spacing:0.04em;text-transform:uppercase}
+.header-right{display:flex;align-items:center;gap:10px}
+.btn-refresh{font-family:var(--sans);font-size:0.8rem;color:var(--green-muted);background:transparent;border:1px solid rgba(149,213,178,0.3);border-radius:6px;padding:6px 14px;cursor:pointer;transition:all 0.15s}
+.btn-refresh:hover{border-color:var(--green-muted);color:var(--white)}
+.btn-new{font-family:var(--sans);font-size:0.8rem;font-weight:500;color:var(--green);background:var(--green-muted);border:none;border-radius:6px;padding:6px 14px;cursor:pointer;transition:opacity 0.15s;text-decoration:none;display:inline-flex;align-items:center;gap:5px}
+.btn-new:hover{opacity:0.85}
+
+/* ── LAYOUT ── */
+.app{display:flex;flex:1;overflow:hidden;height:calc(100vh - 62px)}
+
+/* ── LEFT PANEL ── */
+.left-panel{width:var(--sidebar-w);flex-shrink:0;border-right:1px solid var(--border);background:var(--white);display:flex;flex-direction:column;overflow:hidden}
+.panel-search{padding:12px;border-bottom:1px solid var(--border)}
+.panel-search input{width:100%;font-family:var(--sans);font-size:0.8125rem;color:var(--ink);background:var(--cream);border:1px solid var(--border);border-radius:6px;padding:7px 10px;outline:none;transition:border-color 0.15s}
+.panel-search input:focus{border-color:var(--green-mid)}
+.panel-filters{padding:8px 12px;border-bottom:1px solid var(--border);display:flex;gap:6px;flex-wrap:wrap}
+.filter-pill{font-size:0.7rem;padding:3px 10px;border-radius:20px;border:1px solid var(--border);background:var(--white);color:var(--ink-muted);cursor:pointer;transition:all 0.15s;white-space:nowrap}
+.filter-pill:hover{border-color:var(--green-muted)}
+.filter-pill.active{background:var(--green-light);border-color:var(--green-mid);color:var(--green);font-weight:500}
+.panel-list{flex:1;overflow-y:auto}
+.panel-list::-webkit-scrollbar{width:4px}
+.panel-list::-webkit-scrollbar-track{background:transparent}
+.panel-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+/* ── REQUEST CARD (sidebar) ── */
+.req-card{padding:12px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.12s;position:relative}
+.req-card:hover{background:var(--cream)}
+.req-card.active{background:var(--green-light);border-left:3px solid var(--green-mid)}
+.req-card.active .rc-client{color:var(--green)}
+.rc-top{display:flex;align-items:flex-start;justify-content:space-between;gap:6px;margin-bottom:4px}
+.rc-client{font-size:0.8125rem;font-weight:500;color:var(--ink);line-height:1.3}
+.rc-service{font-size:0.7rem;color:var(--ink-muted);margin-bottom:4px}
+.rc-meta{display:flex;align-items:center;justify-content:space-between}
+.rc-date{font-size:0.6875rem;color:var(--ink-muted)}
+.rc-key{font-size:0.6875rem;color:var(--green-mid);font-weight:500}
+
+/* ── STATUS BADGE ── */
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:0.6375rem;font-weight:500;padding:2px 7px;border-radius:20px;white-space:nowrap;text-transform:uppercase;letter-spacing:0.04em}
+.badge::before{content:'';width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.badge-green{background:#D8F3DC;color:#085041}.badge-green::before{background:#1D9E75}
+.badge-blue{background:#E6F1FB;color:#0C447C}.badge-blue::before{background:#185FA5}
+.badge-teal{background:#E1F5EE;color:#085041}.badge-teal::before{background:#0F6E56}
+.badge-red{background:#FCEBEB;color:#791F1F}.badge-red::before{background:#A32D2D}
+.badge-amber{background:#FAEEDA;color:#633806}.badge-amber::before{background:#854F0B}
+.badge-gray{background:#F1EFE8;color:#444441}.badge-gray::before{background:#888780}
+
+/* ── RIGHT PANEL ── */
+.right-panel{flex:1;overflow-y:auto;padding:2rem}
+.right-panel::-webkit-scrollbar{width:4px}
+.right-panel::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+/* ── EMPTY / LOADING STATES ── */
+.state-msg{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:10px;color:var(--ink-muted)}
+.state-msg svg{opacity:0.25}
+.state-msg p{font-size:0.875rem}
+
+/* ── DETAIL HEADER ── */
+.detail-header{margin-bottom:1.5rem}
+.detail-header h2{font-family:var(--serif);font-size:1.375rem;font-weight:400;color:var(--ink);margin-bottom:6px;line-height:1.3}
+.detail-meta{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:0.8rem;color:var(--ink-muted)}
+.detail-meta a{color:var(--green-mid);text-decoration:none;font-weight:500}
+.detail-meta a:hover{text-decoration:underline}
+
+/* ── SECTIONS ── */
+.detail-section{background:var(--white);border:1px solid var(--border);border-radius:8px;margin-bottom:1rem;overflow:hidden}
+.ds-header{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--cream)}
+.ds-header h3{font-size:0.75rem;font-weight:500;letter-spacing:0.07em;text-transform:uppercase;color:var(--ink-muted)}
+.ds-body{padding:14px}
+
+/* ── INFO GRID ── */
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.info-item label{display:block;font-size:0.6875rem;font-weight:500;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:2px}
+.info-item span{font-size:0.8125rem;color:var(--ink)}
+.info-item.full{grid-column:1/-1}
+
+/* ── TICKET CARD ── */
+.ticket-card{border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:10px}
+.ticket-card:last-child{margin-bottom:0}
+.tc-header{padding:10px 12px;display:flex;align-items:flex-start;justify-content:space-between;gap:8px;background:var(--cream);cursor:pointer;transition:background 0.12s}
+.tc-header:hover{background:#F0EDE6}
+.tc-key{font-size:0.75rem;font-weight:500;color:var(--green-mid);margin-bottom:2px}
+.tc-key a{color:inherit;text-decoration:none}
+.tc-key a:hover{text-decoration:underline}
+.tc-summary{font-size:0.8125rem;color:var(--ink);line-height:1.4}
+.tc-assignee{font-size:0.7rem;color:var(--ink-muted);margin-top:3px}
+.tc-body{padding:12px;border-top:1px solid var(--border);display:none}
+.tc-body.open{display:block}
+
+/* ── SUB-TICKETS ── */
+.sub-tickets{margin-top:10px}
+.sub-tickets h4{font-size:0.6875rem;font-weight:500;text-transform:uppercase;letter-spacing:0.06em;color:var(--ink-muted);margin-bottom:8px}
+.sub-row{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:var(--cream);border-radius:5px;margin-bottom:5px;gap:8px}
+.sub-row:last-child{margin-bottom:0}
+.sub-info{flex:1;min-width:0}
+.sub-key{font-size:0.7rem;font-weight:500;color:var(--green-mid)}
+.sub-key a{color:inherit;text-decoration:none}
+.sub-key a:hover{text-decoration:underline}
+.sub-summary{font-size:0.75rem;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sub-assignee{font-size:0.6875rem;color:var(--ink-muted)}
+
+/* ── COMMENTS ── */
+.comments-list{display:flex;flex-direction:column;gap:8px}
+.comment-item{padding:8px 10px;background:var(--cream);border-radius:5px;border-left:2px solid var(--border)}
+.comment-author{font-size:0.6875rem;font-weight:500;color:var(--ink-muted);margin-bottom:3px}
+.comment-body{font-size:0.8rem;color:var(--ink);line-height:1.5}
+.no-comments{font-size:0.8rem;color:var(--ink-muted);font-style:italic}
+
+/* ── EMPTY LIST ── */
+.empty-list{padding:2rem;text-align:center;color:var(--ink-muted);font-size:0.8125rem}
+
+/* ── LOADING SPINNER ── */
+.spinner{width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--green-mid);border-radius:50%;animation:spin 0.7s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── PASSWORD GATE ── */
+.gate{position:fixed;inset:0;background:var(--green);display:flex;align-items:center;justify-content:center;z-index:9999;padding:1.5rem}
+.gate-card{background:var(--white);border-radius:12px;padding:2.5rem 2rem;width:100%;max-width:360px;text-align:center}
+.gate-logo{width:3px;height:48px;background:var(--green-muted);border-radius:2px;margin:0 auto 1.5rem}
+.gate-card h2{font-family:var(--serif);font-size:1.375rem;font-weight:400;color:var(--ink);margin-bottom:4px}
+.gate-card p{font-size:0.8rem;color:var(--ink-muted);margin-bottom:1.5rem}
+.gate-input-wrap{position:relative;margin-bottom:10px}
+.gate-input-wrap input{width:100%;font-family:var(--sans);font-size:0.875rem;color:var(--ink);background:var(--cream);border:1px solid var(--border);border-radius:6px;padding:0.625rem 2.5rem 0.625rem 0.75rem;outline:none;transition:border-color 0.15s;text-align:center;letter-spacing:0.1em}
+.gate-input-wrap input:focus{border-color:var(--green-mid);box-shadow:0 0 0 3px rgba(45,106,79,0.12)}
+.gate-input-wrap input.shake{animation:shake 0.4s ease}
+.gate-toggle{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--ink-muted);padding:2px;font-size:14px;line-height:1}
+.gate-error{font-size:0.75rem;color:#C0392B;min-height:18px;margin-bottom:8px}
+.gate-submit{width:100%;font-family:var(--sans);font-size:0.875rem;font-weight:500;color:var(--white);background:var(--green);border:none;border-radius:6px;padding:0.625rem;cursor:pointer;transition:background 0.15s}
+.gate-submit:hover{background:var(--green-mid)}
+.gate-hint{font-size:0.7rem;color:var(--ink-muted);margin-top:12px}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+.app-wrap{display:contents}
+.app-wrap.locked{display:none}
+
+@media(max-width:640px){
+  .app{flex-direction:column;height:auto}
+  .left-panel{width:100%;height:260px;border-right:none;border-bottom:1px solid var(--border)}
+  .right-panel{padding:1rem}
+  .info-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- PASSWORD GATE -->
+<div class="gate" id="gate">
+  <div class="gate-card">
+    <div class="gate-logo"></div>
+    <h2>Service Request Tracker</h2>
+    <p>Platform Operations · Sprout Solutions</p>
+    <div class="gate-input-wrap">
+      <input type="password" id="gateInput" placeholder="Enter passphrase" onkeydown="if(event.key==='Enter')checkPass()"/>
+      <button class="gate-toggle" onclick="toggleGateVis()" id="gateToggle" title="Show/hide">
+        <svg id="eyeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      </button>
+    </div>
+    <div class="gate-error" id="gateError"></div>
+    <button class="gate-submit" onclick="checkPass()">Access dashboard</button>
+    <p class="gate-hint">Contact Platform Operations if you need access.</p>
+  </div>
+</div>
+
+<div class="app-wrap locked" id="appWrap">
+<header>
+  <div class="header-left">
+    <div class="header-accent"></div>
+    <div class="header-text">
+      <h1>Service Request Tracker</h1>
+      <p>Platform Operations · Sprout Solutions</p>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-refresh" onclick="loadList()">↻ Refresh</button>
+    <a class="btn-new" href="index.html" target="_blank">+ New request</a>
+  </div>
+</header>
+
+<div class="app">
+  <!-- LEFT SIDEBAR -->
+  <div class="left-panel">
+    <div class="panel-search">
+      <input type="text" id="searchInput" placeholder="Search client, requestor, ticket…" oninput="filterCards()"/>
+    </div>
+    <div class="panel-filters">
+      <span class="filter-pill active" data-filter="all" onclick="setFilter(this)">All</span>
+      <span class="filter-pill" data-filter="new" onclick="setFilter(this)">New</span>
+      <span class="filter-pill" data-filter="progress" onclick="setFilter(this)">In Progress</span>
+      <span class="filter-pill" data-filter="checking" onclick="setFilter(this)">Ready for Checking</span>
+      <span class="filter-pill" data-filter="done" onclick="setFilter(this)">Done</span>
+      <span class="filter-pill" data-filter="cancelled" onclick="setFilter(this)">Cancelled</span>
+    </div>
+    <div class="panel-list" id="panelList">
+      <div class="empty-list">Loading requests…</div>
+    </div>
+  </div>
+
+  <!-- RIGHT DETAIL PANEL -->
+  <div class="right-panel" id="rightPanel">
+    <div class="state-msg">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 9h6M9 12h6M9 15h4"/>
+      </svg>
+      <p>Select a request to view details</p>
+    </div>
+  </div>
+</div>
+
+<script>
+const GAS_URL = 'YOUR_GAS_WEB_APP_URL_HERE';
+
+let allSubmissions = [];
+let activeFilter = 'all';
+let activeKey = null;
+
+// ── INIT ──────────────────────────────────────
+async function loadList() {
+  document.getElementById('panelList').innerHTML = '<div class="empty-list"><span class="spinner"></span></div>';
+  try {
+    const res = await fetch(GAS_URL + '?action=list');
+    const data = await res.json();
+    allSubmissions = data.submissions || [];
+    renderList();
+  } catch (err) {
+    document.getElementById('panelList').innerHTML = '<div class="empty-list">Failed to load. Check GAS URL.</div>';
+  }
+}
+
+// ── FILTER & SEARCH ───────────────────────────
+function setFilter(el) {
+  document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  activeFilter = el.dataset.filter;
+  renderList();
+}
+
+function filterCards() { renderList(); }
+
+function matchesFilter(s) {
+  if (activeFilter === 'all') return true;
+  const st = (s.status || '').toLowerCase();
+  if (activeFilter === 'new')       return st === 'backlog' || st === 'new' || st === 'to do';
+  if (activeFilter === 'progress')  return st.includes('in progress') || st.includes('in review') || st.includes('for pr');
+  if (activeFilter === 'checking')  return st.includes('ready for checking');
+  if (activeFilter === 'done')      return st === 'done' || st === 'closed' || st === 'resolved';
+  if (activeFilter === 'cancelled') return st.includes('cancelled') || st.includes('canceled');
+  return true;
+}
+
+function matchesSearch(s, q) {
+  if (!q) return true;
+  const lower = q.toLowerCase();
+  return [s.client, s.requestor, s.serviceType, s.jiraKey, s.hrUrl, s.csm]
+    .some(v => (v || '').toLowerCase().includes(lower));
+}
+
+// ── RENDER LIST ───────────────────────────────
+function renderList() {
+  const q = document.getElementById('searchInput').value.trim();
+  const filtered = allSubmissions.filter(s => matchesFilter(s) && matchesSearch(s, q));
+  const list = document.getElementById('panelList');
+
+  if (!filtered.length) {
+    list.innerHTML = '<div class="empty-list">No requests found.</div>';
+    return;
+  }
+
+  list.innerHTML = filtered.map(s => {
+    const badgeClass = 'badge-' + statusColor(s.status);
+    const dateStr = s.timestamp ? s.timestamp.toString().substring(0, 10) : '—';
+    const isActive = s.jiraKey === activeKey ? 'active' : '';
+    return `<div class="req-card ${isActive}" onclick="selectRequest('${s.jiraKey}', this)">
+      <div class="rc-top">
+        <div class="rc-client">${esc(s.client)}</div>
+        <span class="badge ${badgeClass}">${esc(s.status || 'New')}</span>
+      </div>
+      <div class="rc-service">${esc(s.serviceType)}</div>
+      <div class="rc-meta">
+        <span class="rc-date">${dateStr}</span>
+        <span class="rc-key">${s.jiraKey || '—'}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── SELECT REQUEST ────────────────────────────
+async function selectRequest(jiraKey, cardEl) {
+  activeKey = jiraKey;
+  document.querySelectorAll('.req-card').forEach(c => c.classList.remove('active'));
+  if (cardEl) cardEl.classList.add('active');
+
+  const panel = document.getElementById('rightPanel');
+  panel.innerHTML = '<div class="state-msg"><span class="spinner"></span><p>Loading details…</p></div>';
+
+  const submission = allSubmissions.find(s => s.jiraKey === jiraKey);
+
+  if (!jiraKey || jiraKey === 'ERROR') {
+    renderDetailFromSheet(submission, null);
+    return;
+  }
+
+  try {
+    const res = await fetch(GAS_URL + '?action=detail&key=' + encodeURIComponent(jiraKey));
+    const detail = await res.json();
+    renderDetail(submission, detail);
+  } catch (err) {
+    renderDetailFromSheet(submission, null);
+  }
+}
+
+// ── RENDER DETAIL ─────────────────────────────
+function renderDetail(s, detail) {
+  const panel = document.getElementById('rightPanel');
+  if (!s && (!detail || detail.error)) {
+    panel.innerHTML = '<div class="state-msg"><p>Could not load details.</p></div>';
+    return;
+  }
+
+  const psrv = detail && detail.psrv ? detail.psrv : null;
+  const linked = detail && detail.linkedTickets ? detail.linkedTickets : [];
+  const status = psrv ? psrv.status : (s ? s.status : '—');
+  const badgeClass = 'badge-' + statusColor(status);
+
+  let html = `<div class="detail-header">
+    <h2>${esc(s ? s.client : (psrv ? psrv.summary : '—'))}</h2>
+    <div class="detail-meta">
+      <span class="badge ${badgeClass}">${esc(status)}</span>
+      ${psrv ? `<a href="${psrv.url}" target="_blank">${psrv.key} ↗</a>` : ''}
+      ${s ? `<span>·</span><span>${esc(s.serviceType)}</span>` : ''}
+      ${s && s.urgency ? `<span>·</span><span>${esc(s.urgency)} urgency</span>` : ''}
+    </div>
+  </div>`;
+
+  // Requestor & client info
+  if (s) {
+    html += `<div class="detail-section">
+      <div class="ds-header"><h3>Request information</h3></div>
+      <div class="ds-body">
+        <div class="info-grid">
+          <div class="info-item full"><label>Client / Company</label><span>${esc(s.client)}</span></div>
+          <div class="info-item"><label>Requester Name</label><span>${esc(s.requestor)}</span></div>
+          <div class="info-item"><label>Requester Email Address</label><span>${esc(s.email)}</span></div>
+          <div class="info-item"><label>CSM</label><span>${esc(s.csm)}</span></div>
+          <div class="info-item"><label>CSM Email Address</label><span>${esc(s.csmEmail || '—')}</span></div>
+          <div class="info-item"><label>HR URL</label><span>${esc(s.hrUrl)}</span></div>
+          <div class="info-item"><label>Target date</label><span>${esc(s.targetDate || '—')}</span></div>
+          ${s.timestamp ? `<div class="info-item"><label>Submitted</label><span>${String(s.timestamp).substring(0,19)}</span></div>` : ''}
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // PSRV ticket comments
+  if (psrv) {
+    html += `<div class="detail-section">
+      <div class="ds-header">
+        <h3>Inquiry ticket — ${psrv.key}</h3>
+        <span class="badge badge-${statusColor(psrv.status)}">${esc(psrv.status)}</span>
+      </div>
+      <div class="ds-body">
+        <div class="info-grid" style="margin-bottom:12px">
+          <div class="info-item"><label>Assignee</label><span>${esc(psrv.assignee)}</span></div>
+          <div class="info-item"><label>Last updated</label><span>${psrv.updated ? psrv.updated.substring(0,10) : '—'}</span></div>
+        </div>
+        ${renderComments(psrv.comments)}
+      </div>
+    </div>`;
+  }
+
+  // Linked tickets (ST + sub-tickets)
+  if (linked.length) {
+    html += `<div class="detail-section">
+      <div class="ds-header"><h3>Activity tickets (CRF &amp; execution)</h3></div>
+      <div class="ds-body">`;
+
+    linked.forEach((t, i) => {
+      const tcId = 'tc-' + i;
+      html += `<div class="ticket-card">
+        <div class="tc-header" onclick="toggleTicket('${tcId}')">
+          <div>
+            <div class="tc-key"><a href="${t.url}" target="_blank" onclick="event.stopPropagation()">${t.key} [${t.project}] ↗</a></div>
+            <div class="tc-summary">${esc(t.summary)}</div>
+            <div class="tc-assignee">Assigned to: ${esc(t.assignee)}</div>
+          </div>
+          <span class="badge badge-${statusColor(t.status)}">${esc(t.status)}</span>
+        </div>
+        <div class="tc-body" id="${tcId}">`;
+
+      // Sub-tickets
+      if (t.subTickets && t.subTickets.length) {
+        html += `<div class="sub-tickets"><h4>Sub-tickets</h4>`;
+        t.subTickets.forEach(sub => {
+          html += `<div class="sub-row">
+            <div class="sub-info">
+              <div class="sub-key"><a href="${sub.url}" target="_blank">${sub.key} [${sub.project}] ↗</a></div>
+              <div class="sub-summary">${esc(sub.summary)}</div>
+              <div class="sub-assignee">${esc(sub.assignee)}</div>
+            </div>
+            <span class="badge badge-${statusColor(sub.status)}">${esc(sub.status)}</span>
+          </div>`;
+        });
+        html += `</div>`;
+      }
+
+      // Comments on the ST ticket
+      html += renderComments(t.comments);
+      html += `</div></div>`;
+    });
+
+    html += `</div></div>`;
+  } else if (psrv && ['ready for checking','done','closed'].some(v => psrv.status.toLowerCase().includes(v)) === false) {
+    html += `<div class="detail-section">
+      <div class="ds-header"><h3>Activity tickets (CRF &amp; execution)</h3></div>
+      <div class="ds-body"><p class="no-comments">No CRF tickets linked yet. Activity tickets will appear here once a CRF is raised in ST.</p></div>
+    </div>`;
+  }
+
+  panel.innerHTML = html;
+}
+
+function renderDetailFromSheet(s, _) {
+  renderDetail(s, null);
+}
+
+function renderComments(comments) {
+  if (!comments || !comments.length) {
+    return '<p class="no-comments" style="margin-top:8px">No comments yet.</p>';
+  }
+  return `<div class="comments-list" style="margin-top:8px">` +
+    comments.map(c => `<div class="comment-item">
+      <div class="comment-author">${esc(c.author)} · ${c.date ? c.date.substring(0,10) : ''}</div>
+      <div class="comment-body">${esc(c.body)}</div>
+    </div>`).join('') +
+  `</div>`;
+}
+
+// ── HELPERS ───────────────────────────────────
+function toggleTicket(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('open');
+}
+
+function statusColor(status) {
+  const s = (status || '').toLowerCase();
+  if (['done','closed','resolved'].some(v => s.includes(v)))              return 'green';
+  if (['in progress','in review','for pr'].some(v => s.includes(v)))      return 'blue';
+  if (['ready for checking'].some(v => s.includes(v)))                     return 'teal';
+  if (['cancelled','canceled'].some(v => s.includes(v)))                   return 'red';
+  if (['backlog','new','to do'].some(v => s.includes(v)))                  return 'gray';
+  return 'amber';
+}
+
+function esc(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── PASSWORD GATE ─────────────────────────────
+// Change this to your chosen passphrase
+const PASSPHRASE = 'sprout-platops-2025';
+const SESSION_KEY = 'srt_auth';
+
+function checkPass() {
+  const input = document.getElementById('gateInput');
+  const err = document.getElementById('gateError');
+  if (input.value === PASSPHRASE) {
+    sessionStorage.setItem(SESSION_KEY, '1');
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('appWrap').style.display = 'contents';
+    loadList();
+  } else {
+    err.textContent = 'Incorrect passphrase. Please try again.';
+    input.classList.add('shake');
+    input.value = '';
+    setTimeout(() => input.classList.remove('shake'), 400);
+    setTimeout(() => { err.textContent = ''; }, 3000);
+    input.focus();
+  }
+}
+
+function toggleGateVis() {
+  const input = document.getElementById('gateInput');
+  input.type = input.type === 'password' ? 'text' : 'password';
+}
+
+// Check if already authenticated this session
+if (sessionStorage.getItem(SESSION_KEY) === '1') {
+  document.getElementById('gate').style.display = 'none';
+  document.getElementById('appWrap').style.display = 'contents';
+  loadList();
+}
+
+</script>
+</div><!-- /app-wrap -->
+
+</body>
+</html>
