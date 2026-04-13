@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Service Request Portal · Platform Operations</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" crossorigin="anonymous"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -1093,6 +1093,7 @@ async function load_analytics(from, to) {
 }
 
 function render_analytics(data) {
+  const chartAvailable = typeof Chart !== 'undefined';
   // Scorecards
   const lc = data.lifecycleCounts || {};
   document.getElementById('an-total').textContent = data.total ?? '—';
@@ -1104,6 +1105,7 @@ function render_analytics(data) {
   document.getElementById('an-rd').textContent    = lc['Request Done']                ?? '—';
   document.getElementById('an-avg').textContent   = data.avgDays != null ? data.avgDays + 'd' : '—';
 
+  if (!chartAvailable) { console.warn('Chart.js not available — charts skipped'); return; }
   // Monthly trend (bar)
   const monthly = data.monthlyArr || [];
   buildChart('chartMonthly', 'bar', {
