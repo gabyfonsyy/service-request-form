@@ -725,10 +725,7 @@ var USER_EMAIL  = '';
 var IS_INTERNAL = false;
 // GAS_URL defined above
 var LIFECYCLE    = ['For Quotation','Ongoing Review','Quotation Provided','For Execution / Schedule','Ongoing Execution / Activity','Request Done'];
-var params      = new URLSearchParams(location.search);
-var USER_EMAIL  = params.get('email') || '';
-var IS_INTERNAL = params.get('internal') === '1';
-console.log('Dashboard init — email:', USER_EMAIL, '| internal:', IS_INTERNAL);
+// USER_EMAIL and IS_INTERNAL set by switchTab()
 
 var all      = [];
 var activeF  = 'all';
@@ -1060,9 +1057,7 @@ function esc(str) {
 
 
 // ── ANALYTICS GLOBALS ─────────────────────────
-
-var params     = new URLSearchParams(location.search);
-var USER_EMAIL = params.get('email') || '';
+// USER_EMAIL declared above
 var charts     = {};
 
 var COLORS = {
