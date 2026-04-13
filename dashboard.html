@@ -243,14 +243,37 @@ async function init() {
 }
 
 async function loadList() {
+  const cacheKey = 'tracker_cache_' + USER_EMAIL;
+  const cached   = sessionStorage.getItem(cacheKey);
+
+  if (cached) {
+    // Show cached data instantly
+    try {
+      const { data } = JSON.parse(cached);
+      all = data.submissions || [];
+      render();
+    } catch(e) {}
+    // Silently refresh in background
+    fetch(GAS_URL + '?action=list&email=' + encodeURIComponent(USER_EMAIL))
+      .then(r => r.json())
+      .then(d => {
+        sessionStorage.setItem(cacheKey, JSON.stringify({ data: d, ts: Date.now() }));
+        all = d.submissions || [];
+        render();
+      })
+      .catch(() => {});
+    return;
+  }
+
+  // No cache — show spinner and fetch
   document.getElementById('sbList').innerHTML = '<div class="empty-sb"><span class="spinner"></span></div>';
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 15000);
-    const url = GAS_URL + '?action=list&email=' + encodeURIComponent(USER_EMAIL);
-    const res = await fetch(url, { signal: controller.signal });
+    const res = await fetch(GAS_URL + '?action=list&email=' + encodeURIComponent(USER_EMAIL), { signal: controller.signal });
     clearTimeout(timeout);
     const d = await res.json();
+    sessionStorage.setItem(cacheKey, JSON.stringify({ data: d, ts: Date.now() }));
     all = d.submissions || [];
     render();
   } catch(e) {
@@ -260,6 +283,8 @@ async function loadList() {
 }
 
 async function refresh() {
+  // Clear cache so we force a fresh fetch
+  sessionStorage.removeItem('tracker_cache_' + USER_EMAIL);
   all = [];
   activeKey = null;
   document.getElementById('detail').innerHTML = '<div class="state"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 9h6M9 12h6M9 15h4"/></svg><p>Select a request to view details</p></div>';
