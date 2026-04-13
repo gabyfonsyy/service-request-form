@@ -307,7 +307,7 @@ function switchTab(view) {
 
   // Lazy-load iframe src on first switch
   if (!framesLoaded[view]) {
-    const src = view === 'form' ? 'index.html' : 'dashboard.html';
+    const src = view === 'form' ? 'form.html' : 'dashboard.html';
     const frame = document.getElementById('frame-' + view);
     const loader = document.getElementById('loader-' + view);
     frame.src = src;
