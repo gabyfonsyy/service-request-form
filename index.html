@@ -1070,99 +1070,75 @@ async function load_analytics(from, to) {
 }
 
 function render_analytics(data) {
-  const chartAvailable = typeof Chart !== 'undefined';
   // Scorecards
-  const lc = data.lifecycleCounts || {};
-  document.getElementById('an-total').textContent = data.total ?? '—';
-  document.getElementById('an-fq').textContent    = lc['For Quotation']               ?? '—';
-  document.getElementById('an-or').textContent    = lc['Ongoing Review']              ?? '—';
-  document.getElementById('an-qp').textContent    = lc['Quotation Provided']          ?? '—';
-  document.getElementById('an-fe').textContent    = lc['For Execution / Schedule']    ?? '—';
-  document.getElementById('an-oe').textContent    = lc['Ongoing Execution / Activity']?? '—';
-  document.getElementById('an-rd').textContent    = lc['Request Done']                ?? '—';
-  document.getElementById('an-avg').textContent   = data.avgDays != null ? data.avgDays + 'd' : '—';
-
-  // Defer chart rendering until DOM is visible
-  setTimeout(() => {
-    if (!chartAvailable) { console.warn('Chart.js not available'); return; }
-    const chartIds = ['an-chartMonthly','an-chartLifecycle','an-chartService','an-chartCost','an-chartUrgency'];
-    if (chartIds.some(id => !document.getElementById(id))) { console.warn('Chart canvas not found'); return; }
-  // Monthly trend (bar)
-  const monthly = data.monthlyArr || [];
-  buildChart('chartMonthly', 'bar', {
-    labels: monthly.map(m => fmtMonth(m.month)),
-    datasets: [{
-      label: 'Requests',
-      data:  monthly.map(m => m.count),
-      backgroundColor: COLORS.greenL,
-      borderColor:     COLORS.green,
-      borderWidth: 1.5,
-      borderRadius: 4,
-    }]
-  }, { scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } });
-
-  // Lifecycle (horizontal bar)
-  const lcLabels = ['For Quotation','Ongoing Review','Quotation Provided','For Execution / Schedule','Ongoing Execution / Activity','Request Done'];
-  const lcShort  = ['For Quotation','Ongoing Review','Quotation Provided','For Execution','Ongoing Activity','Request Done'];
-  buildChart('chartLifecycle', 'bar', {
-    labels: lcShort,
-    datasets: [{
-      label: 'Requests',
-      data:  lcLabels.map(l => lc[l] || 0),
-      backgroundColor: LC_COLORS,
-      borderColor:     LC_BORDERS,
-      borderWidth: 1.5,
-      borderRadius: 4,
-    }]
-  }, { indexAxis: 'y', scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } }, plugins: { legend: { display: false } } });
-
-  // By service (doughnut)
-  const svc    = data.byService || {};
-  const svcKeys= Object.keys(svc).sort((a,b) => svc[b]-svc[a]);
-  const svcColors = [COLORS.green, COLORS.blue, COLORS.amber, COLORS.purple, COLORS.teal, COLORS.red, COLORS.gray];
-  buildChart('chartService', 'doughnut', {
-    labels: svcKeys,
-    datasets: [{ data: svcKeys.map(k => svc[k]), backgroundColor: svcColors.slice(0, svcKeys.length), borderWidth: 2, borderColor: '#fff' }]
-  }, { plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 12 } } } });
-
-  // Cost status (doughnut)
-  const cost = data.byCost || {};
-  buildChart('chartCost', 'doughnut', {
-    labels: ['Paid', 'Waived', 'Pending'],
-    datasets: [{ data: [cost.Paid||0, cost.Waived||0, cost.Pending||0], backgroundColor: [COLORS.blue, COLORS.purple, COLORS.gray], borderWidth: 2, borderColor: '#fff' }]
-  }, { plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 12 } } } });
-
-  // Urgency (bar)
+  const lc  = data.lifecycleCounts || {};
+  const svc = data.byService || {};
+  const cost= data.byCost    || {};
   const urg = data.byUrgency || {};
-  buildChart('chartUrgency', 'bar', {
-    labels: ['High', 'Medium', 'Low'],
-    datasets: [{
-      label: 'Requests',
-      data:  [urg.High||0, urg.Medium||0, urg.Low||0],
-      backgroundColor: [COLORS.redL, COLORS.amberL, COLORS.greenL],
-      borderColor:     [COLORS.red,  COLORS.amber,  COLORS.green],
-      borderWidth: 1.5, borderRadius: 4,
-    }]
-  }, { scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }, plugins: { legend: { display: false } } });
+  const svcKeys = Object.keys(svc).sort((a,b) => svc[b]-svc[a]);
 
-  }, 100); // end chart setTimeout
+  document.getElementById('an-total').textContent = data.total ?? '—';
+  document.getElementById('an-fq').textContent    = lc['For Quotation']                ?? '—';
+  document.getElementById('an-or').textContent    = lc['Ongoing Review']               ?? '—';
+  document.getElementById('an-qp').textContent    = lc['Quotation Provided']           ?? '—';
+  document.getElementById('an-fe').textContent    = lc['For Execution / Schedule']     ?? '—';
+  document.getElementById('an-oe').textContent    = lc['Ongoing Execution / Activity'] ?? '—';
+  document.getElementById('an-rd').textContent    = lc['Request Done']                 ?? '—';
+  document.getElementById('an-avg').textContent   = data.avgDays != null ? data.avgDays + 'd' : '—';
 
   // Service table
   const tbody = document.querySelector('#an-serviceTable tbody');
-  tbody.innerHTML = '';
-  const total = Object.values(svc).reduce((a,b) => a+b, 0) || 1;
-  svcKeys.forEach(k => {
-    const pct = Math.round((svc[k] / total) * 100);
-    tbody.innerHTML += `<tr><td>${k}</td><td>${svc[k]}</td><td>
-      <div style="display:flex;align-items:center;gap:8px">
-        <div style="flex:1;height:6px;background:var(--border);border-radius:3px">
-          <div style="width:${pct}%;height:100%;background:var(--green-mid);border-radius:3px"></div>
+  if (tbody) {
+    tbody.innerHTML = '';
+    const total = Object.values(svc).reduce((a,b) => a+b, 0) || 1;
+    svcKeys.forEach(k => {
+      const pct = Math.round((svc[k] / total) * 100);
+      tbody.innerHTML += `<tr><td>${k}</td><td>${svc[k]}</td><td>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="flex:1;height:6px;background:var(--border);border-radius:3px">
+            <div style="width:${pct}%;height:100%;background:var(--green-mid);border-radius:3px"></div>
+          </div>
+          <span style="font-size:0.72rem;color:var(--ink-muted);min-width:30px">${pct}%</span>
         </div>
-        <span style="font-size:0.72rem;color:var(--ink-muted);min-width:30px">${pct}%</span>
-      </div>
-    </td></tr>`;
-  });
+      </td></tr>`;
+    });
+  }
+
+  // Charts — deferred so the view is visible before canvas renders
+  setTimeout(() => {
+    if (typeof Chart === 'undefined') { console.warn('Chart.js not loaded'); return; }
+    const monthly  = data.monthlyArr || [];
+    const lcLabels = ['For Quotation','Ongoing Review','Quotation Provided','For Execution / Schedule','Ongoing Execution / Activity','Request Done'];
+    const lcShort  = ['For Quotation','Ongoing Review','Quotation Provided','For Execution','Ongoing Activity','Request Done'];
+    const svcColors= [COLORS.green,COLORS.blue,COLORS.amber,COLORS.purple,COLORS.teal,COLORS.red,COLORS.gray];
+
+    buildChart('an-chartMonthly','bar',{
+      labels: monthly.map(m => fmtMonth(m.month)),
+      datasets:[{label:'Requests',data:monthly.map(m=>m.count),backgroundColor:COLORS.greenL,borderColor:COLORS.green,borderWidth:1.5,borderRadius:4}]
+    },{scales:{y:{beginAtZero:true,ticks:{stepSize:1}}}});
+
+    buildChart('an-chartLifecycle','bar',{
+      labels: lcShort,
+      datasets:[{label:'Requests',data:lcLabels.map(l=>lc[l]||0),backgroundColor:LC_COLORS,borderColor:LC_BORDERS,borderWidth:1.5,borderRadius:4}]
+    },{indexAxis:'y',scales:{x:{beginAtZero:true,ticks:{stepSize:1}}},plugins:{legend:{display:false}}});
+
+    buildChart('an-chartService','doughnut',{
+      labels: svcKeys,
+      datasets:[{data:svcKeys.map(k=>svc[k]),backgroundColor:svcColors.slice(0,svcKeys.length),borderWidth:2,borderColor:'#fff'}]
+    },{plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:12}}}});
+
+    buildChart('an-chartCost','doughnut',{
+      labels:['Paid','Waived','Pending'],
+      datasets:[{data:[cost.Paid||0,cost.Waived||0,cost.Pending||0],backgroundColor:[COLORS.blue,COLORS.purple,COLORS.gray],borderWidth:2,borderColor:'#fff'}]
+    },{plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:12}}}});
+
+    buildChart('an-chartUrgency','bar',{
+      labels:['High','Medium','Low'],
+      datasets:[{label:'Requests',data:[urg.High||0,urg.Medium||0,urg.Low||0],backgroundColor:[COLORS.redL,COLORS.amberL,COLORS.greenL],borderColor:[COLORS.red,COLORS.amber,COLORS.green],borderWidth:1.5,borderRadius:4}]
+    },{scales:{y:{beginAtZero:true,ticks:{stepSize:1}}},plugins:{legend:{display:false}}});
+  }, 150);
 }
+
 
 function buildChart(id, type, data, options) {
   if (charts[id]) charts[id].destroy();
