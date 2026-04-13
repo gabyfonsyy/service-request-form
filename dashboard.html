@@ -215,17 +215,17 @@ body{font-family:var(--sans);background:var(--cream);color:var(--ink);height:100
 </div>
 
 <script>
-const GAS_URL      = 'https://script.google.com/macros/s/AKfycbxpNYlKZmKBkykfvWU-cbPbJyxHxyrcRY-Vx8_wKYsESJQSprAohRKqwrtUZBTg-0el3g/exec';
-const LIFECYCLE    = ['For Quotation','Ongoing Review','Quotation Provided','For Execution / Schedule','Ongoing Execution / Activity','Request Done'];
+var GAS_URL      = 'https://script.google.com/macros/s/AKfycbxpNYlKZmKBkykfvWU-cbPbJyxHxyrcRY-Vx8_wKYsESJQSprAohRKqwrtUZBTg-0el3g/exec';
+var LIFECYCLE    = ['For Quotation','Ongoing Review','Quotation Provided','For Execution / Schedule','Ongoing Execution / Activity','Request Done'];
 var params      = new URLSearchParams(location.search);
 var USER_EMAIL  = params.get('email') || '';
 var IS_INTERNAL = params.get('internal') === '1';
 console.log('Dashboard init — email:', USER_EMAIL, '| internal:', IS_INTERNAL);
 
-let all      = [];
-let activeF  = 'all';
-let activeSC = 'all';
-let activeKey= null;
+var all      = [];
+var activeF  = 'all';
+var activeSC = 'all';
+var activeKey= null;
 
 // ── INIT ─────────────────────────────────────
 async function init() {
