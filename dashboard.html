@@ -192,7 +192,10 @@ body{font-family:var(--sans);background:var(--cream);color:var(--ink);height:100
 <div class="body">
   <!-- SIDEBAR -->
   <div class="sidebar">
-    <div class="sb-search"><input type="text" id="srch" placeholder="Search client, ticket, email…" oninput="render()"/></div>
+    <div class="sb-search" style="display:flex;gap:6px;align-items:center">
+      <input type="text" id="srch" placeholder="Search client, ticket, email…" oninput="render()" style="flex:1"/>
+      <button onclick="refresh()" title="Refresh" style="font-family:var(--sans);font-size:0.75rem;color:var(--ink-muted);background:var(--cream);border:1px solid var(--border);border-radius:6px;padding:6px 9px;cursor:pointer;flex-shrink:0;transition:all 0.15s" onmouseover="this.style.borderColor='var(--green-muted)'" onmouseout="this.style.borderColor='var(--border)'">↻</button>
+    </div>
     <div class="sb-filters" id="filters">
       <span class="pill on" data-f="all"    onclick="setF(this)">All</span>
       <span class="pill"    data-f="For Quotation"              onclick="setF(this)">For Quotation</span>
@@ -228,7 +231,10 @@ var activeSC = 'all';
 var activeKey= null;
 
 // ── INIT ─────────────────────────────────────
+var initialized = false;
 async function init() {
+  if (initialized) return;
+  initialized = true;
   if (IS_INTERNAL) {
     document.getElementById('analytics').classList.add('on');
     loadAnalytics();
@@ -239,14 +245,26 @@ async function init() {
 async function loadList() {
   document.getElementById('sbList').innerHTML = '<div class="empty-sb"><span class="spinner"></span></div>';
   try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000);
     const url = GAS_URL + '?action=list&email=' + encodeURIComponent(USER_EMAIL);
-    const res = await fetch(url);
-    const d   = await res.json();
+    const res = await fetch(url, { signal: controller.signal });
+    clearTimeout(timeout);
+    const d = await res.json();
     all = d.submissions || [];
     render();
   } catch(e) {
-    document.getElementById('sbList').innerHTML = '<div class="empty-sb">Failed to load. Check GAS URL.</div>';
+    console.log('loadList error:', e);
+    document.getElementById('sbList').innerHTML = '<div class="empty-sb">Failed to load. <span style="color:var(--green-mid);cursor:pointer;text-decoration:underline" onclick="loadList()">Retry</span></div>';
   }
+}
+
+async function refresh() {
+  all = [];
+  activeKey = null;
+  document.getElementById('detail').innerHTML = '<div class="state"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 9h6M9 12h6M9 15h4"/></svg><p>Select a request to view details</p></div>';
+  await loadList();
+  if (IS_INTERNAL) loadAnalytics();
 }
 
 async function loadAnalytics() {
@@ -325,7 +343,7 @@ function render() {
   list.innerHTML = filtered.map(s => {
     const lc     = s.lifecycle || 'For Quotation';
     const bcls   = lcBadge(lc);
-    const dateStr= (s.timestamp||'').substring(0,10);
+    const dateStr= s.timestamp ? new Date(s.timestamp).toLocaleDateString('en-PH', {year:'numeric',month:'short',day:'numeric'}) : '—';
     const isOn   = s.jiraKey === activeKey ? 'on' : '';
     return `<div class="rcard ${isOn}" onclick="select('${esc(s.jiraKey)}',this)">
       <div class="rc-top">
@@ -401,7 +419,7 @@ function renderDetail(s, d) {
         <div class="iitem"><label>Payroll Codes</label><span>${esc(s.payrollCodes||'—')}</span></div>
         <div class="iitem"><label>Target Date</label><span>${esc(s.targetDate||'—')}</span></div>
         <div class="iitem"><label>Urgency</label><span>${esc(s.urgency||'—')}</span></div>
-        ${s.timestamp ? `<div class="iitem"><label>Submitted</label><span>${(s.timestamp||'').substring(0,19)}</span></div>` : ''}
+        ${s.timestamp ? `<div class="iitem"><label>Submitted</label><span>${new Date(s.timestamp).toLocaleDateString('en-PH',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}</span></div>` : ''}
         ${s.description ? `<div class="iitem full"><label>Description</label><span>${esc(s.description)}</span></div>` : ''}
         ${s.constraints ? `<div class="iitem full"><label>Constraints / Blackout Dates</label><span>${esc(s.constraints)}</span></div>` : ''}
         ${s.notes       ? `<div class="iitem full"><label>Additional Notes</label><span>${esc(s.notes)}</span></div>` : ''}
