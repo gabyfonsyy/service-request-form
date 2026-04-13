@@ -304,23 +304,32 @@ function switchTab(view) {
   document.querySelectorAll('.view-frame').forEach(f => f.classList.remove('on'));
   document.getElementById('frame-' + view).classList.add('on');
 
-  const ldr = document.getElementById('loader-' + view);
+  const ldr   = document.getElementById('loader-' + view);
+  const frame = document.getElementById('frame-' + view);
 
-  // Form is pre-loaded — hide spinner immediately if already done
-  if (view === 'form' && loaded.form) {
+  // If already loaded, hide spinner immediately
+  if (loaded[view]) {
     ldr.classList.add('gone');
     return;
   }
 
-  if (!loaded[view]) {
-    let src;
-    if (view === 'form') src = 'form.html';
-    else if (view === 'tracker') src = 'dashboard.html?email=' + encodeURIComponent(userEmail) + '&internal=' + (isInternal ? '1' : '0');
-    else if (view === 'analytics') src = 'analytics.html?email=' + encodeURIComponent(userEmail);
-    const frame = document.getElementById('frame-' + view);
-    frame.src   = src;
-    frame.onload = () => { ldr.classList.add('gone'); loaded[view] = true; };
+  // If frame already has a src (pre-warmed) but onload hasn't fired yet,
+  // set a short poll to check readiness
+  if (frame.src && frame.src !== location.href) {
+    const check = setInterval(() => {
+      if (loaded[view]) { ldr.classList.add('gone'); clearInterval(check); }
+    }, 100);
+    setTimeout(() => { ldr.classList.add('gone'); clearInterval(check); }, 3000);
+    return;
   }
+
+  // Fresh load
+  let src;
+  if (view === 'form') src = 'form.html';
+  else if (view === 'tracker') src = 'dashboard.html?email=' + encodeURIComponent(userEmail) + '&internal=' + (isInternal ? '1' : '0');
+  else if (view === 'analytics') src = 'analytics.html?email=' + encodeURIComponent(userEmail);
+  frame.src   = src;
+  frame.onload = () => { ldr.classList.add('gone'); loaded[view] = true; };
 }
 
 function logout() {
