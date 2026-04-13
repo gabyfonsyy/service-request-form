@@ -459,23 +459,23 @@ tr:hover td{background:var(--cream)}
     <!-- ANALYTICS VIEW -->
     <div class="view" id="view-analytics">
       <div class="analytics-view-scroll">
-<div id="loadingState" class="loading-state">
+<div id="an-loadingState" class="loading-state">
   <span class="spinner"></span>
   <p>Loading analytics…</p>
 </div>
 
-<div id="content" style="display:none">
+<div id="an-content" style="display:none">
   <!-- TOOLBAR -->
   <div class="toolbar">
     <h2>Analytics &amp; Reports</h2>
     <div class="toolbar-right">
       <div class="date-group">
         <label>From</label>
-        <input type="date" id="fromDate"/>
+        <input type="date" id="an-fromDate"/>
       </div>
       <div class="date-group">
         <label>To</label>
-        <input type="date" id="toDate"/>
+        <input type="date" id="an-toDate"/>
       </div>
       <button class="btn btn-primary" onclick="applyFilter()">Apply</button>
       <button class="btn" onclick="clearFilter()">All time</button>
@@ -486,42 +486,42 @@ tr:hover td{background:var(--cream)}
   <div class="sc-grid">
     <div class="sc highlight">
       <div class="sc-label">Total Requests</div>
-      <div class="sc-value" id="sc-total">—</div>
+      <div class="sc-value" id="an-total">—</div>
       <div class="sc-sub">In selected period</div>
     </div>
     <div class="sc">
       <div class="sc-label">For Quotation</div>
-      <div class="sc-value" id="sc-fq">—</div>
+      <div class="sc-value" id="an-fq">—</div>
       <div class="sc-sub">Awaiting review</div>
     </div>
     <div class="sc">
       <div class="sc-label">Ongoing Review</div>
-      <div class="sc-value" id="sc-or">—</div>
+      <div class="sc-value" id="an-or">—</div>
       <div class="sc-sub">Being reviewed</div>
     </div>
     <div class="sc">
       <div class="sc-label">Quotation Provided</div>
-      <div class="sc-value" id="sc-qp">—</div>
+      <div class="sc-value" id="an-qp">—</div>
       <div class="sc-sub">Awaiting CRF</div>
     </div>
     <div class="sc">
       <div class="sc-label">For Execution</div>
-      <div class="sc-value" id="sc-fe">—</div>
+      <div class="sc-value" id="an-fe">—</div>
       <div class="sc-sub">CRF raised</div>
     </div>
     <div class="sc">
       <div class="sc-label">Ongoing Activity</div>
-      <div class="sc-value" id="sc-oe">—</div>
+      <div class="sc-value" id="an-oe">—</div>
       <div class="sc-sub">In execution</div>
     </div>
     <div class="sc">
       <div class="sc-label">Request Done</div>
-      <div class="sc-value" id="sc-rd">—</div>
+      <div class="sc-value" id="an-rd">—</div>
       <div class="sc-sub">Completed</div>
     </div>
     <div class="sc">
       <div class="sc-label">Avg. Resolution</div>
-      <div class="sc-value" id="sc-avg">—</div>
+      <div class="sc-value" id="an-avg">—</div>
       <div class="sc-sub">Days to complete</div>
     </div>
   </div>
@@ -530,11 +530,11 @@ tr:hover td{background:var(--cream)}
   <div class="chart-grid">
     <div class="chart-card">
       <h3>Requests over time</h3>
-      <div class="chart-wrap tall"><canvas id="chartMonthly"></canvas></div>
+      <div class="chart-wrap tall"><canvas id="an-chartMonthly"></canvas></div>
     </div>
     <div class="chart-card">
       <h3>By lifecycle stage</h3>
-      <div class="chart-wrap tall"><canvas id="chartLifecycle"></canvas></div>
+      <div class="chart-wrap tall"><canvas id="an-chartLifecycle"></canvas></div>
     </div>
   </div>
 
@@ -542,23 +542,23 @@ tr:hover td{background:var(--cream)}
   <div class="chart-grid">
     <div class="chart-card">
       <h3>By service type</h3>
-      <div class="chart-wrap"><canvas id="chartService"></canvas></div>
+      <div class="chart-wrap"><canvas id="an-chartService"></canvas></div>
     </div>
     <div class="chart-card">
       <h3>Cost status</h3>
-      <div class="chart-wrap"><canvas id="chartCost"></canvas></div>
+      <div class="chart-wrap"><canvas id="an-chartCost"></canvas></div>
     </div>
   </div>
 
   <div class="chart-grid">
     <div class="chart-card">
       <h3>By urgency</h3>
-      <div class="chart-wrap"><canvas id="chartUrgency"></canvas></div>
+      <div class="chart-wrap"><canvas id="an-chartUrgency"></canvas></div>
     </div>
     <div class="chart-card">
       <h3>Service type breakdown</h3>
       <div class="table-card" style="border:none;padding:0;margin:0">
-        <table id="serviceTable">
+        <table id="an-serviceTable">
           <thead><tr><th>Service Type</th><th>Count</th><th>Share</th></tr></thead>
           <tbody></tbody>
         </table>
@@ -704,8 +704,8 @@ function switchTab(name) {
     var from = new Date(); from.setDate(1);
     var fromStr = from.toISOString().split('T')[0];
     var toStr   = new Date().toISOString().split('T')[0];
-    document.getElementById('fromDate').value = fromStr;
-    document.getElementById('toDate').value   = toStr;
+    document.getElementById('an-fromDate').value = fromStr;
+    document.getElementById('an-toDate').value   = toStr;
     load_analytics(fromStr, toStr);
   }
 }
@@ -1095,14 +1095,14 @@ async function load_analytics(from, to) {
 function render_analytics(data) {
   // Scorecards
   const lc = data.lifecycleCounts || {};
-  document.getElementById('sc-total').textContent = data.total ?? '—';
-  document.getElementById('sc-fq').textContent    = lc['For Quotation']               ?? '—';
-  document.getElementById('sc-or').textContent    = lc['Ongoing Review']              ?? '—';
-  document.getElementById('sc-qp').textContent    = lc['Quotation Provided']          ?? '—';
-  document.getElementById('sc-fe').textContent    = lc['For Execution / Schedule']    ?? '—';
-  document.getElementById('sc-oe').textContent    = lc['Ongoing Execution / Activity']?? '—';
-  document.getElementById('sc-rd').textContent    = lc['Request Done']                ?? '—';
-  document.getElementById('sc-avg').textContent   = data.avgDays != null ? data.avgDays + 'd' : '—';
+  document.getElementById('an-total').textContent = data.total ?? '—';
+  document.getElementById('an-fq').textContent    = lc['For Quotation']               ?? '—';
+  document.getElementById('an-or').textContent    = lc['Ongoing Review']              ?? '—';
+  document.getElementById('an-qp').textContent    = lc['Quotation Provided']          ?? '—';
+  document.getElementById('an-fe').textContent    = lc['For Execution / Schedule']    ?? '—';
+  document.getElementById('an-oe').textContent    = lc['Ongoing Execution / Activity']?? '—';
+  document.getElementById('an-rd').textContent    = lc['Request Done']                ?? '—';
+  document.getElementById('an-avg').textContent   = data.avgDays != null ? data.avgDays + 'd' : '—';
 
   // Monthly trend (bar)
   const monthly = data.monthlyArr || [];
@@ -1163,7 +1163,7 @@ function render_analytics(data) {
   }, { scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }, plugins: { legend: { display: false } } });
 
   // Service table
-  const tbody = document.querySelector('#serviceTable tbody');
+  const tbody = document.querySelector('#an-serviceTable tbody');
   tbody.innerHTML = '';
   const total = Object.values(svc).reduce((a,b) => a+b, 0) || 1;
   svcKeys.forEach(k => {
@@ -1198,14 +1198,14 @@ function buildChart(id, type, data, options) {
 }
 
 function applyFilter() {
-  const from = document.getElementById('fromDate').value;
-  const to   = document.getElementById('toDate').value;
+  const from = document.getElementById('an-fromDate').value;
+  const to   = document.getElementById('an-toDate').value;
   load_analytics(from, to);
 }
 
 function clearFilter() {
-  document.getElementById('fromDate').value = '';
-  document.getElementById('toDate').value   = '';
+  document.getElementById('an-fromDate').value = '';
+  document.getElementById('an-toDate').value   = '';
   load_analytics();
 }
 
