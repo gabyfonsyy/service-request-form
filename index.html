@@ -1075,8 +1075,8 @@ var LC_BORDERS = [
 ];
 
 async function load_analytics(from, to) {
-  document.getElementById('loadingState').style.display = 'flex';
-  document.getElementById('content').style.display = 'none';
+  document.getElementById('an-loadingState').style.display = 'flex';
+  document.getElementById('an-content').style.display = 'none';
   try {
     let url = GAS_URL + '?action=analytics';
     if (from) url += '&from=' + from;
@@ -1084,10 +1084,10 @@ async function load_analytics(from, to) {
     const res  = await fetch(url);
     const data = await res.json();
     render_analytics(data);
-    document.getElementById('loadingState').style.display = 'none';
-    document.getElementById('content').style.display = 'block';
+    document.getElementById('an-loadingState').style.display = 'none';
+    document.getElementById('an-content').style.display = 'block';
   } catch(e) {
-    document.getElementById('loadingState').innerHTML =
+    document.getElementById('an-loadingState').innerHTML =
       '<p style="color:var(--ink-muted)">Failed to load analytics. <span style="color:var(--green-mid);cursor:pointer;text-decoration:underline" onclick="load_analytics()">Retry</span></p>';
   }
 }
