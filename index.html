@@ -37,6 +37,7 @@
     padding: 2rem 2.5rem;
     display: flex;
     align-items: flex-end;
+    justify-content: space-between;
     gap: 1.5rem;
   }
 
@@ -598,11 +599,16 @@
 <body>
 
 <header>
-  <div class="header-accent"></div>
-  <div class="header-text">
-    <h1>Service Request Form</h1>
-    <p>Platform Operations · Sprout Solutions</p>
+  <div style="display:flex;align-items:flex-end;gap:1.5rem;flex:1">
+    <div class="header-accent"></div>
+    <div class="header-text">
+      <h1>Service Request Form</h1>
+      <p>Platform Operations · Sprout Solutions</p>
+    </div>
   </div>
+  <a href="dashboard.html" style="font-family:var(--sans);font-size:0.8rem;font-weight:500;color:var(--green);background:var(--green-muted);border:none;border-radius:6px;padding:6px 14px;text-decoration:none;display:inline-flex;align-items:center;gap:5px;flex-shrink:0;opacity:0.9" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.9'">
+    View tracker →
+  </a>
 </header>
 
 <main>
@@ -615,7 +621,7 @@
     <div class="section">
       <div class="section-heading">
         <span class="section-number">01</span>
-        <span class="section-title">Requestor information</span>
+        <span class="section-title">Requester information</span>
         <div class="section-line"></div>
       </div>
 
