@@ -619,28 +619,35 @@
         <div class="section-line"></div>
       </div>
 
+      <div class="field" id="f-client">
+        <label for="clientName">Client / company name <span class="req">*</span></label>
+        <input type="text" id="clientName" name="clientName" placeholder="ABC Corporation"/>
+        <div class="error-msg">Please enter the client or company name.</div>
+      </div>
+
       <div class="two-col">
         <div class="field" id="f-name">
-          <label for="requestorName">Full name <span class="req">*</span></label>
-          <input type="text" id="requestorName" name="requestorName" placeholder="Juan dela Cruz" autocomplete="name"/>
+          <label for="requestorName">Requester name <span class="req">*</span></label>
+          <input type="text" id="requestorName" name="requestorName" placeholder="Juan Dela Cruz" autocomplete="name"/>
           <div class="error-msg">Please enter your full name.</div>
         </div>
         <div class="field" id="f-email">
-          <label for="requestorEmail">Email address <span class="req">*</span></label>
+          <label for="requestorEmail">Requester email address <span class="req">*</span></label>
           <input type="email" id="requestorEmail" name="requestorEmail" placeholder="juan@company.com" autocomplete="email"/>
           <div class="error-msg">Please enter a valid email address.</div>
         </div>
       </div>
 
       <div class="two-col">
-        <div class="field" id="f-client">
-          <label for="clientName">Client / company name <span class="req">*</span></label>
-          <input type="text" id="clientName" name="clientName" placeholder="ABC Corporation"/>
-          <div class="error-msg">Please enter the client or company name.</div>
-        </div>
-        <div class="field">
-          <label for="csm">CSM / account manager <span class="opt">optional</span></label>
+        <div class="field" id="f-csm">
+          <label for="csm">CSM <span class="req">*</span></label>
           <input type="text" id="csm" name="csm" placeholder="Name of your CSM"/>
+          <div class="error-msg">Please enter the CSM name.</div>
+        </div>
+        <div class="field" id="f-csmemail">
+          <label for="csmEmail">CSM email address <span class="req">*</span></label>
+          <input type="email" id="csmEmail" name="csmEmail" placeholder="csm@sprout.ph" autocomplete="off"/>
+          <div class="error-msg">Please enter a valid CSM email address.</div>
         </div>
       </div>
     </div>
@@ -1024,6 +1031,9 @@ document.getElementById('inquiryForm').addEventListener('submit', async function
   const email = document.getElementById('requestorEmail').value.trim();
   valid = validateField('requestorEmail', /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) && valid;
   valid = validateField('clientName', document.getElementById('clientName').value.trim() !== '') && valid;
+  valid = validateField('csm', document.getElementById('csm').value.trim() !== '') && valid;
+  const csmEmail = document.getElementById('csmEmail').value.trim();
+  valid = validateField('csmEmail', /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(csmEmail)) && valid;
   valid = validateField('hrUrl', document.getElementById('hrUrl').value.trim() !== '') && valid;
   valid = validateField('payrollCodes', document.getElementById('payrollCodes').value.trim() !== '') && valid;
 
@@ -1062,6 +1072,7 @@ document.getElementById('inquiryForm').addEventListener('submit', async function
     requestorEmail: document.getElementById('requestorEmail').value.trim(),
     clientName: document.getElementById('clientName').value.trim(),
     csm: document.getElementById('csm').value.trim(),
+    csmEmail: document.getElementById('csmEmail').value.trim(),
     serviceType,
     hrUrl: document.getElementById('hrUrl').value.trim(),
     payrollCodes: document.getElementById('payrollCodes').value.trim(),
