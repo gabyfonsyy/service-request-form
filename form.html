@@ -74,6 +74,9 @@
     padding: 2.5rem 1.5rem 4rem;
   }
 
+  .notice p { margin-bottom: 0.5rem; }
+  .notice p:last-child { margin-bottom: 0; }
+  .notice strong { color: var(--m700); font-weight: 600; }
   .notice {
     border: 1px solid var(--border);
     border-left: 3px solid var(--k600);
@@ -606,7 +609,10 @@
 
 <main>
   <div class="notice">
-    Submitting this form does not guarantee approval or scheduling. Our team will review your request and reach out with a cost estimate and next steps before any work begins.
+    <p>Submitting this form does not guarantee approval or scheduling.</p>
+    <p>Once submitted, please allow us <strong>2 business days</strong> to review your request — we'll reach out if we need further clarification.</p>
+    <p>A final cost quotation may take <strong>up to 1 week</strong> to be provided, depending on the scope of work.</p>
+    <p>No activity begins until scope, cost, and timeline have been agreed upon and a signed Work Order has been received.</p>
   </div>
 
   <form id="inquiryForm" novalidate>
@@ -867,7 +873,7 @@
     </div>
 
     <div class="disclaimer">
-      By submitting this form, you acknowledge that this is an initial inquiry only. No work will begin until scope, cost, and timeline have been agreed upon and a signed work order has been received.
+      By submitting this form, you acknowledge that this is an initial service inquiry. Review timelines and cost estimates are subject to the scope and complexity of the request.
     </div>
 
     <div class="form-actions">
@@ -884,7 +890,7 @@
       </svg>
     </div>
     <h2>Inquiry submitted</h2>
-    <p>Thank you. Your request has been logged and a Jira ticket will be created shortly. Our team will reach out to discuss scope and cost.</p>
+    <p>Your request has been logged. Please allow us <strong>2 business days</strong> to review it — we'll reach out if we need further clarification. A cost quotation will be provided within <strong>1 week</strong>, depending on scope.</p>
     <button class="btn-reset" onclick="resetForm()">Submit another request</button>
   </div>
 </main>
