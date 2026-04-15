@@ -3,28 +3,33 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Service Request Form</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<title>Service Request Form · Platform Operations</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --green: #1B4332;
-    --green-mid: #2D6A4F;
-    --green-light: #D8F3DC;
-    --green-muted: #95D5B2;
-    --cream: #FAFAF7;
-    --ink: #1A1A18;
-    --ink-muted: #6B6B60;
-    --border: #D4D4C8;
-    --white: #FFFFFF;
-    --red: #C0392B;
-    --serif: 'DM Serif Display', Georgia, serif;
-    --sans: 'DM Sans', system-ui, sans-serif;
+    --k900:#0d2a1a;--k800:#14401f;--k700:#1a5c2e;--k600:#217a3d;--k500:#2a9e50;
+    --k400:#4bbf6b;--k300:#7dd49a;--k100:#d4f5df;
+    --m900:#1c1d1c;--m700:#343534;--m600:#4a4b4a;--m400:#7a7b7a;
+    --m200:#c4c5c4;--m100:#e8e9e8;--m50:#f4f5f4;
+    --tomato:#c92a2a;
+    /* legacy aliases so unchanged body CSS still works */
+    --green: var(--k700);
+    --green-mid: var(--k600);
+    --green-light: var(--k100);
+    --green-muted: var(--k300);
+    --cream: var(--m50);
+    --ink: var(--m900);
+    --ink-muted: var(--m400);
+    --border: var(--m100);
+    --white: #ffffff;
+    --red: var(--tomato);
+    --sans: 'Rubik', system-ui, sans-serif;
   }
 
   body {
-    font-family: var(--sans);
+    font-family: 'Rubik', sans-serif;
     background: var(--cream);
     color: var(--ink);
     min-height: 100vh;
@@ -33,37 +38,32 @@
   }
 
   header {
-    background: var(--green);
-    padding: 2rem 2.5rem;
+    background: var(--k800);
+    padding: 0 1.75rem;
+    height: 52px;
     display: flex;
-    align-items: flex-end;
-    gap: 1.5rem;
-  }
-
-  .header-accent {
-    width: 4px;
-    height: 56px;
-    background: var(--green-muted);
-    border-radius: 2px;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.25);
     flex-shrink: 0;
   }
 
+  .header-logo { height: 28px; width: auto; }
+  .header-divider { width: 1px; height: 24px; background: var(--k600); }
+
   .header-text h1 {
-    font-family: var(--serif);
-    font-size: 1.75rem;
-    color: var(--white);
-    font-weight: 400;
+    font-size: 14px;
+    font-weight: 500;
+    color: #fff;
     line-height: 1.2;
-    letter-spacing: -0.01em;
   }
 
   .header-text p {
-    font-size: 0.8125rem;
-    color: var(--green-muted);
-    margin-top: 4px;
-    font-weight: 300;
-    letter-spacing: 0.04em;
+    font-size: 10px;
+    color: var(--k300);
+    letter-spacing: 0.06em;
     text-transform: uppercase;
+    margin-top: 1px;
   }
 
   main {
@@ -76,7 +76,7 @@
 
   .notice {
     border: 1px solid var(--border);
-    border-left: 3px solid var(--green-mid);
+    border-left: 3px solid var(--k600);
     background: var(--white);
     padding: 0.875rem 1rem;
     border-radius: 0 6px 6px 0;
@@ -98,11 +98,11 @@
   }
 
   .section-number {
-    font-family: var(--serif);
-    font-size: 0.9375rem;
-    color: var(--green-mid);
-    font-style: italic;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--k600);
     min-width: 20px;
+    letter-spacing: 0.02em;
   }
 
   .section-title {
@@ -162,8 +162,8 @@
     font-size: 0.875rem;
     color: var(--ink);
     background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: 6px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
     padding: 0.5625rem 0.75rem;
     outline: none;
     transition: border-color 0.15s, box-shadow 0.15s;
@@ -176,8 +176,8 @@
   input[type="date"]:focus,
   textarea:focus,
   select:focus {
-    border-color: var(--green-mid);
-    box-shadow: 0 0 0 3px rgba(45, 106, 79, 0.12);
+    border-color: var(--k600);
+    box-shadow: 0 0 0 3px rgba(33,122,61,0.12);
   }
 
   input::placeholder,
@@ -225,7 +225,7 @@
     font-weight: 400;
     padding: 0.625rem 0.5rem;
     border: 1px solid var(--border);
-    border-radius: 6px;
+    border-radius: 8px;
     cursor: pointer;
     transition: all 0.15s;
     background: var(--white);
@@ -235,11 +235,11 @@
   }
 
   .service-option input[type="radio"]:checked + label {
-    border-color: var(--green-mid);
-    background: var(--green-light);
-    color: var(--green);
+    border-color: var(--k600);
+    background: var(--k100);
+    color: var(--k700);
     font-weight: 500;
-    box-shadow: 0 0 0 2px rgba(45, 106, 79, 0.15);
+    box-shadow: 0 0 0 2px rgba(33,122,61,0.15);
   }
 
   .service-option label:hover {
@@ -285,7 +285,7 @@
 
   #urg-low:checked ~ .urgency-option label[for="urg-low"],
   .urgency-option:has(#urg-low:checked) label {
-    border-color: #2D6A4F; background: #D8F3DC; color: #1B4332;
+    border-color: var(--k600); background: var(--k100); color: var(--k700);
   }
   .urgency-option:has(#urg-med:checked) label {
     border-color: #B7791F; background: #FEFCBF; color: #744210;
@@ -319,12 +319,12 @@
   }
 
   .btn-reset {
-    font-family: var(--sans);
+    font-family: 'Rubik', sans-serif;
     font-size: 0.8125rem;
     color: var(--ink-muted);
     background: transparent;
-    border: 1px solid var(--border);
-    border-radius: 6px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
     padding: 0.625rem 1.25rem;
     cursor: pointer;
     transition: all 0.15s;
@@ -333,20 +333,19 @@
   .btn-reset:hover { border-color: var(--ink-muted); color: var(--ink); }
 
   .btn-submit {
-    font-family: var(--sans);
+    font-family: 'Rubik', sans-serif;
     font-size: 0.875rem;
     font-weight: 500;
-    color: var(--white);
-    background: var(--green);
+    color: #fff;
+    background: var(--k600);
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     padding: 0.625rem 1.75rem;
     cursor: pointer;
     transition: background 0.15s;
-    letter-spacing: 0.01em;
   }
 
-  .btn-submit:hover { background: var(--green-mid); }
+  .btn-submit:hover { background: var(--k700); }
   .btn-submit:active { transform: scale(0.98); }
 
   .btn-submit:disabled {
@@ -366,7 +365,7 @@
   .success-icon {
     width: 56px;
     height: 56px;
-    background: var(--green-light);
+    background: var(--k100);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -377,9 +376,8 @@
   .success-icon svg { width: 24px; height: 24px; }
 
   .success-screen h2 {
-    font-family: var(--serif);
-    font-size: 1.5rem;
-    font-weight: 400;
+    font-size: 1.375rem;
+    font-weight: 600;
     color: var(--ink);
     margin-bottom: 0.5rem;
   }
@@ -418,8 +416,8 @@
   .migration-notice.visible { display: block; }
 
   .migration-notice-header {
-    background: var(--green);
-    color: var(--white);
+    background: var(--k800);
+    color: #fff;
     font-size: 0.75rem;
     font-weight: 500;
     letter-spacing: 0.08em;
@@ -465,7 +463,7 @@
 
   .mn-block ol li { margin-bottom: 6px; }
 
-  .mn-block a { color: var(--green-mid); text-decoration: underline; }
+  .mn-block a { color: var(--k600); text-decoration: underline; }
 
   .mn-legal {
     font-size: 0.7375rem;
@@ -514,13 +512,13 @@
   .sig-canvas-wrap {
     position: relative;
     border: 1px solid var(--border);
-    border-radius: 6px;
+    border-radius: 8px;
     background: var(--white);
     overflow: hidden;
     cursor: crosshair;
   }
 
-  .sig-canvas-wrap.signed { border-color: var(--green-mid); }
+  .sig-canvas-wrap.signed { border-color: var(--k600); }
   .sig-canvas-wrap.invalid-sig { border-color: var(--red); }
 
   #sigCanvas { display: block; width: 100%; height: 160px; touch-action: none; }
@@ -560,7 +558,7 @@
   .sig-note { font-size: 0.75rem; color: var(--ink-muted); }
 
   .btn-clear-sig {
-    font-family: var(--sans);
+    font-family: 'Rubik', sans-serif;
     font-size: 0.75rem;
     color: var(--ink-muted);
     background: transparent;
@@ -598,7 +596,8 @@
 <body>
 
 <header>
-  <div class="header-accent"></div>
+  <img src="whitetextlogo.svg" alt="Sprout Solutions" class="header-logo"/>
+  <div class="header-divider"></div>
   <div class="header-text">
     <h1>Service Request Form</h1>
     <p>Platform Operations · Sprout Solutions</p>
@@ -880,7 +879,7 @@
 
   <div class="success-screen" id="successScreen">
     <div class="success-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#1B4332" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--k700)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <polyline points="20 6 9 17 4 12"/>
       </svg>
     </div>
