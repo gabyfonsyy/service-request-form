@@ -760,9 +760,9 @@ function saveTemplatesToServer(tmpl, callback) {
   .then(function(r){ return r.json(); })
   .then(function(d){
     if (d.success) { if (callback) callback(); }
-    else showStatus('Save failed: ' + (d.error || 'Unknown error'));
+    else { console.warn('Template save error:', d.error); showStatus('Note: template saved locally but server sync failed.'); }
   })
-  .catch(function(){ showStatus('Could not save template to server.'); });
+  .catch(function(e){ console.warn('Template server sync failed:', e); });
 }
 
 function deleteTemplateFromServer(name, callback) {
@@ -774,9 +774,9 @@ function deleteTemplateFromServer(name, callback) {
   .then(function(r){ return r.json(); })
   .then(function(d){
     if (d.success) { if (callback) callback(); }
-    else showStatus('Delete failed: ' + (d.error || 'Unknown error'));
+    else { console.warn('Template delete error:', d.error); }
   })
-  .catch(function(){ showStatus('Could not delete template from server.'); });
+  .catch(function(e){ console.warn('Template delete server sync failed:', e); });
 }
 
 function renderTemplates() {
@@ -831,15 +831,19 @@ function saveTemplate() {
     // vat removed
   };
 
-  var btn = document.querySelector('#saveModal .btn-primary');
-  if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
-  saveTemplatesToServer(tmpl, function() {
-    if (btn) { btn.disabled = false; btn.textContent = 'Save Template'; }
-    closeSaveModal();
-    showStatus('Template "' + name + '" saved!');
-    loadTemplates(); // reload from server
-  });
-  if (btn) {} // async — don't close yet
+  // Update local array immediately so UI responds instantly
+  var existingIdx = templates.findIndex(function(t){ return t.name === tmpl.name; });
+  if (existingIdx >= 0) {
+    templates[existingIdx] = tmpl;
+  } else {
+    templates.unshift(tmpl);
+  }
+  renderTemplates();
+  closeSaveModal();
+  showStatus('Template "' + name + '" saved!');
+
+  // Persist to server in background — no waiting
+  saveTemplatesToServer(tmpl, null);
 }
 
 function loadTemplate(idx) {
@@ -872,10 +876,14 @@ function deleteTemplate(idx) {
   var name = templates[idx] ? templates[idx].name : '';
   if (!name) return;
   if (activeTemplateIdx === idx) activeTemplateIdx = -1;
-  deleteTemplateFromServer(name, function() {
-    showStatus('Template deleted.');
-    loadTemplates();
-  });
+
+  // Remove from local array immediately
+  templates.splice(idx, 1);
+  renderTemplates();
+  showStatus('Template deleted.');
+
+  // Persist to server in background
+  deleteTemplateFromServer(name, null);
 }
 
 // ── NEW QUOTATION ─────────────────────────────────────────────
