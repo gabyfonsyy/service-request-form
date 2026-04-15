@@ -4,59 +4,72 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Service Request Portal · Platform Operations</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" crossorigin="anonymous"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --green:#1B4332;--green-mid:#2D6A4F;--green-light:#D8F3DC;--green-muted:#95D5B2;
-  --cream:#FAFAF7;--ink:#1A1A18;--ink-muted:#6B6B60;--border:#D4D4C8;--white:#FFFFFF;
-  --sw:300px;--red:#C0392B;--serif:'DM Serif Display',Georgia,serif;--sans:'DM Sans',system-ui,sans-serif;
+  --k900:#0d2a1a;--k800:#14401f;--k700:#1a5c2e;--k600:#217a3d;--k500:#2a9e50;
+  --k400:#4bbf6b;--k300:#7dd49a;--k100:#d4f5df;
+  --m950:#131413;--m900:#1c1d1c;--m800:#252625;--m700:#343534;
+  --m600:#4a4b4a;--m400:#7a7b7a;--m200:#c4c5c4;--m100:#e8e9e8;--m50:#f4f5f4;
+  --blueberry:#3b5bdb;--blueberry-lt:#e8ecfd;
+  --wintermelon:#0c8599;--wintermelon-lt:#e0f5f8;
+  --carrot:#e8590c;--carrot-lt:#fde8dc;
+  --mango:#f08c00;--mango-lt:#fff3cd;
+  --tomato:#c92a2a;--tomato-lt:#ffe0e0;
+  --lavender:#7048e8;--lavender-lt:#ede9ff;
+  --bg:var(--m50);--surface:#fff;--border:var(--m100);
+  --text:var(--m900);--muted:var(--m400);
+  --primary:var(--k600);--primary-dk:var(--k700);--primary-lt:var(--k100);
+  --sw:300px;
+  font-family:'Rubik',sans-serif;
 }
-html,body{height:100%;font-family:var(--sans);background:var(--cream);color:var(--ink)}
+html,body{height:100%;font-family:'Rubik',sans-serif;background:var(--bg);color:var(--text)}
 
 /* ── GATE ── */
-
-.gate{position:fixed;inset:0;background:var(--green);display:flex;align-items:center;justify-content:center;z-index:9999;padding:1.5rem;transition:opacity 0.4s}
+.gate{position:fixed;inset:0;background:var(--k800);display:flex;align-items:center;justify-content:center;z-index:9999;padding:1.5rem;transition:opacity 0.4s}
 .gate.out{opacity:0;pointer-events:none}
-.gate-card{background:var(--white);border-radius:14px;padding:2.75rem 2.25rem;width:100%;max-width:400px;text-align:center}
+.gate-card{background:var(--surface);border-radius:14px;padding:2.75rem 2.25rem;width:100%;max-width:400px;text-align:center}
 .gate-logo{height:44px;width:auto;display:block;margin:0 auto 1.5rem}
-.gate-card h1{font-family:var(--serif);font-size:1.625rem;font-weight:400;color:var(--ink);margin-bottom:4px}
-.gate-sub{font-size:0.72rem;color:var(--ink-muted);margin-bottom:2.25rem;letter-spacing:0.05em;text-transform:uppercase}
+.gate-card h1{font-size:1.5rem;font-weight:600;color:var(--text);margin-bottom:4px}
+.gate-sub{font-size:0.72rem;color:var(--muted);margin-bottom:2.25rem;letter-spacing:0.05em;text-transform:uppercase}
 .gate-field{margin-bottom:10px;position:relative}
-.gate-field input{width:100%;font-family:var(--sans);font-size:0.875rem;color:var(--ink);background:var(--cream);border:1px solid var(--border);border-radius:7px;padding:0.7rem 1rem;outline:none;transition:border-color 0.15s,box-shadow 0.15s}
-.gate-field input:focus{border-color:var(--green-mid);box-shadow:0 0 0 3px rgba(45,106,79,0.12)}
-.gate-field input.err{border-color:var(--red)}
+.gate-field input{width:100%;font-family:'Rubik',sans-serif;font-size:0.875rem;color:var(--text);background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:0.7rem 1rem;outline:none;transition:border-color 0.15s,box-shadow 0.15s}
+.gate-field input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(33,122,61,0.12)}
+.gate-field input.err{border-color:var(--tomato)}
 .gate-field input.shake{animation:shake 0.4s}
-.gate-eye{position:absolute;right:11px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--ink-muted);padding:2px;line-height:1}
-.gate-error{font-size:0.75rem;color:var(--red);min-height:18px;margin-bottom:8px}
-.gate-btn{width:100%;font-family:var(--sans);font-size:0.875rem;font-weight:500;color:var(--white);background:var(--green);border:none;border-radius:7px;padding:0.75rem;cursor:pointer;transition:background 0.15s;display:flex;align-items:center;justify-content:center;gap:8px}
-.gate-spinner{width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:var(--white);border-radius:50%;animation:spin 0.7s linear infinite;display:none}
+.gate-eye{position:absolute;right:11px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);padding:2px;line-height:1}
+.gate-error{font-size:0.75rem;color:var(--tomato);min-height:18px;margin-bottom:8px}
+.gate-btn{width:100%;font-family:'Rubik',sans-serif;font-size:0.875rem;font-weight:500;color:#fff;background:var(--primary);border:none;border-radius:8px;padding:0.75rem;cursor:pointer;transition:background 0.15s;display:flex;align-items:center;justify-content:center;gap:8px}
+.gate-spinner{width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;display:none}
 .gate-btn.loading .gate-spinner{display:block}
 .gate-btn.loading{opacity:0.8;pointer-events:none}
-.gate-btn:hover{background:var(--green-mid)}
-.gate-hint{font-size:0.7rem;color:var(--ink-muted);margin-top:14px;line-height:1.6}
+.gate-btn:hover{background:var(--primary-dk)}
+.gate-hint{font-size:0.7rem;color:var(--muted);margin-top:14px;line-height:1.6}
 @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-
-
-/* ── APP SHELL ── */
+/* ── SHELL ── */
 .app{display:none;flex-direction:column;height:100vh;overflow:hidden}
 .app.on{display:flex}
-.shell-header{background:var(--green);padding:1rem 1.75rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-shrink:0}
+.shell-header{background:var(--k800);padding:0 1.75rem;height:52px;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.25)}
 .sh-left{display:flex;align-items:center;gap:12px}
-.sh-accent{width:3px;height:38px;background:var(--green-muted);border-radius:2px;flex-shrink:0}
-.sh-title{font-family:var(--serif);font-size:1.25rem;color:var(--white);font-weight:400;line-height:1.2}
-.sh-sub{font-size:0.7rem;color:var(--green-muted);letter-spacing:0.05em;text-transform:uppercase;margin-top:1px}
-.sh-right{display:flex;align-items:center;gap:10px}
-.sh-user{font-size:0.75rem;color:var(--green-muted);padding:4px 10px;background:rgba(255,255,255,0.08);border-radius:20px}
-.sh-logout{font-family:var(--sans);font-size:0.75rem;color:var(--green-muted);background:none;border:1px solid rgba(149,213,178,0.25);border-radius:5px;padding:5px 11px;cursor:pointer;transition:all 0.15s}
-.sh-logout:hover{border-color:var(--green-muted);color:var(--white)}
-.tab-bar{background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 1.5rem;flex-shrink:0}
-.tab{font-family:var(--sans);font-size:0.8125rem;color:var(--ink-muted);padding:0.75rem 1.125rem;border:none;border-bottom:2px solid transparent;background:none;cursor:pointer;display:flex;align-items:center;gap:7px;transition:color 0.15s,border-color 0.15s;white-space:nowrap}
+.sh-logo{height:28px;width:auto}
+.sh-divider{width:1px;height:24px;background:var(--k600)}
+.sh-title{font-size:14px;font-weight:500;color:#fff}
+.sh-sub{font-size:10px;color:var(--k300);letter-spacing:0.06em;text-transform:uppercase;margin-top:1px}
+.sh-right{display:flex;align-items:center;gap:8px}
+.sh-user{font-size:0.75rem;color:var(--k300);padding:4px 10px;background:rgba(255,255,255,0.08);border-radius:20px}
+.sh-logout{font-family:'Rubik',sans-serif;font-size:0.75rem;color:var(--k300);background:none;border:1px solid rgba(125,212,154,0.25);border-radius:6px;padding:5px 11px;cursor:pointer;transition:all 0.15s}
+.sh-logout:hover{border-color:var(--k300);color:#fff}
+
+/* ── TABS ── */
+.tab-bar{background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 1.5rem;flex-shrink:0}
+.tab{font-family:'Rubik',sans-serif;font-size:0.8125rem;color:var(--muted);padding:0.75rem 1.125rem;border:none;border-bottom:2px solid transparent;background:none;cursor:pointer;display:flex;align-items:center;gap:7px;transition:color 0.15s,border-color 0.15s;white-space:nowrap}
 .tab svg{width:14px;height:14px}
-.tab:hover{color:var(--ink)}
-.tab.active{color:var(--green);border-bottom-color:var(--green-mid);font-weight:500}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--primary);border-bottom-color:var(--primary);font-weight:500}
 
 /* ── VIEWS ── */
 .views{flex:1;overflow:hidden;display:flex;flex-direction:column}
@@ -65,212 +78,193 @@ html,body{height:100%;font-family:var(--sans);background:var(--cream);color:var(
 
 /* ── LANDING ── */
 .landing{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3rem 1.5rem}
-.landing h2{font-family:var(--serif);font-size:1.875rem;font-weight:400;color:var(--ink);margin-bottom:6px;text-align:center}
-.landing-sub{font-size:0.875rem;color:var(--ink-muted);margin-bottom:3rem;text-align:center}
+.landing h2{font-size:1.75rem;font-weight:600;color:var(--text);margin-bottom:6px;text-align:center}
+.landing-sub{font-size:0.875rem;color:var(--muted);margin-bottom:3rem;text-align:center}
 .cards{display:grid;grid-template-columns:1fr 1fr;gap:1rem;max-width:560px;width:100%}
-.lcard{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:2rem 1.5rem;cursor:pointer;transition:border-color 0.15s,box-shadow 0.15s,transform 0.15s;text-align:center}
-.lcard:hover{border-color:var(--green-mid);box-shadow:0 6px 24px rgba(27,67,50,0.1);transform:translateY(-2px)}
-.lcard-icon{width:48px;height:48px;border-radius:10px;background:var(--green-light);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem}
-.lcard-icon svg{width:22px;height:22px;stroke:var(--green-mid);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
-.lcard h3{font-size:1rem;font-weight:500;color:var(--ink);margin-bottom:6px}
-.lcard p{font-size:0.8rem;color:var(--ink-muted);line-height:1.6}
+.lcard{background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:2rem 1.5rem;cursor:pointer;transition:border-color 0.15s,box-shadow 0.15s,transform 0.15s;text-align:center}
+.lcard:hover{border-color:var(--primary);box-shadow:0 6px 24px rgba(33,122,61,0.1);transform:translateY(-2px)}
+.lcard-icon{width:48px;height:48px;border-radius:10px;background:var(--primary-lt);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem}
+.lcard-icon svg{width:22px;height:22px;stroke:var(--primary);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.lcard h3{font-size:1rem;font-weight:600;color:var(--text);margin-bottom:6px}
+.lcard p{font-size:0.8rem;color:var(--muted);line-height:1.6}
 
-/* ── TRACKER CSS ── */
-
-/* ── ANALYTICS BAR (internal only) ── */
-.analytics{background:var(--white);border-bottom:1px solid var(--border);padding:14px 20px;display:none;flex-direction:column;gap:12px;flex-shrink:0}
+/* ── ANALYTICS STRIP (tracker inline) ── */
+.analytics{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 16px;display:none;flex-direction:column;gap:10px;flex-shrink:0}
 .analytics.on{display:flex}
-.analytics-row{display:flex;gap:10px;flex-wrap:wrap}
-.sc{flex:1;min-width:120px;background:var(--cream);border:1px solid var(--border);border-radius:8px;padding:10px 14px;cursor:pointer;transition:border-color 0.15s,background 0.15s;position:relative}
-.sc:hover{border-color:var(--green-muted)}
-.sc.active{border-color:var(--green-mid);background:var(--green-light)}
-.sc-label{font-size:0.65rem;font-weight:500;text-transform:uppercase;letter-spacing:0.06em;color:var(--ink-muted);margin-bottom:4px}
-.sc-value{font-family:var(--serif);font-size:1.5rem;font-weight:400;color:var(--ink);line-height:1}
-.sc-sub{font-size:0.65rem;color:var(--ink-muted);margin-top:3px}
-.sc.active .sc-label,.sc.active .sc-sub{color:var(--green-mid)}
-.sc.active .sc-value{color:var(--green)}
-.analytics-meta{display:flex;gap:16px;flex-wrap:wrap;align-items:center}
-.meta-pill{font-size:0.72rem;color:var(--ink-muted);background:var(--cream);border:1px solid var(--border);border-radius:20px;padding:3px 10px;white-space:nowrap}
-.meta-pill span{color:var(--ink);font-weight:500}
+.analytics-row{display:flex;gap:8px;flex-wrap:wrap}
+.sc{flex:1;min-width:110px;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:9px 12px;cursor:pointer;transition:border-color 0.15s,background 0.15s}
+.sc:hover{border-color:var(--k300)}
+.sc.active{border-color:var(--primary);background:var(--primary-lt)}
+.sc-label{font-size:0.62rem;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin-bottom:3px}
+.sc-value{font-size:1.375rem;font-weight:600;color:var(--text);line-height:1}
+.sc-sub{font-size:0.62rem;color:var(--muted);margin-top:2px}
+.sc.active .sc-label,.sc.active .sc-sub{color:var(--k600)}
+.sc.active .sc-value{color:var(--primary-dk)}
+.analytics-meta{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.meta-pill{font-size:0.72rem;color:var(--muted);background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:3px 10px;white-space:nowrap}
+.meta-pill span{color:var(--text);font-weight:600}
 
 /* ── LAYOUT ── */
 .body{display:flex;flex:1;overflow:hidden}
 
 /* ── SIDEBAR ── */
-.sidebar{width:var(--sw);flex-shrink:0;border-right:1px solid var(--border);background:var(--white);display:flex;flex-direction:column;overflow:hidden}
-.sb-search{padding:10px 12px;border-bottom:1px solid var(--border)}
-.sb-search input{width:100%;font-family:var(--sans);font-size:0.8rem;color:var(--ink);background:var(--cream);border:1px solid var(--border);border-radius:6px;padding:7px 10px;outline:none;transition:border-color 0.15s}
-.sb-search input:focus{border-color:var(--green-mid)}
+.sidebar{width:var(--sw);flex-shrink:0;border-right:1px solid var(--border);background:var(--surface);display:flex;flex-direction:column;overflow:hidden}
+.sb-search{padding:10px 12px;border-bottom:1px solid var(--border);display:flex;gap:6px;align-items:center}
+.sb-search input{flex:1;font-family:'Rubik',sans-serif;font-size:0.8rem;color:var(--text);background:var(--bg);border:1.5px solid var(--border);border-radius:7px;padding:7px 10px;outline:none;transition:border-color 0.15s}
+.sb-search input:focus{border-color:var(--primary)}
+.sb-refresh{font-family:'Rubik',sans-serif;font-size:0.75rem;color:var(--muted);background:var(--bg);border:1.5px solid var(--border);border-radius:7px;padding:6px 9px;cursor:pointer;flex-shrink:0;transition:all 0.15s}
+.sb-refresh:hover{border-color:var(--k300)}
 .sb-filters{padding:8px 12px;border-bottom:1px solid var(--border);display:flex;gap:5px;flex-wrap:wrap}
-.pill{font-size:0.68rem;padding:3px 9px;border-radius:20px;border:1px solid var(--border);background:var(--white);color:var(--ink-muted);cursor:pointer;transition:all 0.12s;white-space:nowrap}
-.pill:hover{border-color:var(--green-muted)}
-.pill.on{background:var(--green-light);border-color:var(--green-mid);color:var(--green);font-weight:500}
+.pill{font-size:0.67rem;padding:3px 9px;border-radius:20px;border:1.5px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;transition:all 0.12s;white-space:nowrap;font-family:'Rubik',sans-serif}
+.pill:hover{border-color:var(--k300)}
+.pill.on{background:var(--primary-lt);border-color:var(--primary);color:var(--primary-dk);font-weight:500}
 .sb-list{flex:1;overflow-y:auto}
 .sb-list::-webkit-scrollbar{width:3px}
 .sb-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
 
 /* ── REQUEST CARD ── */
 .rcard{padding:11px 12px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.1s}
-.rcard:hover{background:var(--cream)}
-.rcard.on{background:var(--green-light);border-left:3px solid var(--green-mid)}
+.rcard:hover{background:var(--bg)}
+.rcard.on{background:var(--primary-lt);border-left:3px solid var(--primary)}
 .rc-top{display:flex;align-items:flex-start;justify-content:space-between;gap:6px;margin-bottom:3px}
-.rc-client{font-size:0.8rem;font-weight:500;color:var(--ink);line-height:1.3}
-.rc-service{font-size:0.7rem;color:var(--ink-muted);margin-bottom:4px}
+.rc-client{font-size:0.8rem;font-weight:600;color:var(--text);line-height:1.3}
+.rc-service{font-size:0.7rem;color:var(--muted);margin-bottom:4px}
 .rc-bottom{display:flex;align-items:center;justify-content:space-between}
-.rc-date{font-size:0.67rem;color:var(--ink-muted)}
-.rc-key{font-size:0.67rem;color:var(--green-mid);font-weight:500}
-.empty-sb{padding:2rem;text-align:center;color:var(--ink-muted);font-size:0.8rem}
+.rc-date{font-size:0.67rem;color:var(--muted)}
+.rc-key{font-size:0.67rem;color:var(--primary);font-weight:600}
+.empty-sb{padding:2rem;text-align:center;color:var(--muted);font-size:0.8rem}
 
 /* ── BADGES ── */
-.badge{display:inline-flex;align-items:center;gap:3px;font-size:0.62rem;font-weight:500;padding:2px 7px;border-radius:20px;white-space:nowrap;text-transform:uppercase;letter-spacing:0.04em}
+.badge{display:inline-flex;align-items:center;gap:3px;font-size:0.62rem;font-weight:600;padding:2px 7px;border-radius:20px;white-space:nowrap;text-transform:uppercase;letter-spacing:0.04em}
 .badge::before{content:'';width:5px;height:5px;border-radius:50%;flex-shrink:0}
-.b-green{background:#D8F3DC;color:#085041}.b-green::before{background:#1D9E75}
-.b-blue{background:#E6F1FB;color:#0C447C}.b-blue::before{background:#185FA5}
-.b-teal{background:#E1F5EE;color:#085041}.b-teal::before{background:#0F6E56}
-.b-amber{background:#FAEEDA;color:#633806}.b-amber::before{background:#854F0B}
-.b-red{background:#FCEBEB;color:#791F1F}.b-red::before{background:#A32D2D}
-.b-gray{background:#F1EFE8;color:#444441}.b-gray::before{background:#888780}
-.b-purple{background:#EEEDFE;color:#3C3489}.b-purple::before{background:#534AB7}
-.cost-badge{font-size:0.6rem;font-weight:500;padding:1px 6px;border-radius:10px;white-space:nowrap}
-.cost-paid{background:#E6F1FB;color:#0C447C}
-.cost-waived{background:#EEEDFE;color:#3C3489}
-.cost-pending{background:#F1EFE8;color:#5F5E5A}
+.b-green{background:#d4f5df;color:#0d5a24}.b-green::before{background:#2a9e50}
+.b-blue{background:#e8ecfd;color:#1c3a9e}.b-blue::before{background:#3b5bdb}
+.b-teal{background:#e0f5f8;color:#074f5a}.b-teal::before{background:#0c8599}
+.b-amber{background:#fff3cd;color:#7a4800}.b-amber::before{background:#f08c00}
+.b-red{background:#ffe0e0;color:#7a1010}.b-red::before{background:#c92a2a}
+.b-gray{background:#f4f5f4;color:#343534}.b-gray::before{background:#7a7b7a}
+.b-purple{background:#ede9ff;color:#3b1d9e}.b-purple::before{background:#7048e8}
+.cost-badge{font-size:0.6rem;font-weight:600;padding:1px 7px;border-radius:10px;white-space:nowrap}
+.cost-paid{background:#e8ecfd;color:#1c3a9e}
+.cost-waived{background:#ede9ff;color:#3b1d9e}
+.cost-pending{background:#f4f5f4;color:#4a4b4a}
 
-/* ── DETAIL PANEL ── */
+/* ── DETAIL ── */
 .detail{flex:1;overflow-y:auto;padding:1.75rem}
 .detail::-webkit-scrollbar{width:4px}
 .detail::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
-.state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:10px;color:var(--ink-muted)}
+.state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:10px;color:var(--muted)}
 .state svg{opacity:0.2}
 .state p{font-size:0.875rem}
-
-/* ── DETAIL CONTENT ── */
 .dh{margin-bottom:1.5rem}
-.dh h2{font-family:var(--serif);font-size:1.375rem;font-weight:400;color:var(--ink);margin-bottom:8px;line-height:1.3}
-.dh-meta{display:flex;flex-wrap:wrap;align-items:center;gap:7px;font-size:0.8rem;color:var(--ink-muted)}
-.dh-meta a{color:var(--green-mid);text-decoration:none;font-weight:500}
+.dh h2{font-size:1.25rem;font-weight:600;color:var(--text);margin-bottom:8px;line-height:1.3}
+.dh-meta{display:flex;flex-wrap:wrap;align-items:center;gap:7px;font-size:0.8rem;color:var(--muted)}
+.dh-meta a{color:var(--primary);text-decoration:none;font-weight:500}
 .dh-meta a:hover{text-decoration:underline}
-.dsec{background:var(--white);border:1px solid var(--border);border-radius:8px;margin-bottom:1rem;overflow:hidden}
-.dsh{padding:9px 14px;border-bottom:1px solid var(--border);background:var(--cream);display:flex;align-items:center;justify-content:space-between}
-.dsh h3{font-size:0.68rem;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-muted)}
+.dsec{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:1rem;overflow:hidden}
+.dsh{padding:9px 14px;border-bottom:1px solid var(--border);background:var(--bg);display:flex;align-items:center;justify-content:space-between}
+.dsh h3{font-size:0.67rem;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;color:var(--muted)}
 .dsb{padding:14px}
 .igrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.iitem label{display:block;font-size:0.65rem;font-weight:500;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:2px}
-.iitem span{font-size:0.8125rem;color:var(--ink)}
+.iitem label{display:block;font-size:0.63rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:3px}
+.iitem span{font-size:0.8125rem;color:var(--text)}
 .iitem.full{grid-column:1/-1}
 
-/* ── LIFECYCLE STEPPER ── */
+/* ── STEPPER ── */
 .stepper{display:flex;align-items:flex-start;gap:0;margin:4px 0 0;overflow-x:auto;padding-bottom:4px}
 .step{display:flex;flex-direction:column;align-items:center;flex:1;min-width:80px;position:relative}
 .step:not(:last-child)::after{content:'';position:absolute;top:10px;left:50%;width:100%;height:2px;background:var(--border);z-index:0}
-.step.done::after{background:var(--green-muted)}
-.step-dot{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);background:var(--white);z-index:1;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
-.step.done .step-dot{border-color:var(--green-mid);background:var(--green-mid)}
-.step.done .step-dot::after{content:'';width:6px;height:6px;border-radius:50%;background:var(--white)}
-.step.current .step-dot{border-color:var(--green-mid);background:var(--white);box-shadow:0 0 0 3px rgba(45,106,79,0.15)}
-.step.current .step-dot::after{content:'';width:8px;height:8px;border-radius:50%;background:var(--green-mid)}
-.step-label{font-size:0.6rem;text-align:center;color:var(--ink-muted);margin-top:6px;line-height:1.3;padding:0 2px}
-.step.done .step-label,.step.current .step-label{color:var(--green);font-weight:500}
+.step.done::after{background:var(--k300)}
+.step-dot{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);background:var(--surface);z-index:1;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
+.step.done .step-dot{border-color:var(--primary);background:var(--primary)}
+.step.done .step-dot::after{content:'';width:6px;height:6px;border-radius:50%;background:#fff}
+.step.current .step-dot{border-color:var(--primary);background:var(--surface);box-shadow:0 0 0 3px rgba(33,122,61,0.15)}
+.step.current .step-dot::after{content:'';width:8px;height:8px;border-radius:50%;background:var(--primary)}
+.step-label{font-size:0.6rem;text-align:center;color:var(--muted);margin-top:6px;line-height:1.3;padding:0 2px}
+.step.done .step-label,.step.current .step-label{color:var(--primary-dk);font-weight:600}
 
 /* ── TICKET CARDS ── */
-.tcard{border:1px solid var(--border);border-radius:6px;margin-bottom:9px;overflow:hidden}
+.tcard{border:1.5px solid var(--border);border-radius:8px;margin-bottom:9px;overflow:hidden}
 .tcard:last-child{margin-bottom:0}
-.tc-hd{padding:10px 12px;display:flex;align-items:flex-start;justify-content:space-between;gap:8px;background:var(--cream);cursor:pointer;transition:background 0.12s}
-.tc-hd:hover{background:#EBE9E3}
-.tc-key{font-size:0.72rem;font-weight:500;color:var(--green-mid);margin-bottom:2px}
+.tc-hd{padding:10px 12px;display:flex;align-items:flex-start;justify-content:space-between;gap:8px;background:var(--bg);cursor:pointer;transition:background 0.12s}
+.tc-hd:hover{background:var(--m100)}
+.tc-key{font-size:0.72rem;font-weight:600;color:var(--primary);margin-bottom:2px}
 .tc-key a{color:inherit;text-decoration:none}.tc-key a:hover{text-decoration:underline}
-.tc-sum{font-size:0.8rem;color:var(--ink);line-height:1.4}
-.tc-who{font-size:0.68rem;color:var(--ink-muted);margin-top:2px}
+.tc-sum{font-size:0.8rem;color:var(--text);line-height:1.4}
+.tc-who{font-size:0.68rem;color:var(--muted);margin-top:2px}
 .tc-bd{display:none;padding:12px;border-top:1px solid var(--border)}
 .tc-bd.on{display:block}
-.sub-list h4{font-size:0.65rem;font-weight:500;text-transform:uppercase;letter-spacing:0.06em;color:var(--ink-muted);margin-bottom:7px}
-.sub-row{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:var(--cream);border-radius:5px;margin-bottom:5px;gap:8px}
+.sub-list h4{font-size:0.63rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin-bottom:7px}
+.sub-row{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:6px;margin-bottom:5px;gap:8px}
 .sub-row:last-child{margin-bottom:0}
 .sub-info{flex:1;min-width:0}
-.sub-key{font-size:0.7rem;font-weight:500;color:var(--green-mid)}
+.sub-key{font-size:0.7rem;font-weight:600;color:var(--primary)}
 .sub-key a{color:inherit;text-decoration:none}.sub-key a:hover{text-decoration:underline}
-.sub-sum{font-size:0.75rem;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.sub-who{font-size:0.67rem;color:var(--ink-muted)}
+.sub-sum{font-size:0.75rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sub-who{font-size:0.67rem;color:var(--muted)}
 .clist{display:flex;flex-direction:column;gap:7px;margin-top:10px}
-.ci{padding:8px 10px;background:var(--cream);border-radius:5px;border-left:2px solid var(--border)}
-.ci-who{font-size:0.67rem;font-weight:500;color:var(--ink-muted);margin-bottom:2px}
-.ci-body{font-size:0.78rem;color:var(--ink);line-height:1.5}
-.no-c{font-size:0.78rem;color:var(--ink-muted);font-style:italic;margin-top:8px}
-.spinner{width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--green-mid);border-radius:50%;animation:spin 0.7s linear infinite;display:inline-block}
-@keyframes spin{to{transform:rotate(360deg)}}
+.ci{padding:8px 10px;background:var(--bg);border-radius:5px;border-left:2px solid var(--border)}
+.ci-who{font-size:0.67rem;font-weight:600;color:var(--muted);margin-bottom:2px}
+.ci-body{font-size:0.78rem;color:var(--text);line-height:1.5}
+.no-c{font-size:0.78rem;color:var(--muted);font-style:italic;margin-top:8px}
+.spinner{width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin 0.7s linear infinite;display:inline-block}
+
+/* ── ANALYTICS PAGE ── */
+.toolbar{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap}
+.toolbar h2{font-size:1.25rem;font-weight:600;color:var(--text)}
+.toolbar-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.date-group{display:flex;align-items:center;gap:6px}
+.date-group label{font-size:0.75rem;color:var(--muted)}
+.date-group input{font-family:'Rubik',sans-serif;font-size:0.8rem;color:var(--text);background:var(--surface);border:1.5px solid var(--border);border-radius:7px;padding:5px 9px;outline:none;transition:border-color 0.15s}
+.date-group input:focus{border-color:var(--primary)}
+.btn{font-family:'Rubik',sans-serif;font-size:0.8rem;font-weight:500;padding:6px 14px;border-radius:7px;cursor:pointer;transition:all 0.15s;border:1.5px solid var(--border);background:var(--surface);color:var(--muted)}
+.btn:hover{border-color:var(--primary);color:var(--primary)}
+.btn-primary{background:var(--primary);color:#fff;border-color:var(--primary)}
+.btn-primary:hover{background:var(--primary-dk);color:#fff}
+.sc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:1.5rem}
+.sc-an{background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:14px 16px}
+.sc-an .sc-label{font-size:0.63rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:6px}
+.sc-an .sc-value{font-size:1.875rem;font-weight:600;color:var(--text);line-height:1}
+.sc-an .sc-sub{font-size:0.67rem;color:var(--muted);margin-top:4px}
+.sc-an.highlight{border-color:var(--primary);background:var(--primary-lt)}
+.sc-an.highlight .sc-label,.sc-an.highlight .sc-sub{color:var(--k600)}
+.sc-an.highlight .sc-value{color:var(--primary-dk)}
+.sc-an.revenue-in{border-color:var(--blueberry);background:var(--blueberry-lt)}
+.sc-an.revenue-in .sc-label,.sc-an.revenue-in .sc-sub{color:#1c3a9e}
+.sc-an.revenue-in .sc-value{color:var(--blueberry)}
+.sc-an.revenue-out{border-color:var(--lavender);background:var(--lavender-lt)}
+.sc-an.revenue-out .sc-label,.sc-an.revenue-out .sc-sub{color:#3b1d9e}
+.sc-an.revenue-out .sc-value{color:var(--lavender)}
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem}
+.chart-grid.full{grid-template-columns:1fr}
+.chart-card{background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:1.25rem}
+.chart-card h3{font-size:0.67rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:1rem}
+.chart-wrap{position:relative;height:220px}
+.chart-wrap.tall{height:280px}
+.table-card{background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:1.25rem;margin-bottom:1rem}
+.table-card h3{font-size:0.67rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:1rem}
+table{width:100%;border-collapse:collapse;font-size:0.8125rem}
+th{text-align:left;font-size:0.63rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);padding:6px 10px;border-bottom:1px solid var(--border)}
+td{padding:8px 10px;border-bottom:1px solid var(--border);color:var(--text)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--bg)}
+.loading-state{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:12px;color:var(--muted)}
+.analytics-view-scroll{flex:1;overflow-y:auto;padding:1.75rem}
+.analytics-view-scroll::-webkit-scrollbar{width:4px}
+.analytics-view-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
 
 @media(max-width:640px){
   .body{flex-direction:column}
   .sidebar{width:100%;height:240px;border-right:none;border-bottom:1px solid var(--border)}
   .igrid{grid-template-columns:1fr}
   .analytics-row{flex-direction:column}
-}
-
-/* ── ANALYTICS CSS ── */
-
-/* ── TOOLBAR ── */
-.toolbar{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap}
-.toolbar h2{font-family:var(--serif);font-size:1.375rem;font-weight:400;color:var(--ink)}
-.toolbar-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.date-group{display:flex;align-items:center;gap:6px}
-.date-group label{font-size:0.75rem;color:var(--ink-muted)}
-.date-group input{font-family:var(--sans);font-size:0.8rem;color:var(--ink);background:var(--white);border:1px solid var(--border);border-radius:6px;padding:5px 8px;outline:none;transition:border-color 0.15s}
-.date-group input:focus{border-color:var(--green-mid)}
-.btn{font-family:var(--sans);font-size:0.8rem;font-weight:500;padding:6px 14px;border-radius:6px;cursor:pointer;transition:all 0.15s;border:1px solid var(--border);background:var(--white);color:var(--ink-muted)}
-.btn:hover{border-color:var(--green-mid);color:var(--green)}
-.btn-primary{background:var(--green);color:var(--white);border-color:var(--green)}
-.btn-primary:hover{background:var(--green-mid);color:var(--white)}
-
-/* ── SCORECARDS ── */
-.sc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:1.5rem}
-.sc{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
-.sc-label{font-size:0.65rem;font-weight:500;text-transform:uppercase;letter-spacing:0.07em;color:var(--ink-muted);margin-bottom:6px}
-.sc-value{font-family:var(--serif);font-size:2rem;font-weight:400;color:var(--ink);line-height:1}
-.sc-sub{font-size:0.68rem;color:var(--ink-muted);margin-top:4px}
-.sc.highlight{border-color:var(--green-mid);background:var(--green-light)}
-.sc.highlight .sc-label,.sc.highlight .sc-sub{color:var(--green-mid)}
-.sc.highlight .sc-value{color:var(--green)}
-
-/* ── CHART GRID ── */
-.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem}
-.chart-grid.full{grid-template-columns:1fr}
-.chart-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:1.25rem}
-.chart-card h3{font-size:0.72rem;font-weight:500;text-transform:uppercase;letter-spacing:0.07em;color:var(--ink-muted);margin-bottom:1rem}
-.chart-wrap{position:relative;height:220px}
-.chart-wrap.tall{height:280px}
-
-/* ── TABLE ── */
-.table-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:1.25rem;margin-bottom:1rem}
-.table-card h3{font-size:0.72rem;font-weight:500;text-transform:uppercase;letter-spacing:0.07em;color:var(--ink-muted);margin-bottom:1rem}
-table{width:100%;border-collapse:collapse;font-size:0.8125rem}
-th{text-align:left;font-size:0.65rem;font-weight:500;text-transform:uppercase;letter-spacing:0.06em;color:var(--ink-muted);padding:6px 10px;border-bottom:1px solid var(--border)}
-td{padding:8px 10px;border-bottom:1px solid var(--border);color:var(--ink)}
-tr:last-child td{border-bottom:none}
-tr:hover td{background:var(--cream)}
-
-/* ── LOADING ── */
-.loading-state{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:12px;color:var(--ink-muted)}
-
-
-/* badges defined above */
-
-@media(max-width:640px){
   .chart-grid{grid-template-columns:1fr}
   .sc-grid{grid-template-columns:repeat(2,1fr)}
 }
-
-/* ── ANALYTICS VIEW WRAPPER ── */
-.analytics-view-scroll{flex:1;overflow-y:auto;padding:1.75rem}
-.analytics-view-scroll::-webkit-scrollbar{width:4px}
-.analytics-view-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
-
 @media(max-width:540px){
   .cards{grid-template-columns:1fr}
   .landing h2{font-size:1.375rem}
-  .shell-header{padding:0.875rem 1rem}
-  .body{flex-direction:column}
-  .sidebar{width:100%;height:240px;border-right:none;border-bottom:1px solid var(--border)}
-  .igrid{grid-template-columns:1fr}
+  .shell-header{padding:0 1rem}
 }
 </style>
 </head>
@@ -305,10 +299,11 @@ tr:hover td{background:var(--cream)}
 <div class="app" id="app">
   <div class="shell-header">
     <div class="sh-left">
-      <div class="sh-accent"></div>
+      <img src="logo.svg" alt="Sprout Solutions" class="sh-logo"/>
+      <div class="sh-divider"></div>
       <div>
         <div class="sh-title">Service Request Portal</div>
-        <div class="sh-sub">Platform Operations · Sprout Solutions</div>
+        <div class="sh-sub">Platform Operations</div>
       </div>
     </div>
     <div class="sh-right">
@@ -330,10 +325,13 @@ tr:hover td{background:var(--cream)}
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
       Analytics
     </button>
+    <button class="tab" id="tab-quotation" onclick="openQuotation()" style="display:none">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Quotation Builder
+    </button>
   </div>
 
   <div class="views">
-
     <!-- LANDING -->
     <div class="view on" id="view-landing">
       <div class="landing">
@@ -360,829 +358,395 @@ tr:hover td{background:var(--cream)}
 
     <!-- TRACKER VIEW -->
     <div class="view" id="view-tracker">
-<!-- ANALYTICS (internal only) -->
-<div class="analytics" id="analytics">
-  <div class="analytics-row" id="scRow">
-    <div class="sc" data-lc="all" onclick="scFilter(this)">
-      <div class="sc-label">Total Requests</div>
-      <div class="sc-value" id="sc-total">—</div>
-      <div class="sc-sub">All time</div>
-    </div>
-    <div class="sc" data-lc="For Quotation" onclick="scFilter(this)">
-      <div class="sc-label">For Quotation</div>
-      <div class="sc-value" id="sc-fq">—</div>
-      <div class="sc-sub">Awaiting review</div>
-    </div>
-    <div class="sc" data-lc="Ongoing Review" onclick="scFilter(this)">
-      <div class="sc-label">Ongoing Review</div>
-      <div class="sc-value" id="sc-or">—</div>
-      <div class="sc-sub">Being reviewed</div>
-    </div>
-    <div class="sc" data-lc="Quotation Provided" onclick="scFilter(this)">
-      <div class="sc-label">Quotation Provided</div>
-      <div class="sc-value" id="sc-qp">—</div>
-      <div class="sc-sub">Awaiting CRF</div>
-    </div>
-    <div class="sc" data-lc="For Execution / Schedule" onclick="scFilter(this)">
-      <div class="sc-label">For Execution</div>
-      <div class="sc-value" id="sc-fe">—</div>
-      <div class="sc-sub">CRF raised</div>
-    </div>
-    <div class="sc" data-lc="Ongoing Execution / Activity" onclick="scFilter(this)">
-      <div class="sc-label">Ongoing Activity</div>
-      <div class="sc-value" id="sc-oe">—</div>
-      <div class="sc-sub">In execution</div>
-    </div>
-    <div class="sc" data-lc="Request Done" onclick="scFilter(this)">
-      <div class="sc-label">Request Done</div>
-      <div class="sc-value" id="sc-rd">—</div>
-      <div class="sc-sub">Completed</div>
-    </div>
-  </div>
-  <div class="analytics-meta" id="analyticsMeta"></div>
-</div>
+      <!-- ANALYTICS STRIP -->
+      <div class="analytics" id="analytics">
+        <div class="analytics-row" id="scRow">
+          <div class="sc" data-lc="all" onclick="scFilter(this)"><div class="sc-label">Total</div><div class="sc-value" id="sc-total">—</div><div class="sc-sub">All requests</div></div>
+          <div class="sc" data-lc="For Quotation" onclick="scFilter(this)"><div class="sc-label">For Quotation</div><div class="sc-value" id="sc-fq">—</div><div class="sc-sub">Awaiting review</div></div>
+          <div class="sc" data-lc="Ongoing Review" onclick="scFilter(this)"><div class="sc-label">Ongoing Review</div><div class="sc-value" id="sc-or">—</div><div class="sc-sub">Being reviewed</div></div>
+          <div class="sc" data-lc="Quotation Provided" onclick="scFilter(this)"><div class="sc-label">Quotation Provided</div><div class="sc-value" id="sc-qp">—</div><div class="sc-sub">Awaiting CRF</div></div>
+          <div class="sc" data-lc="For Execution / Schedule" onclick="scFilter(this)"><div class="sc-label">For Execution</div><div class="sc-value" id="sc-fe">—</div><div class="sc-sub">CRF raised</div></div>
+          <div class="sc" data-lc="Ongoing Execution / Activity" onclick="scFilter(this)"><div class="sc-label">Ongoing Activity</div><div class="sc-value" id="sc-oe">—</div><div class="sc-sub">In execution</div></div>
+          <div class="sc" data-lc="Request Done" onclick="scFilter(this)"><div class="sc-label">Done</div><div class="sc-value" id="sc-rd">—</div><div class="sc-sub">Completed</div></div>
+        </div>
+        <div class="analytics-meta" id="analyticsMeta"></div>
+      </div>
 
-<!-- BODY -->
-<div class="body">
-  <!-- SIDEBAR -->
-  <div class="sidebar">
-    <div class="sb-search" style="display:flex;gap:6px;align-items:center">
-      <input type="text" id="srch" placeholder="Search client, ticket, email…" oninput="render()" style="flex:1"/>
-      <button onclick="refresh()" title="Refresh" style="font-family:var(--sans);font-size:0.75rem;color:var(--ink-muted);background:var(--cream);border:1px solid var(--border);border-radius:6px;padding:6px 9px;cursor:pointer;flex-shrink:0;transition:all 0.15s" onmouseover="this.style.borderColor='var(--green-muted)'" onmouseout="this.style.borderColor='var(--border)'">↻</button>
-    </div>
-    <div class="sb-filters" id="filters">
-      <span class="pill on" data-f="all"    onclick="setF(this)">All</span>
-      <span class="pill"    data-f="For Quotation"              onclick="setF(this)">For Quotation</span>
-      <span class="pill"    data-f="Ongoing Review"             onclick="setF(this)">Ongoing Review</span>
-      <span class="pill"    data-f="Quotation Provided"         onclick="setF(this)">Quotation Provided</span>
-      <span class="pill"    data-f="For Execution / Schedule"   onclick="setF(this)">For Execution</span>
-      <span class="pill"    data-f="Ongoing Execution / Activity" onclick="setF(this)">Ongoing Activity</span>
-      <span class="pill"    data-f="Request Done"               onclick="setF(this)">Done</span>
-    </div>
-    <div class="sb-list" id="sbList"><div class="empty-sb"><span class="spinner"></span></div></div>
-  </div>
-
-  <!-- DETAIL -->
-  <div class="detail" id="detail">
-    <div class="state">
-      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 9h6M9 12h6M9 15h4"/></svg>
-      <p>Select a request to view details</p>
-    </div>
-  </div>
-</div>
+      <div class="body">
+        <div class="sidebar">
+          <div class="sb-search">
+            <input type="text" id="srch" placeholder="Search client, ticket, email…" oninput="render()"/>
+            <button class="sb-refresh" onclick="refresh()" title="Refresh">↻</button>
+          </div>
+          <div class="sb-filters" id="filters">
+            <span class="pill on" data-f="all" onclick="setF(this)">All</span>
+            <span class="pill" data-f="For Quotation" onclick="setF(this)">For Quotation</span>
+            <span class="pill" data-f="Ongoing Review" onclick="setF(this)">Ongoing Review</span>
+            <span class="pill" data-f="Quotation Provided" onclick="setF(this)">Quotation Provided</span>
+            <span class="pill" data-f="For Execution / Schedule" onclick="setF(this)">For Execution</span>
+            <span class="pill" data-f="Ongoing Execution / Activity" onclick="setF(this)">Ongoing Activity</span>
+            <span class="pill" data-f="Request Done" onclick="setF(this)">Done</span>
+          </div>
+          <div class="sb-list" id="sbList"><div class="empty-sb"><span class="spinner"></span></div></div>
+        </div>
+        <div class="detail" id="detail">
+          <div class="state">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 9h6M9 12h6M9 15h4"/></svg>
+            <p>Select a request to view details</p>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- ANALYTICS VIEW -->
     <div class="view" id="view-analytics">
       <div class="analytics-view-scroll">
-<div id="an-loadingState" class="loading-state">
-  <span class="spinner"></span>
-  <p>Loading analytics…</p>
-</div>
+        <div id="an-loadingState" class="loading-state"><span class="spinner"></span><p>Loading analytics…</p></div>
+        <div id="an-content" style="display:none">
+          <div class="toolbar">
+            <h2>Analytics &amp; Reports</h2>
+            <div class="toolbar-right">
+              <div class="date-group"><label>From</label><input type="date" id="an-fromDate"/></div>
+              <div class="date-group"><label>To</label><input type="date" id="an-toDate"/></div>
+              <button class="btn btn-primary" onclick="applyFilter()">Apply</button>
+              <button class="btn" onclick="clearFilter()">All time</button>
+            </div>
+          </div>
 
-<div id="an-content" style="display:none">
-  <!-- TOOLBAR -->
-  <div class="toolbar">
-    <h2>Analytics &amp; Reports</h2>
-    <div class="toolbar-right">
-      <div class="date-group">
-        <label>From</label>
-        <input type="date" id="an-fromDate"/>
-      </div>
-      <div class="date-group">
-        <label>To</label>
-        <input type="date" id="an-toDate"/>
-      </div>
-      <button class="btn btn-primary" onclick="applyFilter()">Apply</button>
-      <button class="btn" onclick="clearFilter()">All time</button>
-    </div>
-  </div>
+          <div class="sc-grid">
+            <div class="sc-an highlight"><div class="sc-label">Total Requests</div><div class="sc-value" id="an-total">—</div><div class="sc-sub">In selected period</div></div>
+            <div class="sc-an"><div class="sc-label">For Quotation</div><div class="sc-value" id="an-fq">—</div><div class="sc-sub">Awaiting review</div></div>
+            <div class="sc-an"><div class="sc-label">Ongoing Review</div><div class="sc-value" id="an-or">—</div><div class="sc-sub">Being reviewed</div></div>
+            <div class="sc-an"><div class="sc-label">Quotation Provided</div><div class="sc-value" id="an-qp">—</div><div class="sc-sub">Awaiting CRF</div></div>
+            <div class="sc-an"><div class="sc-label">For Execution</div><div class="sc-value" id="an-fe">—</div><div class="sc-sub">CRF raised</div></div>
+            <div class="sc-an"><div class="sc-label">Ongoing Activity</div><div class="sc-value" id="an-oe">—</div><div class="sc-sub">In execution</div></div>
+            <div class="sc-an"><div class="sc-label">Request Done</div><div class="sc-value" id="an-rd">—</div><div class="sc-sub">Completed</div></div>
+            <div class="sc-an"><div class="sc-label">Avg. Resolution</div><div class="sc-value" id="an-avg">—</div><div class="sc-sub">Days to complete</div></div>
+            <div class="sc-an revenue-in"><div class="sc-label">Revenue Received</div><div class="sc-value" id="an-rev-in">—</div><div class="sc-sub">Paid requests total</div></div>
+            <div class="sc-an revenue-out"><div class="sc-label">Revenue Lost</div><div class="sc-value" id="an-rev-out">—</div><div class="sc-sub">Waived requests total</div></div>
+          </div>
 
-  <!-- SCORECARDS -->
-  <div class="sc-grid">
-    <div class="sc highlight">
-      <div class="sc-label">Total Requests</div>
-      <div class="sc-value" id="an-total">—</div>
-      <div class="sc-sub">In selected period</div>
-    </div>
-    <div class="sc">
-      <div class="sc-label">For Quotation</div>
-      <div class="sc-value" id="an-fq">—</div>
-      <div class="sc-sub">Awaiting review</div>
-    </div>
-    <div class="sc">
-      <div class="sc-label">Ongoing Review</div>
-      <div class="sc-value" id="an-or">—</div>
-      <div class="sc-sub">Being reviewed</div>
-    </div>
-    <div class="sc">
-      <div class="sc-label">Quotation Provided</div>
-      <div class="sc-value" id="an-qp">—</div>
-      <div class="sc-sub">Awaiting CRF</div>
-    </div>
-    <div class="sc">
-      <div class="sc-label">For Execution</div>
-      <div class="sc-value" id="an-fe">—</div>
-      <div class="sc-sub">CRF raised</div>
-    </div>
-    <div class="sc">
-      <div class="sc-label">Ongoing Activity</div>
-      <div class="sc-value" id="an-oe">—</div>
-      <div class="sc-sub">In execution</div>
-    </div>
-    <div class="sc">
-      <div class="sc-label">Request Done</div>
-      <div class="sc-value" id="an-rd">—</div>
-      <div class="sc-sub">Completed</div>
-    </div>
-    <div class="sc">
-      <div class="sc-label">Avg. Resolution</div>
-      <div class="sc-value" id="an-avg">—</div>
-      <div class="sc-sub">Days to complete</div>
-    </div>
-  </div>
-
-  <!-- ROW 1: Monthly trend + Lifecycle -->
-  <div class="chart-grid">
-    <div class="chart-card">
-      <h3>Requests over time</h3>
-      <div class="chart-wrap tall"><canvas id="an-chartMonthly"></canvas></div>
-    </div>
-    <div class="chart-card">
-      <h3>By lifecycle stage</h3>
-      <div class="chart-wrap tall"><canvas id="an-chartLifecycle"></canvas></div>
-    </div>
-  </div>
-
-  <!-- ROW 2: By service + Cost + Urgency -->
-  <div class="chart-grid">
-    <div class="chart-card">
-      <h3>By service type</h3>
-      <div class="chart-wrap"><canvas id="an-chartService"></canvas></div>
-    </div>
-    <div class="chart-card">
-      <h3>Cost status</h3>
-      <div class="chart-wrap"><canvas id="an-chartCost"></canvas></div>
-    </div>
-  </div>
-
-  <div class="chart-grid">
-    <div class="chart-card">
-      <h3>By urgency</h3>
-      <div class="chart-wrap"><canvas id="an-chartUrgency"></canvas></div>
-    </div>
-    <div class="chart-card">
-      <h3>Service type breakdown</h3>
-      <div class="table-card" style="border:none;padding:0;margin:0">
-        <table id="an-serviceTable">
-          <thead><tr><th>Service Type</th><th>Count</th><th>Share</th></tr></thead>
-          <tbody></tbody>
-        </table>
+          <div class="chart-grid">
+            <div class="chart-card"><h3>Requests over time</h3><div class="chart-wrap tall"><canvas id="an-chartMonthly"></canvas></div></div>
+            <div class="chart-card"><h3>By lifecycle stage</h3><div class="chart-wrap tall"><canvas id="an-chartLifecycle"></canvas></div></div>
+          </div>
+          <div class="chart-grid">
+            <div class="chart-card"><h3>By service type</h3><div class="chart-wrap"><canvas id="an-chartService"></canvas></div></div>
+            <div class="chart-card"><h3>Cost status</h3><div class="chart-wrap"><canvas id="an-chartCost"></canvas></div></div>
+          </div>
+          <div class="chart-grid">
+            <div class="chart-card"><h3>By urgency</h3><div class="chart-wrap"><canvas id="an-chartUrgency"></canvas></div></div>
+            <div class="chart-card">
+              <h3>Service type breakdown</h3>
+              <div class="table-card" style="border:none;padding:0;margin:0">
+                <table id="an-serviceTable"><thead><tr><th>Service Type</th><th>Count</th><th>Share</th></tr></thead><tbody></tbody></table>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-</div>
-      </div>
-    </div>
-
   </div>
 </div>
 
 <script>
-// ── CONFIG ────────────────────────────────────
+// ── CONFIG ─────────────────────────────────────────────────
 var GAS_URL     = 'https://script.google.com/macros/s/AKfycbxpNYlKZmKBkykfvWU-cbPbJyxHxyrcRY-Vx8_wKYsESJQSprAohRKqwrtUZBTg-0el3g/exec';
 var PASSPHRASE  = 'Sprout2026!!';
 var SESSION_KEY = 'platops_v2';
 
-// ── STATE ─────────────────────────────────────
-var userEmail   = '';
-var userRole    = 'client';
-var isInternal  = false;
-var trackerInit = false;
-var analyticsInit = false;
+var userEmail='', userRole='client', isInternal=false, trackerInit=false, analyticsInit=false;
 
-// ── GATE ──────────────────────────────────────
+// ── GATE ───────────────────────────────────────────────────
 async function login() {
-  const emailEl = document.getElementById('gEmail');
-  const passEl  = document.getElementById('gPass');
-  const errEl   = document.getElementById('gErr');
-  const btn     = document.getElementById('gBtn');
-  const email   = emailEl.value.trim().toLowerCase();
-  const pass    = passEl.value;
-
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    errEl.textContent = 'Please enter a valid email address.';
-    emailEl.classList.add('err','shake');
-    setTimeout(() => emailEl.classList.remove('shake'), 400);
-    return;
+  const emailEl=document.getElementById('gEmail'), passEl=document.getElementById('gPass');
+  const errEl=document.getElementById('gErr'), btn=document.getElementById('gBtn');
+  const email=emailEl.value.trim().toLowerCase(), pass=passEl.value;
+  if (!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    errEl.textContent='Please enter a valid email address.';
+    emailEl.classList.add('err','shake'); setTimeout(()=>emailEl.classList.remove('shake'),400); return;
   }
-  if (pass !== PASSPHRASE) {
-    errEl.textContent = 'Incorrect passphrase. Please try again.';
-    passEl.classList.add('err','shake');
-    passEl.value = '';
-    setTimeout(() => passEl.classList.remove('shake'), 400);
-    setTimeout(() => errEl.textContent = '', 3000);
-    return;
+  if (pass!==PASSPHRASE) {
+    errEl.textContent='Incorrect passphrase. Please try again.';
+    passEl.classList.add('err','shake'); passEl.value='';
+    setTimeout(()=>passEl.classList.remove('shake'),400);
+    setTimeout(()=>errEl.textContent='',3000); return;
   }
-
-  btn.classList.add('loading');
-  errEl.textContent = '';
-
-  var role = 'client';
+  btn.classList.add('loading'); errEl.textContent='';
+  var role='client';
   try {
-    var cached = sessionStorage.getItem('role_' + email);
-    if (cached) {
-      role = cached;
-    } else {
-      var controller = new AbortController();
-      var timeout = setTimeout(() => {
-        controller.abort();
-        role = email.endsWith('@sprout.ph') ? 'internal' : 'client';
-      }, 9000);
-      var res  = await fetch(GAS_URL + '?action=checkAccess&email=' + encodeURIComponent(email), { signal: controller.signal });
-      clearTimeout(timeout);
-      var data = await res.json();
-      role = data.role || 'client';
-      sessionStorage.setItem('role_' + email, role);
+    var cached=sessionStorage.getItem('role_'+email);
+    if (cached) { role=cached; } else {
+      var ctrl=new AbortController();
+      var to=setTimeout(()=>{ctrl.abort();role=email.endsWith('@sprout.ph')?'internal':'client';},9000);
+      var res=await fetch(GAS_URL+'?action=checkAccess&email='+encodeURIComponent(email),{signal:ctrl.signal});
+      clearTimeout(to); var d=await res.json(); role=d.role||'client';
+      sessionStorage.setItem('role_'+email,role);
     }
-  } catch(e) {
-    role = email.endsWith('@sprout.ph') ? 'internal' : 'client';
-  }
-
+  } catch(e) { role=email.endsWith('@sprout.ph')?'internal':'client'; }
   btn.classList.remove('loading');
-  sessionStorage.setItem(SESSION_KEY, JSON.stringify({ email, role, ts: Date.now() }));
+  sessionStorage.setItem(SESSION_KEY,JSON.stringify({email,role,ts:Date.now()}));
   document.getElementById('gate').classList.add('out');
-  setTimeout(() => { document.getElementById('gate').style.display = 'none'; }, 400);
-  initApp(email, role);
+  setTimeout(()=>{document.getElementById('gate').style.display='none';},400);
+  initApp(email,role);
 }
+function togglePw(){var e=document.getElementById('gPass');e.type=e.type==='password'?'text':'password';}
+function logout(){sessionStorage.removeItem(SESSION_KEY);location.reload();}
 
-function togglePw() {
-  var el = document.getElementById('gPass');
-  el.type = el.type === 'password' ? 'text' : 'password';
-}
-
-function logout() {
-  sessionStorage.removeItem(SESSION_KEY);
-  location.reload();
-}
-
-// ── APP INIT ──────────────────────────────────
-function initApp(email, role) {
-  userEmail  = email;
-  userRole   = role || 'client';
-  isInternal = userRole === 'internal' || userRole === 'admin';
-  document.getElementById('shUser').textContent = email;
+// ── APP INIT ───────────────────────────────────────────────
+function initApp(email,role) {
+  userEmail=email; userRole=role||'client'; isInternal=userRole==='internal'||userRole==='admin';
+  document.getElementById('shUser').textContent=email;
   document.getElementById('app').classList.add('on');
-
-  if (userRole === 'admin') {
-    document.getElementById('tab-analytics').style.display = 'flex';
+  if (isInternal) {
+    document.getElementById('tab-analytics').style.display='flex';
+    document.getElementById('tab-quotation').style.display='flex';
   }
-  if (!isInternal) {
-    document.getElementById('trackerCardDesc').textContent =
-      'View your submitted service requests and their current status.';
-  }
-
-  // Pre-fetch tracker data in background
-  var cacheKey = 'tracker_cache_' + email;
+  if (!isInternal) document.getElementById('trackerCardDesc').textContent='View your submitted service requests and their current status.';
+  var cacheKey='tracker_cache_'+email;
   if (!sessionStorage.getItem(cacheKey)) {
-    fetch(GAS_URL + '?action=list&email=' + encodeURIComponent(email))
-      .then(r => r.json())
-      .then(d => sessionStorage.setItem(cacheKey, JSON.stringify({ data: d, ts: Date.now() })))
-      .catch(() => {});
+    fetch(GAS_URL+'?action=list&email='+encodeURIComponent(email)).then(r=>r.json())
+      .then(d=>sessionStorage.setItem(cacheKey,JSON.stringify({data:d,ts:Date.now()}))).catch(()=>{});
   }
 }
 
-// ── NAVIGATION ────────────────────────────────
-function openForm() {
-  window.open('form.html', '_blank');
+// ── NAVIGATION ─────────────────────────────────────────────
+function openForm(){window.open('form.html','_blank');}
+function openQuotation(){window.open('quotation.html','_blank');}
+function openView(name){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
+  document.getElementById('view-'+name).classList.add('on');
+  document.getElementById('tabBar').style.display='flex';
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  var tab=document.getElementById('tab-'+name); if(tab)tab.classList.add('active');
 }
-
-function openView(name) {
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('on'));
-  document.getElementById('view-' + name).classList.add('on');
-  document.getElementById('tabBar').style.display = 'flex';
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  var tab = document.getElementById('tab-' + name);
-  if (tab) tab.classList.add('active');
-}
-
-function switchTab(name) {
-  if (name === 'form') { openForm(); return; }
+function switchTab(name){
+  if(name==='form'){openForm();return;}
   openView(name);
-  if (name === 'tracker' && !trackerInit) {
-    trackerInit = true;
-    USER_EMAIL  = userEmail;
-    IS_INTERNAL = isInternal;
-    init_tracker();
-  }
-  if (name === 'analytics' && !analyticsInit) {
-    analyticsInit = true;
-    var from = new Date(); from.setDate(1);
-    var fromStr = from.toISOString().split('T')[0];
-    var toStr   = new Date().toISOString().split('T')[0];
-    document.getElementById('an-fromDate').value = fromStr;
-    document.getElementById('an-toDate').value   = toStr;
-    load_analytics(fromStr, toStr);
+  if(name==='tracker'&&!trackerInit){trackerInit=true;USER_EMAIL=userEmail;IS_INTERNAL=isInternal;init_tracker();}
+  if(name==='analytics'&&!analyticsInit){
+    analyticsInit=true;
+    var from=new Date();from.setDate(1);
+    var fromStr=from.toISOString().split('T')[0];
+    var toStr=new Date().toISOString().split('T')[0];
+    document.getElementById('an-fromDate').value=fromStr;
+    document.getElementById('an-toDate').value=toStr;
+    load_analytics(fromStr,toStr);
   }
 }
+var saved=sessionStorage.getItem(SESSION_KEY);
+if(saved){try{var s=JSON.parse(saved);document.getElementById('gate').style.display='none';initApp(s.email,s.role);}catch(e){sessionStorage.removeItem(SESSION_KEY);}}
 
-// Restore session
-var saved = sessionStorage.getItem(SESSION_KEY);
-if (saved) {
-  try {
-    var s = JSON.parse(saved);
-    document.getElementById('gate').style.display = 'none';
-    initApp(s.email, s.role);
-  } catch(e) { sessionStorage.removeItem(SESSION_KEY); }
-}
+// ── TRACKER GLOBALS ────────────────────────────────────────
+var USER_EMAIL='', IS_INTERNAL=false;
+var LIFECYCLE=['For Quotation','Ongoing Review','Quotation Provided','For Execution / Schedule','Ongoing Execution / Activity','Request Done'];
+var all=[], activeF='all', activeSC='all', activeKey=null, initialized=false;
 
-// ── TRACKER GLOBALS (used by tracker JS) ──────
-var USER_EMAIL  = '';
-var IS_INTERNAL = false;
-// GAS_URL defined above
-var LIFECYCLE    = ['For Quotation','Ongoing Review','Quotation Provided','For Execution / Schedule','Ongoing Execution / Activity','Request Done'];
-// USER_EMAIL and IS_INTERNAL set by switchTab()
-
-var all      = [];
-var activeF  = 'all';
-var activeSC = 'all';
-var activeKey= null;
-
-// ── INIT ─────────────────────────────────────
-var initialized = false;
-async function init_tracker() {
-  if (initialized) return;
-  initialized = true;
-  if (IS_INTERNAL) {
-    document.getElementById('analytics').classList.add('on');
-    loadAnalytics();
-  }
+async function init_tracker(){
+  if(initialized)return; initialized=true;
+  if(IS_INTERNAL){document.getElementById('analytics').classList.add('on');loadAnalytics();}
   await loadList();
 }
-
-async function loadList() {
-  const cacheKey = 'tracker_cache_' + USER_EMAIL;
-  const cached   = sessionStorage.getItem(cacheKey);
-
-  if (cached) {
-    // Show cached data instantly
-    try {
-      const { data } = JSON.parse(cached);
-      all = data.submissions || [];
-      render();
-    } catch(e) {}
-    // Silently refresh in background
-    fetch(GAS_URL + '?action=list&email=' + encodeURIComponent(USER_EMAIL))
-      .then(r => r.json())
-      .then(d => {
-        sessionStorage.setItem(cacheKey, JSON.stringify({ data: d, ts: Date.now() }));
-        all = d.submissions || [];
-        render();
-      })
-      .catch(() => {});
+async function loadList(){
+  const cacheKey='tracker_cache_'+USER_EMAIL;
+  const cached=sessionStorage.getItem(cacheKey);
+  if(cached){
+    try{const{data}=JSON.parse(cached);all=data.submissions||[];render();}catch(e){}
+    fetch(GAS_URL+'?action=list&email='+encodeURIComponent(USER_EMAIL)).then(r=>r.json())
+      .then(d=>{sessionStorage.setItem(cacheKey,JSON.stringify({data:d,ts:Date.now()}));all=d.submissions||[];render();}).catch(()=>{});
     return;
   }
-
-  // No cache — show spinner and fetch
-  document.getElementById('sbList').innerHTML = '<div class="empty-sb"><span class="spinner"></span></div>';
-  try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 15000);
-    const res = await fetch(GAS_URL + '?action=list&email=' + encodeURIComponent(USER_EMAIL), { signal: controller.signal });
-    clearTimeout(timeout);
-    const d = await res.json();
-    sessionStorage.setItem(cacheKey, JSON.stringify({ data: d, ts: Date.now() }));
-    all = d.submissions || [];
-    render();
-  } catch(e) {
-    console.log('loadList error:', e);
-    document.getElementById('sbList').innerHTML = '<div class="empty-sb">Failed to load. <span style="color:var(--green-mid);cursor:pointer;text-decoration:underline" onclick="loadList()">Retry</span></div>';
-  }
+  document.getElementById('sbList').innerHTML='<div class="empty-sb"><span class="spinner"></span></div>';
+  try{
+    const ctrl=new AbortController();
+    const to=setTimeout(()=>ctrl.abort(),15000);
+    const res=await fetch(GAS_URL+'?action=list&email='+encodeURIComponent(USER_EMAIL),{signal:ctrl.signal});
+    clearTimeout(to); const d=await res.json();
+    sessionStorage.setItem(cacheKey,JSON.stringify({data:d,ts:Date.now()}));
+    all=d.submissions||[]; render();
+  }catch(e){document.getElementById('sbList').innerHTML='<div class="empty-sb">Failed to load. <span style="color:var(--primary);cursor:pointer;text-decoration:underline" onclick="loadList()">Retry</span></div>';}
+}
+async function refresh(){sessionStorage.removeItem('tracker_cache_'+USER_EMAIL);all=[];activeKey=null;document.getElementById('detail').innerHTML='<div class="state"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 9h6M9 12h6M9 15h4"/></svg><p>Select a request to view details</p></div>';await loadList();if(IS_INTERNAL)loadAnalytics();}
+async function loadAnalytics(){
+  try{
+    const res=await fetch(GAS_URL+'?action=analytics');
+    const data=await res.json();
+    if(!data||data.error)return;
+    document.getElementById('sc-total').textContent=data.total||0;
+    document.getElementById('sc-fq').textContent=data.lifecycleCounts['For Quotation']||0;
+    document.getElementById('sc-or').textContent=data.lifecycleCounts['Ongoing Review']||0;
+    document.getElementById('sc-qp').textContent=data.lifecycleCounts['Quotation Provided']||0;
+    document.getElementById('sc-fe').textContent=data.lifecycleCounts['For Execution / Schedule']||0;
+    document.getElementById('sc-oe').textContent=data.lifecycleCounts['Ongoing Execution / Activity']||0;
+    document.getElementById('sc-rd').textContent=data.lifecycleCounts['Request Done']||0;
+    const meta=document.getElementById('analyticsMeta');
+    const pills=[];
+    if(data.byCost){pills.push(`Paid: <span>${data.byCost['Paid']||0}</span>`);pills.push(`Waived: <span>${data.byCost['Waived']||0}</span>`);pills.push(`Cost TBD: <span>${data.byCost['Pending']||0}</span>`);}
+    if(data.avgDays!=null)pills.push(`Avg. resolution: <span>${data.avgDays}d</span>`);
+    if(data.monthlyArr&&data.monthlyArr.length){const last=data.monthlyArr[data.monthlyArr.length-1];pills.push(`This month: <span>${last.count} request${last.count!==1?'s':''}</span>`);}
+    if(data.byService){const top=Object.entries(data.byService).sort((a,b)=>b[1]-a[1])[0];if(top)pills.push(`Top service: <span>${top[0]}</span>`);}
+    meta.innerHTML=pills.map(p=>`<div class="meta-pill">${p}</div>`).join('');
+  }catch(e){}
 }
 
-async function refresh() {
-  // Clear cache so we force a fresh fetch
-  sessionStorage.removeItem('tracker_cache_' + USER_EMAIL);
-  all = [];
-  activeKey = null;
-  document.getElementById('detail').innerHTML = '<div class="state"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 9h6M9 12h6M9 15h4"/></svg><p>Select a request to view details</p></div>';
-  await loadList();
-  if (IS_INTERNAL) loadAnalytics();
-}
+// ── FILTERS ────────────────────────────────────────────────
+function setF(el){document.querySelectorAll('.pill').forEach(p=>p.classList.remove('on'));el.classList.add('on');activeF=el.dataset.f;activeSC='all';document.querySelectorAll('.sc').forEach(s=>s.classList.remove('active'));render();}
+function scFilter(el){document.querySelectorAll('.sc').forEach(s=>s.classList.remove('active'));el.classList.add('active');activeSC=el.dataset.lc;document.querySelectorAll('.pill').forEach(p=>p.classList.remove('on'));const match=document.querySelector('.pill[data-f="'+activeSC+'"]');if(match){match.classList.add('on');activeF=activeSC;}else{document.querySelector('.pill[data-f="all"]').classList.add('on');activeF='all';}render();}
+function matches(s){const lc=s.lifecycle||'';if(activeF!=='all'&&lc!==activeF)return false;const q=document.getElementById('srch').value.toLowerCase();if(!q)return true;return[s.clientName,s.requesterName,s.requesterEmail,s.jiraKey,s.serviceType,s.hrUrl,s.csmName].some(v=>(v||'').toLowerCase().includes(q));}
 
-async function loadAnalytics() {
-  try {
-    const res  = await fetch(GAS_URL + '?action=analytics');
-    const data = await res.json();
-    if (!data || data.error) return;
-
-    document.getElementById('sc-total').textContent = data.total || 0;
-    document.getElementById('sc-fq').textContent    = data.lifecycleCounts['For Quotation']              || 0;
-    document.getElementById('sc-or').textContent    = data.lifecycleCounts['Ongoing Review']             || 0;
-    document.getElementById('sc-qp').textContent    = data.lifecycleCounts['Quotation Provided']         || 0;
-    document.getElementById('sc-fe').textContent    = data.lifecycleCounts['For Execution / Schedule']   || 0;
-    document.getElementById('sc-oe').textContent    = data.lifecycleCounts['Ongoing Execution / Activity']|| 0;
-    document.getElementById('sc-rd').textContent    = data.lifecycleCounts['Request Done']               || 0;
-
-    const meta = document.getElementById('analyticsMeta');
-    const pills = [];
-    if (data.byCost) {
-      pills.push(`Paid: <span>${data.byCost['Paid']||0}</span>`);
-      pills.push(`Waived: <span>${data.byCost['Waived']||0}</span>`);
-      pills.push(`Cost TBD: <span>${data.byCost['Pending']||0}</span>`);
-    }
-    if (data.avgDays !== null && data.avgDays !== undefined) {
-      pills.push(`Avg. resolution: <span>${data.avgDays}d</span>`);
-    }
-    if (data.monthlyArr && data.monthlyArr.length) {
-      const last = data.monthlyArr[data.monthlyArr.length - 1];
-      pills.push(`This month: <span>${last.count} request${last.count !== 1 ? 's' : ''}</span>`);
-    }
-    if (data.byService) {
-      const top = Object.entries(data.byService).sort((a,b) => b[1]-a[1])[0];
-      if (top) pills.push(`Top service: <span>${top[0]}</span>`);
-    }
-    meta.innerHTML = pills.map(p => `<div class="meta-pill">${p}</div>`).join('');
-  } catch(e) {}
-}
-
-// ── FILTERS ──────────────────────────────────
-function setF(el) {
-  document.querySelectorAll('.pill').forEach(p => p.classList.remove('on'));
-  el.classList.add('on');
-  activeF = el.dataset.f;
-  activeSC = 'all';
-  document.querySelectorAll('.sc').forEach(s => s.classList.remove('active'));
-  render();
-}
-
-function scFilter(el) {
-  document.querySelectorAll('.sc').forEach(s => s.classList.remove('active'));
-  el.classList.add('active');
-  activeSC = el.dataset.lc;
-  // Sync pill filter
-  document.querySelectorAll('.pill').forEach(p => p.classList.remove('on'));
-  const match = document.querySelector('.pill[data-f="' + activeSC + '"]');
-  if (match) { match.classList.add('on'); activeF = activeSC; }
-  else { document.querySelector('.pill[data-f="all"]').classList.add('on'); activeF = 'all'; }
-  render();
-}
-
-function matches(s) {
-  const lc = s.lifecycle || '';
-  if (activeF !== 'all' && lc !== activeF) return false;
-  const q = document.getElementById('srch').value.toLowerCase();
-  if (!q) return true;
-  return [s.clientName, s.requesterName, s.requesterEmail, s.jiraKey, s.serviceType, s.hrUrl, s.csmName]
-    .some(v => (v||'').toLowerCase().includes(q));
-}
-
-// ── RENDER LIST ───────────────────────────────
-function render() {
-  const filtered = all.filter(matches);
-  const list     = document.getElementById('sbList');
-  if (!filtered.length) { list.innerHTML = '<div class="empty-sb">No requests found.</div>'; return; }
-
-  list.innerHTML = filtered.map(s => {
-    const lc     = s.lifecycle || 'For Quotation';
-    const bcls   = lcBadge(lc);
-    const dateStr= s.timestamp ? new Date(s.timestamp).toLocaleDateString('en-PH', {year:'numeric',month:'short',day:'numeric'}) : '—';
-    const isOn   = s.jiraKey === activeKey ? 'on' : '';
-    return `<div class="rcard ${isOn}" onclick="select('${esc(s.jiraKey)}',this)">
-      <div class="rc-top">
-        <div class="rc-client">${esc(s.clientName)}</div>
-        <span class="badge ${bcls}">${esc(lc)}</span>
-      </div>
+// ── RENDER LIST ────────────────────────────────────────────
+function render(){
+  const filtered=all.filter(matches);
+  const list=document.getElementById('sbList');
+  if(!filtered.length){list.innerHTML='<div class="empty-sb">No requests found.</div>';return;}
+  list.innerHTML=filtered.map(s=>{
+    const lc=s.lifecycle||'For Quotation';
+    const bcls=lcBadge(lc);
+    const dateStr=s.timestamp?new Date(s.timestamp).toLocaleDateString('en-PH',{year:'numeric',month:'short',day:'numeric'}):'—';
+    const isOn=s.jiraKey===activeKey?'on':'';
+    return`<div class="rcard ${isOn}" onclick="select('${esc(s.jiraKey)}',this)">
+      <div class="rc-top"><div class="rc-client">${esc(s.clientName)}</div><span class="badge ${bcls}">${esc(lc)}</span></div>
       <div class="rc-service">${esc(s.serviceType)}</div>
-      <div class="rc-bottom">
-        <span class="rc-date">${dateStr}</span>
-        <span class="rc-key">${s.jiraKey||'—'}</span>
-      </div>
+      <div class="rc-bottom"><span class="rc-date">${dateStr}</span><span class="rc-key">${s.jiraKey||'—'}</span></div>
     </div>`;
   }).join('');
 }
 
-// ── SELECT ────────────────────────────────────
-async function select(jiraKey, el) {
-  activeKey = jiraKey;
-  document.querySelectorAll('.rcard').forEach(c => c.classList.remove('on'));
-  if (el) el.classList.add('on');
-  const panel = document.getElementById('detail');
-  panel.innerHTML = '<div class="state"><span class="spinner"></span></div>';
-  const s = all.find(x => x.jiraKey === jiraKey);
-  if (!jiraKey || jiraKey === 'ERROR') { renderDetail(s, null); return; }
-  try {
-    const res    = await fetch(GAS_URL + '?action=detail&key=' + encodeURIComponent(jiraKey));
-    const detail = await res.json();
-    renderDetail(s, detail);
-  } catch(e) { renderDetail(s, null); }
+// ── SELECT & DETAIL ────────────────────────────────────────
+async function select(jiraKey,el){
+  activeKey=jiraKey;
+  document.querySelectorAll('.rcard').forEach(c=>c.classList.remove('on'));
+  if(el)el.classList.add('on');
+  const panel=document.getElementById('detail');
+  panel.innerHTML='<div class="state"><span class="spinner"></span></div>';
+  const s=all.find(x=>x.jiraKey===jiraKey);
+  if(!jiraKey||jiraKey==='ERROR'){renderDetail(s,null);return;}
+  try{const res=await fetch(GAS_URL+'?action=detail&key='+encodeURIComponent(jiraKey));const detail=await res.json();renderDetail(s,detail);}
+  catch(e){renderDetail(s,null);}
 }
-
-// ── RENDER DETAIL ─────────────────────────────
-function renderDetail(s, d) {
-  const panel   = document.getElementById('detail');
-  const psrv    = d && d.psrv ? d.psrv : null;
-  const linked  = d && d.linkedTickets ? d.linkedTickets : [];
-  const lc      = s ? s.lifecycle : '—';
-  const bcls    = lcBadge(lc);
-
-  // Cost badge
-  let costHtml = '';
-  if (s && s.costStatus) {
-    const cc = s.costStatus === 'Paid' ? 'cost-paid' : s.costStatus === 'Waived' ? 'cost-waived' : 'cost-pending';
-    costHtml = `<span class="cost-badge ${cc}">${s.costStatus}</span>`;
-  }
-
-  let html = `<div class="dh">
-    <h2>${esc(s ? s.clientName : (psrv ? psrv.summary : '—'))}</h2>
-    <div class="dh-meta">
-      <span class="badge ${bcls}">${esc(lc)}</span>
-      ${costHtml}
-      ${psrv ? `<a href="${psrv.url}" target="_blank">${psrv.key} ↗</a>` : ''}
-      ${s ? `<span>·</span><span>${esc(s.serviceType)}</span>` : ''}
-      ${s && s.urgency ? `<span>·</span><span>${esc(s.urgency)} urgency</span>` : ''}
-    </div>
-  </div>`;
-
-  // Lifecycle stepper
-  html += `<div class="dsec"><div class="dsh"><h3>Request lifecycle</h3></div><div class="dsb">
-    <div class="stepper">${renderStepper(lc)}</div>
-  </div></div>`;
-
-  // Request info
-  if (s) {
-    html += `<div class="dsec"><div class="dsh"><h3>Request information</h3></div><div class="dsb">
-      <div class="igrid">
-        <div class="iitem full"><label>Client / Company</label><span>${esc(s.clientName)}</span></div>
-        <div class="iitem"><label>Requester Name</label><span>${esc(s.requesterName)}</span></div>
-        <div class="iitem"><label>Requester Email Address</label><span>${esc(s.requesterEmail)}</span></div>
-        <div class="iitem"><label>CSM</label><span>${esc(s.csmName)}</span></div>
-        <div class="iitem"><label>CSM Email Address</label><span>${esc(s.csmEmail||'—')}</span></div>
-        <div class="iitem"><label>HR URL</label><span>${esc(s.hrUrl)}</span></div>
-        <div class="iitem"><label>Payroll Codes</label><span>${esc(s.payrollCodes||'—')}</span></div>
-        <div class="iitem"><label>Target Date</label><span>${esc(s.targetDate||'—')}</span></div>
-        <div class="iitem"><label>Urgency</label><span>${esc(s.urgency||'—')}</span></div>
-        ${s.timestamp ? `<div class="iitem"><label>Submitted</label><span>${new Date(s.timestamp).toLocaleDateString('en-PH',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}</span></div>` : ''}
-        ${s.description ? `<div class="iitem full"><label>Description</label><span>${esc(s.description)}</span></div>` : ''}
-        ${s.constraints ? `<div class="iitem full"><label>Constraints / Blackout Dates</label><span>${esc(s.constraints)}</span></div>` : ''}
-        ${s.notes       ? `<div class="iitem full"><label>Additional Notes</label><span>${esc(s.notes)}</span></div>` : ''}
-      </div>
+function renderDetail(s,d){
+  const panel=document.getElementById('detail');
+  const psrv=d&&d.psrv?d.psrv:null;
+  const linked=d&&d.linkedTickets?d.linkedTickets:[];
+  const lc=s?s.lifecycle:'—';
+  const bcls=lcBadge(lc);
+  let costHtml='';
+  if(s&&s.costStatus){const cc=s.costStatus==='Paid'?'cost-paid':s.costStatus==='Waived'?'cost-waived':'cost-pending';costHtml=`<span class="cost-badge ${cc}">${s.costStatus}</span>`;}
+  let html=`<div class="dh"><h2>${esc(s?s.clientName:(psrv?psrv.summary:'—'))}</h2>
+    <div class="dh-meta"><span class="badge ${bcls}">${esc(lc)}</span>${costHtml}
+      ${psrv?`<a href="${psrv.url}" target="_blank">${psrv.key} ↗</a>`:''}
+      ${s?`<span>·</span><span>${esc(s.serviceType)}</span>`:''}
+      ${s&&s.urgency?`<span>·</span><span>${esc(s.urgency)} urgency</span>`:''}
     </div></div>`;
+  html+=`<div class="dsec"><div class="dsh"><h3>Request lifecycle</h3></div><div class="dsb"><div class="stepper">${renderStepper(lc)}</div></div></div>`;
+  if(s){
+    html+=`<div class="dsec"><div class="dsh"><h3>Request information</h3></div><div class="dsb"><div class="igrid">
+      <div class="iitem full"><label>Client / Company</label><span>${esc(s.clientName)}</span></div>
+      <div class="iitem"><label>Requester Name</label><span>${esc(s.requesterName)}</span></div>
+      <div class="iitem"><label>Requester Email</label><span>${esc(s.requesterEmail)}</span></div>
+      <div class="iitem"><label>CSM</label><span>${esc(s.csmName)}</span></div>
+      <div class="iitem"><label>CSM Email</label><span>${esc(s.csmEmail||'—')}</span></div>
+      <div class="iitem"><label>HR URL</label><span>${esc(s.hrUrl)}</span></div>
+      <div class="iitem"><label>Payroll Codes</label><span>${esc(s.payrollCodes||'—')}</span></div>
+      <div class="iitem"><label>Target Date</label><span>${esc(s.targetDate||'—')}</span></div>
+      <div class="iitem"><label>Urgency</label><span>${esc(s.urgency||'—')}</span></div>
+      ${s.timestamp?`<div class="iitem"><label>Submitted</label><span>${new Date(s.timestamp).toLocaleDateString('en-PH',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}</span></div>`:''}
+      ${s.description?`<div class="iitem full"><label>Description</label><span>${esc(s.description)}</span></div>`:''}
+      ${s.constraints?`<div class="iitem full"><label>Constraints / Blackout Dates</label><span>${esc(s.constraints)}</span></div>`:''}
+      ${s.notes?`<div class="iitem full"><label>Additional Notes</label><span>${esc(s.notes)}</span></div>`:''}
+    </div></div></div>`;
   }
-
-  // PSRV inquiry ticket
-  if (psrv) {
-    html += `<div class="dsec"><div class="dsh"><h3>Inquiry ticket — ${psrv.key}</h3><span class="badge ${lcBadgeFromJira(psrv.status)}">${esc(psrv.status)}</span></div><div class="dsb">
-      <div class="igrid" style="margin-bottom:10px">
-        <div class="iitem"><label>Assignee</label><span>${esc(psrv.assignee)}</span></div>
-        <div class="iitem"><label>Last updated</label><span>${(psrv.updated||'').substring(0,10)}</span></div>
-      </div>
-      ${renderComments(psrv.comments)}
-    </div></div>`;
-  }
-
-  // Linked tickets
-  if (linked.length) {
-    html += `<div class="dsec"><div class="dsh"><h3>Activity tickets (CRF &amp; execution)</h3></div><div class="dsb">`;
-    linked.forEach((t, i) => {
-      const tid = 'tc'+i;
-      html += `<div class="tcard"><div class="tc-hd" onclick="tog('${tid}')">
-        <div>
-          <div class="tc-key"><a href="${t.url}" target="_blank" onclick="event.stopPropagation()">${t.key} [${t.project}] ↗</a>
-            ${t.costStatus ? `<span class="cost-badge ${t.costStatus==='Paid'?'cost-paid':'cost-waived'}" style="margin-left:5px">${t.costStatus}</span>` : ''}
-          </div>
-          <div class="tc-sum">${esc(t.summary)}</div>
-          <div class="tc-who">Assigned: ${esc(t.assignee)}</div>
-        </div>
+  if(psrv){html+=`<div class="dsec"><div class="dsh"><h3>Inquiry ticket — ${psrv.key}</h3><span class="badge ${lcBadgeFromJira(psrv.status)}">${esc(psrv.status)}</span></div><div class="dsb">
+    <div class="igrid" style="margin-bottom:10px"><div class="iitem"><label>Assignee</label><span>${esc(psrv.assignee)}</span></div><div class="iitem"><label>Last updated</label><span>${(psrv.updated||'').substring(0,10)}</span></div></div>
+    ${renderComments(psrv.comments)}</div></div>`;}
+  if(linked.length){
+    html+=`<div class="dsec"><div class="dsh"><h3>Activity tickets (CRF &amp; execution)</h3></div><div class="dsb">`;
+    linked.forEach((t,i)=>{
+      const tid='tc'+i;
+      html+=`<div class="tcard"><div class="tc-hd" onclick="tog('${tid}')">
+        <div><div class="tc-key"><a href="${t.url}" target="_blank" onclick="event.stopPropagation()">${t.key} [${t.project}] ↗</a>
+          ${t.costStatus?`<span class="cost-badge ${t.costStatus==='Paid'?'cost-paid':'cost-waived'}" style="margin-left:5px">${t.costStatus}</span>`:''}
+        </div><div class="tc-sum">${esc(t.summary)}</div><div class="tc-who">Assigned: ${esc(t.assignee)}</div></div>
         <span class="badge ${lcBadgeFromJira(t.status)}">${esc(t.status)}</span>
-      </div>
-      <div class="tc-bd" id="${tid}">`;
-
-      if (t.subTickets && t.subTickets.length) {
-        html += `<div class="sub-list"><h4>Sub-tickets</h4>`;
-        t.subTickets.forEach(sub => {
-          html += `<div class="sub-row">
-            <div class="sub-info">
-              <div class="sub-key"><a href="${sub.url}" target="_blank">${sub.key} [${sub.project}] ↗</a></div>
-              <div class="sub-sum">${esc(sub.summary)}</div>
-              <div class="sub-who">${esc(sub.assignee)}</div>
-            </div>
-            <span class="badge ${lcBadgeFromJira(sub.status)}">${esc(sub.status)}</span>
-          </div>`;
-        });
-        html += `</div>`;
-      }
-      html += renderComments(t.comments) + `</div></div>`;
+      </div><div class="tc-bd" id="${tid}">`;
+      if(t.subTickets&&t.subTickets.length){html+=`<div class="sub-list"><h4>Sub-tickets</h4>`;t.subTickets.forEach(sub=>{html+=`<div class="sub-row"><div class="sub-info"><div class="sub-key"><a href="${sub.url}" target="_blank">${sub.key} [${sub.project}] ↗</a></div><div class="sub-sum">${esc(sub.summary)}</div><div class="sub-who">${esc(sub.assignee)}</div></div><span class="badge ${lcBadgeFromJira(sub.status)}">${esc(sub.status)}</span></div>`;});html+=`</div>`;}
+      html+=renderComments(t.comments)+'</div></div>';
     });
-    html += `</div></div>`;
+    html+=`</div></div>`;
   } else {
-    const noST = ['For Quotation','Ongoing Review','Quotation Provided'].includes(lc);
-    if (noST) {
-      html += `<div class="dsec"><div class="dsh"><h3>Activity tickets</h3></div><div class="dsb">
-        <p class="no-c">No CRF tickets linked yet. Activity tickets will appear here once a CRF is raised.</p>
-      </div></div>`;
-    }
+    const noST=['For Quotation','Ongoing Review','Quotation Provided'].includes(lc);
+    if(noST)html+=`<div class="dsec"><div class="dsh"><h3>Activity tickets</h3></div><div class="dsb"><p class="no-c">No CRF tickets linked yet. Activity tickets will appear here once a CRF is raised.</p></div></div>`;
   }
-
-  panel.innerHTML = html;
+  panel.innerHTML=html;
 }
+function renderStepper(currentLc){return LIFECYCLE.map(lc=>{const cIdx=LIFECYCLE.indexOf(currentLc);const lIdx=LIFECYCLE.indexOf(lc);const cls=lIdx<cIdx?'done':lIdx===cIdx?'current':'';const short=lc.replace('Ongoing ','').replace(' / Activity','').replace(' / Schedule','');return`<div class="step ${cls}"><div class="step-dot"></div><div class="step-label">${esc(short)}</div></div>`;}).join('');}
+function renderComments(comments){if(!comments||!comments.length)return'<p class="no-c">No comments yet.</p>';return`<div class="clist">`+comments.map(c=>`<div class="ci"><div class="ci-who">${esc(c.author)} · ${(c.date||'').substring(0,10)}</div><div class="ci-body">${esc(c.body)}</div></div>`).join('')+'</div>';}
+function tog(id){document.getElementById(id).classList.toggle('on');}
+function lcBadge(lc){const map={'For Quotation':'b-gray','Ongoing Review':'b-amber','Quotation Provided':'b-blue','For Execution / Schedule':'b-purple','Ongoing Execution / Activity':'b-teal','Request Done':'b-green'};return map[lc]||'b-gray';}
+function lcBadgeFromJira(status){const s=(status||'').toLowerCase();if(['done','closed','resolved'].some(v=>s.includes(v)))return'b-green';if(['in progress','for pr review'].some(v=>s.includes(v)))return'b-teal';if(['ready for checking','for checking'].some(v=>s.includes(v)))return'b-blue';if(['on hold'].some(v=>s.includes(v)))return'b-amber';if(['cancelled','canceled'].some(v=>s.includes(v)))return'b-red';return'b-gray';}
+function esc(str){return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
-function renderStepper(currentLc) {
-  return LIFECYCLE.map(lc => {
-    const cIdx = LIFECYCLE.indexOf(currentLc);
-    const lIdx = LIFECYCLE.indexOf(lc);
-    const cls  = lIdx < cIdx ? 'done' : lIdx === cIdx ? 'current' : '';
-    const short= lc.replace('Ongoing ','').replace(' / Activity','').replace(' / Schedule','');
-    return `<div class="step ${cls}"><div class="step-dot"></div><div class="step-label">${esc(short)}</div></div>`;
-  }).join('');
-}
+// ── ANALYTICS PAGE ─────────────────────────────────────────
+var charts={};
+var COLORS={green:'#217a3d',blue:'#3b5bdb',amber:'#f08c00',red:'#c92a2a',gray:'#7a7b7a',purple:'#7048e8',teal:'#0c8599',greenL:'#d4f5df',blueL:'#e8ecfd',amberL:'#fff3cd',redL:'#ffe0e0',grayL:'#f4f5f4',purpleL:'#ede9ff',tealL:'#e0f5f8'};
+var LC_COLORS=[COLORS.grayL,COLORS.amberL,COLORS.blueL,COLORS.purpleL,COLORS.tealL,COLORS.greenL];
+var LC_BORDERS=[COLORS.gray,COLORS.amber,COLORS.blue,COLORS.purple,COLORS.teal,COLORS.green];
 
-function renderComments(comments) {
-  if (!comments || !comments.length) return '<p class="no-c">No comments yet.</p>';
-  return `<div class="clist">` + comments.map(c =>
-    `<div class="ci"><div class="ci-who">${esc(c.author)} · ${(c.date||'').substring(0,10)}</div>
-    <div class="ci-body">${esc(c.body)}</div></div>`
-  ).join('') + `</div>`;
-}
+function fmtPhp(n){if(n===null||n===undefined)return'—';if(n>=1000000)return'₱'+(n/1000000).toFixed(1)+'M';if(n>=1000)return'₱'+(n/1000).toFixed(0)+'K';return'₱'+n.toLocaleString('en-PH',{minimumFractionDigits:0,maximumFractionDigits:0});}
 
-// ── HELPERS ───────────────────────────────────
-function tog(id) { document.getElementById(id).classList.toggle('on'); }
-
-function lcBadge(lc) {
-  const map = {
-    'For Quotation':'b-gray','Ongoing Review':'b-amber','Quotation Provided':'b-blue',
-    'For Execution / Schedule':'b-purple','Ongoing Execution / Activity':'b-teal','Request Done':'b-green',
-  };
-  return map[lc] || 'b-gray';
-}
-
-function lcBadgeFromJira(status) {
-  const s = (status||'').toLowerCase();
-  if (['done','closed','resolved'].some(v=>s.includes(v)))              return 'b-green';
-  if (['in progress','for pr review'].some(v=>s.includes(v)))           return 'b-teal';
-  if (['ready for checking','for checking'].some(v=>s.includes(v)))     return 'b-blue';
-  if (['on hold'].some(v=>s.includes(v)))                               return 'b-amber';
-  if (['cancelled','canceled'].some(v=>s.includes(v)))                  return 'b-red';
-  return 'b-gray';
-}
-
-function esc(str) {
-  return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-
-
-// ── ANALYTICS GLOBALS ─────────────────────────
-// USER_EMAIL declared above
-var charts     = {};
-
-var COLORS = {
-  green:  '#1D9E75', blue: '#185FA5', amber: '#854F0B',
-  red:    '#A32D2D', gray: '#888780', purple:'#534AB7', teal:'#0F6E56',
-  greenL: '#D8F3DC', blueL:'#E6F1FB', amberL:'#FAEEDA',
-  redL:   '#FCEBEB', grayL:'#F1EFE8', purpleL:'#EEEDFE', tealL:'#E1F5EE',
-};
-
-var LC_COLORS = [
-  COLORS.grayL, COLORS.amberL, COLORS.blueL, COLORS.purpleL, COLORS.tealL, COLORS.greenL
-];
-var LC_BORDERS = [
-  COLORS.gray, COLORS.amber, COLORS.blue, COLORS.purple, COLORS.teal, COLORS.green
-];
-
-async function load_analytics(from, to) {
-  document.getElementById('an-loadingState').style.display = 'flex';
-  document.getElementById('an-content').style.display = 'none';
-  try {
-    let url = GAS_URL + '?action=analytics';
-    if (from) url += '&from=' + from;
-    if (to)   url += '&to='   + to;
-    const res  = await fetch(url);
-    const data = await res.json();
+async function load_analytics(from,to){
+  document.getElementById('an-loadingState').style.display='flex';
+  document.getElementById('an-content').style.display='none';
+  try{
+    let url=GAS_URL+'?action=analytics';
+    if(from)url+='&from='+from; if(to)url+='&to='+to;
+    const res=await fetch(url);
+    const data=await res.json();
     render_analytics(data);
-    document.getElementById('an-loadingState').style.display = 'none';
-    document.getElementById('an-content').style.display = 'block';
-  } catch(e) {
-    console.error('load_analytics error:', e);
-    const ls = document.getElementById('an-loadingState');
-    if (ls) ls.innerHTML = '<p style="color:var(--ink-muted)">Failed to load analytics. <span style="color:var(--green-mid);cursor:pointer;text-decoration:underline" onclick="load_analytics()">Retry</span></p>';
+    document.getElementById('an-loadingState').style.display='none';
+    document.getElementById('an-content').style.display='block';
+  }catch(e){
+    const ls=document.getElementById('an-loadingState');
+    if(ls)ls.innerHTML='<p style="color:var(--muted)">Failed to load analytics. <span style="color:var(--primary);cursor:pointer;text-decoration:underline" onclick="load_analytics()">Retry</span></p>';
   }
 }
+function render_analytics(data){
+  const lc=data.lifecycleCounts||{};
+  const svc=data.byService||{};
+  const cost=data.byCost||{};
+  const urg=data.byUrgency||{};
+  const svcKeys=Object.keys(svc).sort((a,b)=>svc[b]-svc[a]);
+  document.getElementById('an-total').textContent=data.total??'—';
+  document.getElementById('an-fq').textContent=lc['For Quotation']??'—';
+  document.getElementById('an-or').textContent=lc['Ongoing Review']??'—';
+  document.getElementById('an-qp').textContent=lc['Quotation Provided']??'—';
+  document.getElementById('an-fe').textContent=lc['For Execution / Schedule']??'—';
+  document.getElementById('an-oe').textContent=lc['Ongoing Execution / Activity']??'—';
+  document.getElementById('an-rd').textContent=lc['Request Done']??'—';
+  document.getElementById('an-avg').textContent=data.avgDays!=null?data.avgDays+'d':'—';
+  document.getElementById('an-rev-in').textContent=fmtPhp(data.revenueReceived??null);
+  document.getElementById('an-rev-out').textContent=fmtPhp(data.revenueLost??null);
 
-function render_analytics(data) {
-  // Scorecards
-  const lc  = data.lifecycleCounts || {};
-  const svc = data.byService || {};
-  const cost= data.byCost    || {};
-  const urg = data.byUrgency || {};
-  const svcKeys = Object.keys(svc).sort((a,b) => svc[b]-svc[a]);
+  const tbody=document.querySelector('#an-serviceTable tbody');
+  if(tbody){tbody.innerHTML='';const total=Object.values(svc).reduce((a,b)=>a+b,0)||1;svcKeys.forEach(k=>{const pct=Math.round((svc[k]/total)*100);tbody.innerHTML+=`<tr><td>${k}</td><td>${svc[k]}</td><td><div style="display:flex;align-items:center;gap:8px"><div style="flex:1;height:6px;background:var(--border);border-radius:3px"><div style="width:${pct}%;height:100%;background:var(--primary);border-radius:3px"></div></div><span style="font-size:0.72rem;color:var(--muted);min-width:30px">${pct}%</span></div></td></tr>`;});}
 
-  document.getElementById('an-total').textContent = data.total ?? '—';
-  document.getElementById('an-fq').textContent    = lc['For Quotation']                ?? '—';
-  document.getElementById('an-or').textContent    = lc['Ongoing Review']               ?? '—';
-  document.getElementById('an-qp').textContent    = lc['Quotation Provided']           ?? '—';
-  document.getElementById('an-fe').textContent    = lc['For Execution / Schedule']     ?? '—';
-  document.getElementById('an-oe').textContent    = lc['Ongoing Execution / Activity'] ?? '—';
-  document.getElementById('an-rd').textContent    = lc['Request Done']                 ?? '—';
-  document.getElementById('an-avg').textContent   = data.avgDays != null ? data.avgDays + 'd' : '—';
-
-  // Service table
-  const tbody = document.querySelector('#an-serviceTable tbody');
-  if (tbody) {
-    tbody.innerHTML = '';
-    const total = Object.values(svc).reduce((a,b) => a+b, 0) || 1;
-    svcKeys.forEach(k => {
-      const pct = Math.round((svc[k] / total) * 100);
-      tbody.innerHTML += `<tr><td>${k}</td><td>${svc[k]}</td><td>
-        <div style="display:flex;align-items:center;gap:8px">
-          <div style="flex:1;height:6px;background:var(--border);border-radius:3px">
-            <div style="width:${pct}%;height:100%;background:var(--green-mid);border-radius:3px"></div>
-          </div>
-          <span style="font-size:0.72rem;color:var(--ink-muted);min-width:30px">${pct}%</span>
-        </div>
-      </td></tr>`;
-    });
-  }
-
-  // Charts — deferred so the view is visible before canvas renders
-  setTimeout(() => {
-    if (typeof Chart === 'undefined') { console.warn('Chart.js not loaded'); return; }
-    const monthly  = data.monthlyArr || [];
-    const lcLabels = ['For Quotation','Ongoing Review','Quotation Provided','For Execution / Schedule','Ongoing Execution / Activity','Request Done'];
-    const lcShort  = ['For Quotation','Ongoing Review','Quotation Provided','For Execution','Ongoing Activity','Request Done'];
-    const svcColors= [COLORS.green,COLORS.blue,COLORS.amber,COLORS.purple,COLORS.teal,COLORS.red,COLORS.gray];
-
-    buildChart('an-chartMonthly','bar',{
-      labels: monthly.map(m => fmtMonth(m.month)),
-      datasets:[{label:'Requests',data:monthly.map(m=>m.count),backgroundColor:COLORS.greenL,borderColor:COLORS.green,borderWidth:1.5,borderRadius:4}]
-    },{scales:{y:{beginAtZero:true,ticks:{stepSize:1}}}});
-
-    buildChart('an-chartLifecycle','bar',{
-      labels: lcShort,
-      datasets:[{label:'Requests',data:lcLabels.map(l=>lc[l]||0),backgroundColor:LC_COLORS,borderColor:LC_BORDERS,borderWidth:1.5,borderRadius:4}]
-    },{indexAxis:'y',scales:{x:{beginAtZero:true,ticks:{stepSize:1}}},plugins:{legend:{display:false}}});
-
-    buildChart('an-chartService','doughnut',{
-      labels: svcKeys,
-      datasets:[{data:svcKeys.map(k=>svc[k]),backgroundColor:svcColors.slice(0,svcKeys.length),borderWidth:2,borderColor:'#fff'}]
-    },{plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:12}}}});
-
-    buildChart('an-chartCost','doughnut',{
-      labels:['Paid','Waived','Pending'],
-      datasets:[{data:[cost.Paid||0,cost.Waived||0,cost.Pending||0],backgroundColor:[COLORS.blue,COLORS.purple,COLORS.gray],borderWidth:2,borderColor:'#fff'}]
-    },{plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:12}}}});
-
-    buildChart('an-chartUrgency','bar',{
-      labels:['High','Medium','Low'],
-      datasets:[{label:'Requests',data:[urg.High||0,urg.Medium||0,urg.Low||0],backgroundColor:[COLORS.redL,COLORS.amberL,COLORS.greenL],borderColor:[COLORS.red,COLORS.amber,COLORS.green],borderWidth:1.5,borderRadius:4}]
-    },{scales:{y:{beginAtZero:true,ticks:{stepSize:1}}},plugins:{legend:{display:false}}});
-  }, 150);
+  setTimeout(()=>{
+    if(typeof Chart==='undefined'){return;}
+    const monthly=data.monthlyArr||[];
+    const lcLabels=['For Quotation','Ongoing Review','Quotation Provided','For Execution / Schedule','Ongoing Execution / Activity','Request Done'];
+    const lcShort=['For Quotation','Ongoing Review','Quotation Provided','For Execution','Ongoing Activity','Request Done'];
+    const svcColors=[COLORS.green,COLORS.blue,COLORS.amber,COLORS.purple,COLORS.teal,COLORS.red,COLORS.gray];
+    buildChart('an-chartMonthly','bar',{labels:monthly.map(m=>fmtMonth(m.month)),datasets:[{label:'Requests',data:monthly.map(m=>m.count),backgroundColor:COLORS.greenL,borderColor:COLORS.green,borderWidth:1.5,borderRadius:4}]},{scales:{y:{beginAtZero:true,ticks:{stepSize:1}}}});
+    buildChart('an-chartLifecycle','bar',{labels:lcShort,datasets:[{label:'Requests',data:lcLabels.map(l=>lc[l]||0),backgroundColor:LC_COLORS,borderColor:LC_BORDERS,borderWidth:1.5,borderRadius:4}]},{indexAxis:'y',scales:{x:{beginAtZero:true,ticks:{stepSize:1}}},plugins:{legend:{display:false}}});
+    buildChart('an-chartService','doughnut',{labels:svcKeys,datasets:[{data:svcKeys.map(k=>svc[k]),backgroundColor:svcColors.slice(0,svcKeys.length),borderWidth:2,borderColor:'#fff'}]},{plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:12}}}});
+    buildChart('an-chartCost','doughnut',{labels:['Paid','Waived','Pending'],datasets:[{data:[cost.Paid||0,cost.Waived||0,cost.Pending||0],backgroundColor:[COLORS.blue,COLORS.purple,COLORS.gray],borderWidth:2,borderColor:'#fff'}]},{plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:12}}}});
+    buildChart('an-chartUrgency','bar',{labels:['High','Medium','Low'],datasets:[{label:'Requests',data:[urg.High||0,urg.Medium||0,urg.Low||0],backgroundColor:[COLORS.redL,COLORS.amberL,COLORS.greenL],borderColor:[COLORS.red,COLORS.amber,COLORS.green],borderWidth:1.5,borderRadius:4}]},{scales:{y:{beginAtZero:true,ticks:{stepSize:1}}},plugins:{legend:{display:false}}});
+  },150);
 }
-
-
-function buildChart(id, type, data, options) {
-  if (charts[id]) charts[id].destroy();
-  const ctx = document.getElementById(id).getContext('2d');
-  charts[id] = new Chart(ctx, {
-    type,
-    data,
-    options: Object.assign({
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { display: type === 'doughnut', labels: { font: { family: "'DM Sans'" } } } },
-      scales: type === 'doughnut' ? {} : {
-        x: { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { family: "'DM Sans'", size: 11 } } },
-        y: { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { family: "'DM Sans'", size: 11 } } },
-      }
-    }, options || {})
-  });
-}
-
-function applyFilter() {
-  const from = document.getElementById('an-fromDate').value;
-  const to   = document.getElementById('an-toDate').value;
-  load_analytics(from, to);
-}
-
-function clearFilter() {
-  document.getElementById('an-fromDate').value = '';
-  document.getElementById('an-toDate').value   = '';
-  load_analytics();
-}
-
-function fmtMonth(ym) {
-  if (!ym) return '';
-  const [y, m] = ym.split('-');
-  const names = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  return (names[parseInt(m,10)-1] || m) + ' ' + y;
-}
-
-// Set default date range to current month
-const now   = new Date();
-const y     = now.getFullYear();
-const m     = String(now.getMonth()+1).padStart(2,'0');
-
-
+function buildChart(id,type,data,options){if(charts[id])charts[id].destroy();const ctx=document.getElementById(id).getContext('2d');charts[id]=new Chart(ctx,{type,data,options:Object.assign({responsive:true,maintainAspectRatio:false,plugins:{legend:{display:type==='doughnut',labels:{font:{family:"'Rubik'"}}}},scales:type==='doughnut'?{}:{x:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{family:"'Rubik'",size:11}}},y:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{family:"'Rubik'",size:11}}}}},options||{})});}
+function applyFilter(){const from=document.getElementById('an-fromDate').value;const to=document.getElementById('an-toDate').value;load_analytics(from,to);}
+function clearFilter(){document.getElementById('an-fromDate').value='';document.getElementById('an-toDate').value='';load_analytics();}
+function fmtMonth(ym){if(!ym)return'';const[y,m]=ym.split('-');const names=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return(names[parseInt(m,10)-1]||m)+' '+y;}
 </script>
 </body>
 </html>
