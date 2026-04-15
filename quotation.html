@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Quotation Builder — Sprout Platform Ops</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+/* ── TOGE / KANGKONG DESIGN TOKENS ─────────────────────── */
+:root {
+  --kangkong-900: #0d2a1a;
+  --kangkong-800: #14401f;
+  --kangkong-700: #1a5c2e;
+  --kangkong-600: #217a3d;
+  --kangkong-500: #2a9e50;
+  --kangkong-400: #4bbf6b;
+  --kangkong-300: #7dd49a;
+  --kangkong-100: #d4f5df;
+  --mushroom-950: #131413;
+  --mushroom-900: #1c1d1c;
+  --mushroom-800: #252625;
+  --mushroom-700: #343534;
+  --mushroom-600: #4a4b4a;
+  --mushroom-400: #7a7b7a;
+  --mushroom-200: #c4c5c4;
+  --mushroom-100: #e8e9e8;
+  --mushroom-50:  #f4f5f4;
+  --blueberry:    #3b5bdb;
+  --blueberry-lt: #e8ecfd;
+  --wintermelon:  #0c8599;
+  --wintermelon-lt: #e0f5f8;
+  --carrot:       #e8590c;
+  --carrot-lt:    #fde8dc;
+  --mango:        #f08c00;
+  --mango-lt:     #fff3cd;
+  --tomato:       #c92a2a;
+  --tomato-lt:    #ffe0e0;
+  --lavender:     #7048e8;
+  --lavender-lt:  #ede9ff;
+
+  --bg:           var(--mushroom-50);
+  --surface:      #ffffff;
+  --border:       var(--mushroom-100);
+  --text:         var(--mushroom-900);
+  --text-muted:   var(--mushroom-400);
+  --primary:      var(--kangkong-600);
+  --primary-dark: var(--kangkong-700);
+  --primary-light:var(--kangkong-100);
+  --radius:       10px;
+  --shadow:       0 2px 12px rgba(0,0,0,.08);
+  --shadow-lg:    0 6px 32px rgba(0,0,0,.12);
+  font-family: 'Rubik', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+/* ── TOP BAR ──────────────────────────────────────────── */
+.topbar {
+  background: var(--kangkong-800);
+  color: #fff;
+  padding: 0 28px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,.25);
+}
+.topbar-logo { font-size: 11px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--kangkong-300); }
+.topbar-sep { color: var(--kangkong-600); }
+.topbar-title { font-size: 14px; font-weight: 500; color: #fff; }
+.topbar-actions { margin-left: auto; display: flex; gap: 8px; }
+
+/* ── BUTTONS ──────────────────────────────────────────── */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 14px; border-radius: 7px; font-size: 13px;
+  font-weight: 500; cursor: pointer; border: none; transition: all .15s;
+  font-family: 'Rubik', sans-serif; white-space: nowrap;
+}
+.btn-primary   { background: var(--primary); color: #fff; }
+.btn-primary:hover { background: var(--primary-dark); }
+.btn-ghost     { background: transparent; color: var(--kangkong-300); border: 1px solid var(--kangkong-600); }
+.btn-ghost:hover { background: rgba(255,255,255,.07); }
+.btn-danger    { background: var(--tomato-lt); color: var(--tomato); border: 1px solid #fbbdbd; }
+.btn-danger:hover { background: #ffd0d0; }
+.btn-outline   { background: var(--surface); color: var(--primary); border: 1.5px solid var(--primary); }
+.btn-outline:hover { background: var(--primary-light); }
+.btn-sm        { padding: 4px 10px; font-size: 12px; }
+.btn-icon      { padding: 6px 8px; }
+.btn svg       { flex-shrink: 0; }
+
+/* ── LAYOUT ───────────────────────────────────────────── */
+.layout { display: grid; grid-template-columns: 280px 1fr; min-height: calc(100vh - 52px); }
+
+/* ── SIDEBAR ──────────────────────────────────────────── */
+.sidebar {
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: 20px 16px;
+  display: flex;
+  flex-column: column;
+  flex-direction: column;
+  gap: 6px;
+}
+.sidebar-label {
+  font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--text-muted); padding: 10px 8px 4px;
+}
+.template-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 10px; border-radius: 8px; cursor: pointer;
+  border: 1.5px solid transparent; transition: all .15s;
+}
+.template-item:hover { background: var(--mushroom-50); border-color: var(--border); }
+.template-item.active { background: var(--primary-light); border-color: var(--primary); }
+.template-item-name { font-size: 13px; font-weight: 500; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.template-item-type { font-size: 10px; background: var(--mushroom-100); border-radius: 4px; padding: 1px 6px; color: var(--text-muted); }
+.template-delete { opacity: 0; cursor: pointer; color: var(--tomato); background: none; border: none; padding: 2px 4px; border-radius: 4px; transition: opacity .15s; font-size: 13px; }
+.template-item:hover .template-delete { opacity: 1; }
+.sidebar-empty { font-size: 12px; color: var(--text-muted); text-align: center; padding: 20px 10px; }
+
+/* ── MAIN ─────────────────────────────────────────────── */
+.main { padding: 28px 32px; overflow-y: auto; }
+
+/* ── SECTION CARD ─────────────────────────────────────── */
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 20px;
+}
+.card-header {
+  padding: 14px 20px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 8px;
+}
+.card-header h2 { font-size: 14px; font-weight: 600; flex: 1; }
+.card-body { padding: 20px; }
+
+/* ── FORM FIELDS ──────────────────────────────────────── */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-group.full { grid-column: 1 / -1; }
+label { font-size: 12px; font-weight: 500; color: var(--mushroom-600); }
+input[type=text], input[type=number], input[type=date], select, textarea {
+  width: 100%; padding: 8px 10px; border: 1.5px solid var(--border);
+  border-radius: 7px; font-size: 13px; font-family: 'Rubik', sans-serif;
+  color: var(--text); background: var(--surface); transition: border-color .15s;
+  outline: none;
+}
+input:focus, select:focus, textarea:focus { border-color: var(--primary); }
+textarea { resize: vertical; min-height: 60px; }
+.input-prefix { display: flex; align-items: center; }
+.input-prefix span {
+  background: var(--mushroom-100); border: 1.5px solid var(--border); border-right: none;
+  border-radius: 7px 0 0 7px; padding: 8px 10px; font-size: 13px; color: var(--text-muted);
+  white-space: nowrap;
+}
+.input-prefix input { border-radius: 0 7px 7px 0; }
+
+/* ── ITEMS TABLE ──────────────────────────────────────── */
+.items-table-wrap { overflow-x: auto; }
+.items-table { width: 100%; border-collapse: collapse; min-width: 680px; }
+.items-table th {
+  background: var(--mushroom-50); font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted);
+  padding: 9px 12px; text-align: left; border-bottom: 1px solid var(--border);
+}
+.items-table td {
+  padding: 6px 8px; border-bottom: 1px solid var(--mushroom-50);
+  vertical-align: middle;
+}
+.items-table tr:last-child td { border-bottom: none; }
+.items-table tr:hover td { background: var(--mushroom-50); }
+
+.col-num   { width: 36px; text-align: center; color: var(--text-muted); font-size: 12px; }
+.col-step  { min-width: 260px; }
+.col-desc  { min-width: 160px; }
+.col-effort{ width: 90px; }
+.col-rate  { width: 110px; }
+.col-cost  { width: 110px; text-align: right; font-weight: 600; color: var(--primary-dark); }
+.col-act   { width: 44px; text-align: center; }
+
+.items-table input[type=text], .items-table input[type=number] {
+  padding: 6px 8px; font-size: 13px; border-radius: 6px;
+}
+.items-table select { padding: 6px 8px; font-size: 13px; border-radius: 6px; }
+
+.row-drag {
+  cursor: grab; color: var(--text-muted); padding: 0 4px;
+  display: inline-block; font-size: 16px; user-select: none;
+}
+
+/* ── TOTALS ───────────────────────────────────────────── */
+.totals-row {
+  display: flex; justify-content: flex-end; margin-top: 12px;
+}
+.totals-box {
+  min-width: 300px; border: 1.5px solid var(--border); border-radius: 8px; overflow: hidden;
+}
+.totals-line {
+  display: flex; justify-content: space-between; padding: 8px 16px;
+  border-bottom: 1px solid var(--border); font-size: 13px;
+}
+.totals-line:last-child { border-bottom: none; }
+.totals-line.grand {
+  background: var(--kangkong-800); color: #fff;
+  font-weight: 700; font-size: 15px;
+}
+.totals-line.grand .amount { color: var(--kangkong-300); }
+.amount { font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* ── TERMS ────────────────────────────────────────────── */
+.terms-wrap { display: flex; gap: 14px; margin-top: 0; }
+
+/* ── BADGE CHIPS ──────────────────────────────────────── */
+.chip {
+  display: inline-block; padding: 2px 8px; border-radius: 20px;
+  font-size: 11px; font-weight: 600; letter-spacing: .04em;
+}
+.chip-green { background: var(--primary-light); color: var(--primary-dark); }
+.chip-gray  { background: var(--mushroom-100); color: var(--mushroom-600); }
+
+/* ── TOOLBAR STRIP ────────────────────────────────────── */
+.toolbar {
+  display: flex; gap: 8px; align-items: center; margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.toolbar-sep { width: 1px; height: 24px; background: var(--border); }
+
+/* ── MODAL ────────────────────────────────────────────── */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.45); z-index: 999;
+  align-items: center; justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--surface); border-radius: 12px; box-shadow: var(--shadow-lg);
+  padding: 28px; min-width: 360px; max-width: 480px; width: 100%;
+}
+.modal h3 { font-size: 16px; font-weight: 600; margin-bottom: 16px; }
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+
+/* ── STATUS BAR ───────────────────────────────────────── */
+.status-bar {
+  position: fixed; bottom: 20px; right: 28px;
+  background: var(--kangkong-800); color: #fff;
+  padding: 10px 16px; border-radius: 8px;
+  font-size: 13px; font-weight: 500;
+  box-shadow: var(--shadow-lg);
+  transform: translateY(80px); opacity: 0;
+  transition: all .3s ease; z-index: 999;
+  display: flex; align-items: center; gap: 8px;
+}
+.status-bar.show { transform: translateY(0); opacity: 1; }
+
+/* ── NOTES/TERMS TEXTAREA ─────────────────────────────── */
+.terms-col { flex: 1; }
+.terms-col label { display: block; margin-bottom: 6px; }
+
+/* ── PRINT STYLES ─────────────────────────────────────── */
+@media print {
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  img { display: block !important; max-width: 100% !important; }
+
+  body { background: #fff !important; font-size: 12px; }
+  .topbar, .sidebar, .toolbar, .no-print, .card-header button,
+  .btn, .template-delete, .row-drag, .col-act,
+  .items-table input, .items-table select, .items-table textarea,
+  input, select, textarea { display: none !important; }
+
+  .layout { display: block !important; }
+  .main { padding: 0 !important; }
+  .card { box-shadow: none !important; margin-bottom: 14px !important; page-break-inside: avoid; }
+
+  /* Print header */
+  .print-header {
+    display: flex !important;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 0 0 18px;
+    border-bottom: 3px solid #1a5c2e;
+    margin-bottom: 20px;
+  }
+  .print-logo-block h1 { font-size: 18px; font-weight: 700; color: #1a5c2e; margin: 0 0 2px; }
+  .print-logo-block p  { font-size: 11px; color: #666; margin: 0; }
+  .print-doc-block { text-align: right; }
+  .print-doc-block .doc-title { font-size: 22px; font-weight: 700; color: #1a5c2e; letter-spacing: -.5px; }
+  .print-doc-block .doc-sub   { font-size: 11px; color: #666; margin-top: 4px; }
+
+  .print-value { font-size: 13px; font-weight: 500; color: #131413; }
+  .form-group label { color: #7a7b7a; font-size: 10px; }
+  .form-grid, .form-grid-3 { gap: 10px; }
+
+  .items-table { font-size: 11px; }
+  .items-table th { background: #1a5c2e !important; color: #fff !important; font-size: 10px; padding: 7px 10px; }
+  .items-table td { padding: 5px 10px; }
+  .items-table tr:nth-child(even) td { background: #f4f5f4; }
+
+  .totals-line.grand { background: #1a5c2e !important; color: #fff !important; }
+  .totals-line.grand .amount { color: #7dd49a !important; }
+
+  .print-cost-title {
+    display: block !important;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a5c2e !important;
+    margin: 0 0 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e8e9e8;
+  }
+  .print-footer {
+    display: flex !important;
+    justify-content: space-between;
+    border-top: 1.5px solid #e8e9e8;
+    padding-top: 14px;
+    margin-top: 20px;
+    font-size: 10px;
+    color: #7a7b7a;
+  }
+  .print-opnote {
+    display: block !important;
+    font-size: 10px;
+    color: #7a7b7a !important;
+    font-style: italic;
+    margin-top: 4px;
+    margin-bottom: 16px;
+  }
+  .print-sig-row {
+    display: block !important;
+    margin-top: 28px;
+    max-width: 260px;
+  }
+  .print-sig-box { border-top: 1.5px solid #343534; padding-top: 8px; }
+  .print-sig-box .sig-name { font-size: 12px; font-weight: 600; }
+  .print-sig-box .sig-role { font-size: 10px; color: #7a7b7a; }
+
+  .col-act  { display: none !important; }
+  .col-num  { display: table-cell !important; }
+  .col-desc { display: none !important; }
+  .col-rate { display: none !important; }
+  #discountRow[style*="display: none"] { display: none !important; }
+}
+
+/* Print-only elements hidden during screen */
+.print-header, .print-footer, .print-sig-row, .print-cost-title, .print-opnote { display: none; }
+.print-value { display: none; }
+
+@media screen {
+  .print-value { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <span class="topbar-logo">Sprout Solutions</span>
+  <span class="topbar-sep">›</span>
+  <span class="topbar-title">Service Request Quotation Builder</span>
+  <div class="topbar-actions">
+    <button class="btn btn-ghost" onclick="openSaveTemplateModal()">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17,21 17,13 7,13 7,21"/><polyline points="7,3 7,8 15,8"/></svg>
+      Save as Template
+    </button>
+    <button class="btn btn-ghost" onclick="newQuotation()">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      New
+    </button>
+    <button class="btn btn-primary" onclick="exportPDF()">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10,9 9,9 8,9"/></svg>
+      Export PDF
+    </button>
+  </div>
+</div>
+
+<div class="layout">
+
+  <!-- SIDEBAR: Templates -->
+  <aside class="sidebar">
+    <div class="sidebar-label">Templates</div>
+    <button class="btn btn-outline btn-sm no-print" style="width:100%;justify-content:center;margin-bottom:4px" onclick="openSaveTemplateModal()">
+      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Save Current as Template
+    </button>
+    <div id="templateList"></div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+
+    <!-- Print Header (visible only in PDF) -->
+    <div class="print-header">
+      <div class="print-logo-block">
+        <img src="logo.svg" alt="Sprout Solutions" style="height:36px;margin-bottom:6px;display:block"/>
+        <p>Platform Operations — Support Engineering</p>
+      </div>
+      <div class="print-doc-block">
+        <div class="doc-title">SERVICE QUOTATION</div>
+        <div class="doc-sub" id="printQuotNum">—</div>
+        <div class="doc-sub" id="printDate">—</div>
+      </div>
+    </div>
+    <div class="print-cost-title" id="printCostTitle"></div>
+
+    <!-- TOOLBAR -->
+    <div class="toolbar no-print">
+      <span style="font-size:13px;color:var(--text-muted)">Quotation #</span>
+      <input type="text" id="quotNum" placeholder="e.g. PSRV-2026-001" style="width:160px;padding:6px 10px;font-size:13px;border-radius:7px;border:1.5px solid var(--border);font-family:'Rubik',sans-serif"/>
+      <div class="toolbar-sep"></div>
+      <span style="font-size:13px;color:var(--text-muted)">Date</span>
+      <input type="date" id="quotDate" style="width:150px;padding:6px 10px;font-size:13px;border-radius:7px;border:1.5px solid var(--border);font-family:'Rubik',sans-serif"/>
+      <div class="toolbar-sep"></div>
+      <span style="font-size:13px;color:var(--text-muted)">Currency</span>
+      <select id="currency" onchange="recalc()" style="padding:6px 10px;font-size:13px;border-radius:7px;border:1.5px solid var(--border);font-family:'Rubik',sans-serif">
+        <option value="PHP">PHP ₱</option>
+        <option value="USD">USD $</option>
+      </select>
+    </div>
+
+    <!-- CLIENT INFO -->
+    <div class="card">
+      <div class="card-header">
+        <svg width="15" height="15" fill="none" stroke="var(--primary)" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <h2>Client Information</h2>
+      </div>
+      <div class="card-body">
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>Client / Company Name</label>
+            <input type="text" id="clientName" placeholder="e.g. ABC Corporation"/>
+          </div>
+          <div class="form-group">
+            <label>HR URL</label>
+            <input type="text" id="hrUrl" placeholder="companyname.hrhub.ph"/>
+          </div>
+          <div class="form-group">
+            <label>Payroll Company Code/s</label>
+            <input type="text" id="payrollCodes" placeholder="e.g. ABC01, ABC02"/>
+          </div>
+          <div class="form-group">
+            <label>Customer Success Manager</label>
+            <input type="text" id="csm" placeholder="CSM name"/>
+          </div>
+          <div class="form-group">
+            <label>Request Reference</label>
+            <input type="text" id="jiraRef" placeholder="PSRV-XXX"/>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ITEMS -->
+    <div class="card">
+      <div class="card-header">
+        <svg width="15" height="15" fill="none" stroke="var(--primary)" stroke-width="2" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        <h2>Work Items &amp; Effort Breakdown</h2>
+        <button class="btn btn-primary btn-sm no-print" onclick="addRow()" style="margin-left:auto">
+          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Item
+        </button>
+      </div>
+      <div class="card-body" style="padding-bottom:8px">
+        <!-- Service Type + Scope of Work -->
+        <div class="form-grid" style="margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid var(--border)">
+          <div class="form-group">
+            <label>Service Type</label>
+            <select id="serviceType">
+              <option value="">— Select —</option>
+              <option>Data Migration</option>
+              <option>Data Extraction</option>
+              <option>Change HR URL</option>
+              <option>Rename Database</option>
+              <option>Database Backup</option>
+              <option>Copy Database</option>
+              <option>Others</option>
+            </select>
+          </div>
+          <div class="form-group full">
+            <label>Scope of Work / Brief Description</label>
+            <textarea id="scopeDesc" rows="2" placeholder="Describe the overall scope of this service request..."></textarea>
+          </div>
+        </div>
+        <div class="items-table-wrap">
+          <table class="items-table" id="itemsTable">
+            <thead>
+              <tr>
+                <th class="col-num">#</th>
+                <th class="col-step">Step / Activity</th>
+                <th class="col-desc">Description / Notes</th>
+                <th class="col-effort">Effort</th>
+                <th class="col-rate">Rate</th>
+                <th class="col-cost">Line Total</th>
+                <th class="col-act no-print"></th>
+              </tr>
+            </thead>
+            <tbody id="itemsBody">
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Totals -->
+        <div class="totals-row">
+          <div class="totals-box">
+            <div class="totals-line">
+              <span>Subtotal</span>
+              <span class="amount" id="subtotal">₱ 0.00</span>
+            </div>
+            <div class="totals-line" id="discountRow">
+              <span style="display:flex;align-items:center;gap:8px">
+                Discount
+                <input type="number" id="discountPct" min="0" max="100" value="0" onchange="recalc()" class="no-print"
+                  style="width:52px;padding:3px 6px;font-size:12px;border-radius:5px;border:1.5px solid var(--border);font-family:'Rubik',sans-serif"/>
+                <span class="no-print" style="font-size:12px;color:var(--text-muted)">%</span>
+              </span>
+              <span class="amount" id="discountAmt" style="color:var(--tomato)">- ₱ 0.00</span>
+            </div>
+            <div class="totals-line grand">
+              <span>TOTAL</span>
+              <span class="amount" id="grandTotal">₱ 0.00</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TERMS & NOTES -->
+    <div class="card">
+      <div class="card-header">
+        <svg width="15" height="15" fill="none" stroke="var(--primary)" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+        <h2>Terms &amp; Additional Notes</h2>
+      </div>
+      <div class="card-body">
+        <div class="terms-wrap">
+          <div class="terms-col">
+            <label>Payment Terms</label>
+            <textarea id="paymentTerms" rows="4" placeholder="e.g. Full payment upon completion.&#10;50% downpayment required before work begins."></textarea>
+          </div>
+          <div class="terms-col">
+            <label>Additional Notes / Assumptions</label>
+            <textarea id="addlNotes" rows="4" placeholder="e.g. Scope is limited to...&#10;Client must provide read access to..."></textarea>
+          </div>
+          <div class="terms-col">
+            <label>Prepared By</label>
+            <input type="text" id="preparedBy" placeholder="Your name" style="margin-bottom:10px"/>
+            <label>Designation</label>
+            <input type="text" id="preparedByRole" placeholder="e.g. Engineering Ops Lead"/>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRINT-ONLY: Signature Block -->
+    <div class="print-sig-row">
+      <div class="print-sig-box">
+        <div class="sig-name" id="printPreparedBy">—</div>
+        <div class="sig-role" id="printPreparedByRole">—</div>
+        <div style="font-size:10px;color:#7a7b7a;margin-top:2px">Prepared by</div>
+      </div>
+    </div>
+
+    <!-- PRINT-ONLY: Footer -->
+    <div class="print-opnote" id="printOpNote">This is actual operational cost.</div>
+    <div class="print-footer">
+      <span>Sprout Solutions · Platform Operations</span>
+      <span id="printFooterQuot">—</span>
+      <span>This quotation is valid for 30 days from the date of issue.</span>
+    </div>
+
+  </main>
+</div>
+
+<!-- SAVE TEMPLATE MODAL -->
+<div class="modal-overlay" id="saveModal">
+  <div class="modal">
+    <h3>Save as Template</h3>
+    <div class="form-group">
+      <label>Template Name</label>
+      <input type="text" id="templateNameInput" placeholder="e.g. Standard Data Migration"/>
+    </div>
+    <div class="form-group" style="margin-top:10px">
+      <label>Service Type Tag</label>
+      <select id="templateTypeInput">
+        <option value="">— Select —</option>
+        <option>Data Migration</option>
+        <option>Data Extraction</option>
+        <option>Change HR URL</option>
+        <option>Rename Database</option>
+        <option>Database Backup</option>
+        <option>Copy Database</option>
+        <option>Others</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" style="color:var(--text-muted);border-color:var(--border)" onclick="closeSaveModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveTemplate()">Save Template</button>
+    </div>
+  </div>
+</div>
+
+<!-- STATUS BAR -->
+<div class="status-bar" id="statusBar">
+  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20,6 9,17 4,12"/></svg>
+  <span id="statusMsg">Done</span>
+</div>
+
+<script>
+// ── STATE ─────────────────────────────────────────────────────
+var rows = [];
+var rowId = 0;
+var templates = [];
+var activeTemplateIdx = -1;
+
+var CURRENCY_SYMBOLS = { PHP: '₱', USD: '$' };
+function currSym() { return CURRENCY_SYMBOLS[document.getElementById('currency').value] || '₱'; }
+function fmt(n) { return currSym() + ' ' + Number(n).toLocaleString('en-PH', {minimumFractionDigits:2, maximumFractionDigits:2}); }
+
+// ── INIT ──────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+  setToday();
+  loadTemplates();
+  addRow();
+  addRow();
+  addRow();
+});
+
+function setToday() {
+  var today = new Date().toISOString().split('T')[0];
+  document.getElementById('quotDate').value = today;
+  var num = 'PSRV-' + new Date().getFullYear() + '-001';
+  document.getElementById('quotNum').value = num;
+}
+
+// ── ROW MANAGEMENT ────────────────────────────────────────────
+function addRow(data) {
+  var id = ++rowId;
+  var d = data || { step:'', desc:'', effort:1, unit:'hours', rate:0 };
+  rows.push({ id:id, step:d.step||'', desc:d.desc||'', effort:d.effort||1, unit:d.unit||'hours', rate:d.rate||0 });
+  renderRows();
+}
+
+function deleteRow(id) {
+  rows = rows.filter(function(r){ return r.id !== id; });
+  renderRows();
+  recalc();
+}
+
+function getRowData(id) {
+  var tr = document.getElementById('row-' + id);
+  if (!tr) return null;
+  return {
+    step:   tr.querySelector('.f-step').value,
+    desc:   tr.querySelector('.f-desc').value,
+    effort: parseFloat(tr.querySelector('.f-effort').value) || 0,
+    unit:   'hours',
+    rate:   parseFloat(tr.querySelector('.f-rate').value) || 0
+  };
+}
+
+function renderRows() {
+  var tbody = document.getElementById('itemsBody');
+  tbody.innerHTML = '';
+  rows.forEach(function(r, idx) {
+    var lineTotal = r.effort * r.rate;
+    var tr = document.createElement('tr');
+    tr.id = 'row-' + r.id;
+    tr.innerHTML = [
+      '<td class="col-num">' + (idx+1) + '</td>',
+      '<td class="col-step"><input type="text" class="f-step" value="' + esc(r.step) + '" placeholder="e.g. Pre-migration audit" oninput="updateRow(' + r.id + ')"/></td>',
+      '<td class="col-desc"><input type="text" class="f-desc" value="' + esc(r.desc) + '" placeholder="Optional notes" oninput="updateRow(' + r.id + ')"/></td>',
+      '<td class="col-effort"><input type="number" class="f-effort" value="' + r.effort + '" min="0" step="0.5" oninput="updateRow(' + r.id + ')"/></td>',
+
+      '<td class="col-rate"><div class="input-prefix"><span>' + currSym() + '</span><input type="number" class="f-rate" value="' + r.rate + '" min="0" step="100" oninput="updateRow(' + r.id + ')"/></div></td>',
+      '<td class="col-cost" id="lc-' + r.id + '">' + fmt(lineTotal) + '</td>',
+      '<td class="col-act no-print"><button class="btn btn-danger btn-sm btn-icon" onclick="deleteRow(' + r.id + ')" title="Remove"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></td>'
+    ].join('');
+    tbody.appendChild(tr);
+  });
+}
+
+function updateRow(id) {
+  var tr = document.getElementById('row-' + id);
+  if (!tr) return;
+  var effort = parseFloat(tr.querySelector('.f-effort').value) || 0;
+  var rate   = parseFloat(tr.querySelector('.f-rate').value)   || 0;
+  var unit   = 'hours';
+  var step   = tr.querySelector('.f-step').value;
+  var desc   = tr.querySelector('.f-desc').value;
+  var lineTotal = effort * rate;
+  document.getElementById('lc-' + id).textContent = fmt(lineTotal);
+  // update rows state
+  rows = rows.map(function(r) {
+    return r.id === id ? { id:id, step:step, desc:desc, effort:effort, unit:unit, rate:rate } : r;
+  });
+  recalc();
+}
+
+function recalc() {
+  var subtotal = 0;
+  rows.forEach(function(r) {
+    var tr = document.getElementById('row-' + r.id);
+    if (tr) {
+      var effort = parseFloat(tr.querySelector('.f-effort').value)||0;
+      var rate   = parseFloat(tr.querySelector('.f-rate').value)||0;
+      subtotal += effort * rate;
+      document.getElementById('lc-' + r.id).textContent = fmt(effort * rate);
+    }
+  });
+
+  var discPct = parseFloat(document.getElementById('discountPct').value)||0;
+  var discAmt = subtotal * (discPct/100);
+  var grand = subtotal - discAmt;
+
+  document.getElementById('subtotal').textContent    = fmt(subtotal);
+  document.getElementById('discountAmt').textContent = '- ' + fmt(discAmt);
+  document.getElementById('grandTotal').textContent  = fmt(grand);
+  document.getElementById('discountRow').style.display = discPct > 0 ? '' : 'none';
+}
+
+// ── TEMPLATES ─────────────────────────────────────────────────
+function loadTemplates() {
+  try { templates = JSON.parse(localStorage.getItem('sprout_quot_templates') || '[]'); } catch(e) { templates = []; }
+  renderTemplates();
+}
+
+function saveTemplates() {
+  localStorage.setItem('sprout_quot_templates', JSON.stringify(templates));
+}
+
+function renderTemplates() {
+  var el = document.getElementById('templateList');
+  if (!templates.length) {
+    el.innerHTML = '<div class="sidebar-empty">No templates yet.<br/>Save your current layout as a template to reuse it.</div>';
+    return;
+  }
+  el.innerHTML = templates.map(function(t, idx) {
+    return '<div class="template-item ' + (activeTemplateIdx===idx?'active':'') + '" onclick="loadTemplate(' + idx + ')">' +
+      '<span class="template-item-name">' + esc(t.name) + '</span>' +
+      (t.type ? '<span class="template-item-type">' + esc(t.type) + '</span>' : '') +
+      '<button class="template-delete" onclick="event.stopPropagation();deleteTemplate(' + idx + ')" title="Delete">✕</button>' +
+    '</div>';
+  }).join('');
+}
+
+function openSaveTemplateModal() {
+  document.getElementById('templateNameInput').value = '';
+  var st = document.getElementById('serviceType').value;
+  document.getElementById('templateTypeInput').value = st || '';
+  document.getElementById('saveModal').classList.add('open');
+  setTimeout(function(){ document.getElementById('templateNameInput').focus(); }, 100);
+}
+
+function closeSaveModal() { document.getElementById('saveModal').classList.remove('open'); }
+
+function saveTemplate() {
+  var name = document.getElementById('templateNameInput').value.trim();
+  if (!name) { alert('Please enter a template name.'); return; }
+
+  // Snapshot current row layout (structure, not client data)
+  var rowSnapshot = rows.map(function(r) {
+    var tr = document.getElementById('row-' + r.id);
+    return {
+      step:   tr ? tr.querySelector('.f-step').value : r.step,
+      desc:   tr ? tr.querySelector('.f-desc').value : r.desc,
+      effort: tr ? parseFloat(tr.querySelector('.f-effort').value)||0 : r.effort,
+      unit:   'hours',
+      rate:   tr ? parseFloat(tr.querySelector('.f-rate').value)||0 : r.rate
+    };
+  });
+
+  var tmpl = {
+    name:    name,
+    type:    document.getElementById('templateTypeInput').value,
+    rows:    rowSnapshot,
+    scopeDesc:    document.getElementById('scopeDesc').value,
+    paymentTerms: document.getElementById('paymentTerms').value,
+    addlNotes:    document.getElementById('addlNotes').value,
+    discountPct:  document.getElementById('discountPct').value,
+    // vat removed
+  };
+
+  templates.unshift(tmpl);
+  saveTemplates();
+  renderTemplates();
+  closeSaveModal();
+  showStatus('Template "' + name + '" saved!');
+}
+
+function loadTemplate(idx) {
+  if (!confirm('Load this template? Current items will be replaced.')) return;
+  var t = templates[idx];
+  activeTemplateIdx = idx;
+
+  // Clear rows
+  rows = []; rowId = 0;
+  document.getElementById('itemsBody').innerHTML = '';
+
+  // Fill template data
+  if (t.serviceType) document.getElementById('serviceType').value = t.serviceType;
+  if (t.scopeDesc)   document.getElementById('scopeDesc').value   = t.scopeDesc;
+  if (t.paymentTerms)document.getElementById('paymentTerms').value= t.paymentTerms;
+  if (t.addlNotes)   document.getElementById('addlNotes').value   = t.addlNotes;
+  document.getElementById('discountPct').value = t.discountPct || 0;
+
+  // Add rows
+  (t.rows || []).forEach(function(r) { addRow(r); });
+  if (!rows.length) addRow();
+
+  recalc();
+  renderTemplates();
+  showStatus('Template loaded: ' + t.name);
+}
+
+function deleteTemplate(idx) {
+  if (!confirm('Delete this template?')) return;
+  templates.splice(idx, 1);
+  if (activeTemplateIdx === idx) activeTemplateIdx = -1;
+  saveTemplates();
+  renderTemplates();
+  showStatus('Template deleted.');
+}
+
+// ── NEW QUOTATION ─────────────────────────────────────────────
+function newQuotation() {
+  if (!confirm('Start a new quotation? Unsaved changes will be lost.')) return;
+  activeTemplateIdx = -1;
+  ['clientName','hrUrl','payrollCodes','csm','jiraRef',
+   'scopeDesc','paymentTerms','addlNotes','preparedBy','preparedByRole'].forEach(function(id) {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('serviceType').value = '';
+  document.getElementById('discountPct').value = 0;
+  rows = []; rowId = 0;
+  document.getElementById('itemsBody').innerHTML = '';
+  addRow(); addRow(); addRow();
+  setToday();
+  recalc();
+  renderTemplates();
+}
+
+// ── PDF EXPORT ────────────────────────────────────────────────
+function exportPDF() {
+  // Sync print-only elements
+  var qn = document.getElementById('quotNum').value || 'PSRV-—';
+  var qd = document.getElementById('quotDate').value;
+  document.getElementById('printQuotNum').textContent = qn;
+  document.getElementById('printDate').textContent    = qd ? 'Date: ' + formatDateDisplay(qd) : '';
+  document.getElementById('printPreparedBy').textContent     = document.getElementById('preparedBy').value || '—';
+  document.getElementById('printPreparedByRole').textContent = document.getElementById('preparedByRole').value || '—';
+  document.getElementById('printFooterQuot').textContent     = qn;
+
+  var svcType   = document.getElementById('serviceType').value || '—';
+  var clientNm  = document.getElementById('clientName').value  || '—';
+  document.getElementById('printCostTitle').textContent = 'Cost Summary for ' + svcType + ' : ' + clientNm;
+
+  // Sync print-visible values for inputs
+  syncPrintValues();
+
+  window.print();
+}
+
+function syncPrintValues() {
+  // For each input in card-body, inject a sibling print-value span
+  document.querySelectorAll('.card-body input, .card-body select, .card-body textarea').forEach(function(el) {
+    // Remove old
+    var old = el.parentNode.querySelector('.print-value');
+    if (old) old.remove();
+    var pv = document.createElement('span');
+    pv.className = 'print-value';
+    pv.style.cssText = 'font-size:13px;font-weight:500;color:#131413;display:none';
+    pv.textContent = el.value || '—';
+    el.parentNode.insertBefore(pv, el.nextSibling);
+  });
+}
+
+function formatDateDisplay(d) {
+  if (!d) return '';
+  var p = d.split('-');
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return months[parseInt(p[1])-1] + ' ' + p[2] + ', ' + p[0];
+}
+
+// ── UTILS ─────────────────────────────────────────────────────
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function showStatus(msg) {
+  var bar = document.getElementById('statusBar');
+  document.getElementById('statusMsg').textContent = msg;
+  bar.classList.add('show');
+  setTimeout(function(){ bar.classList.remove('show'); }, 3000);
+}
+
+// Close modal on outside click
+document.getElementById('saveModal').addEventListener('click', function(e) {
+  if (e.target === this) closeSaveModal();
+});
+
+// Keyboard: Escape closes modal
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeSaveModal();
+});
+</script>
+</body>
+</html>
