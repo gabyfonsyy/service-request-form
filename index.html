@@ -582,6 +582,8 @@ async function loadAnalytics(){
     const meta=document.getElementById('analyticsMeta');
     const pills=[];
     if(data.byCost){pills.push(`Paid: <span>${data.byCost['Paid']||0}</span>`);pills.push(`Waived: <span>${data.byCost['Waived']||0}</span>`);pills.push(`Cost TBD: <span>${data.byCost['Pending']||0}</span>`);}
+    if(data.revenueReceived!=null)pills.push(`Revenue received: <span>${fmtPhp(data.revenueReceived)}</span>`);
+    if(data.revenueLost!=null)pills.push(`Revenue lost: <span>${fmtPhp(data.revenueLost)}</span>`);
     if(data.avgDays!=null)pills.push(`Avg. resolution: <span>${data.avgDays}d</span>`);
     if(data.monthlyArr&&data.monthlyArr.length){const last=data.monthlyArr[data.monthlyArr.length-1];pills.push(`This month: <span>${last.count} request${last.count!==1?'s':''}</span>`);}
     if(data.byService){const top=Object.entries(data.byService).sort((a,b)=>b[1]-a[1])[0];if(top)pills.push(`Top service: <span>${top[0]}</span>`);}
@@ -638,6 +640,7 @@ function renderDetail(s,d){
       ${s?`<span>·</span><span>${esc(s.serviceType)}</span>`:''}
       ${s&&s.urgency?`<span>·</span><span>${esc(s.urgency)} urgency</span>`:''}
     </div></div>`;
+  html+=renderOpCard(s);
   html+=`<div class="dsec"><div class="dsh"><h3>Request lifecycle</h3></div><div class="dsb"><div class="stepper">${renderStepper(lc)}</div></div></div>`;
   if(s){
     html+=`<div class="dsec"><div class="dsh"><h3>Request information</h3></div><div class="dsb"><div class="igrid">
@@ -747,6 +750,100 @@ function buildChart(id,type,data,options){if(charts[id])charts[id].destroy();con
 function applyFilter(){const from=document.getElementById('an-fromDate').value;const to=document.getElementById('an-toDate').value;load_analytics(from,to);}
 function clearFilter(){document.getElementById('an-fromDate').value='';document.getElementById('an-toDate').value='';load_analytics();}
 function fmtMonth(ym){if(!ym)return'';const[y,m]=ym.split('-');const names=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return(names[parseInt(m,10)-1]||m)+' '+y;}
+
+// ── OPERATIONAL DETAILS CARD ───────────────────────────────────────────────
+function renderOpCard(s) {
+  if (!IS_INTERNAL) return '';
+  const cost  = s && s.serviceCost != null ? s.serviceCost : '';
+  const adate = s && s.activityDate ? s.activityDate.substring(0,10) : '';
+  const cstat = s && s.costStatus   ? s.costStatus : 'Pending';
+  const jk    = s && s.jiraKey      ? s.jiraKey    : '';
+  const statusOpts = ['Pending','Paid','Waived'].map(o =>
+    `<option value="${o}"${cstat===o?' selected':''}>${o}</option>`).join('');
+  return `<div class="dsec" id="opCard">
+    <div class="dsh">
+      <h3>Operational details</h3>
+      <span id="opSaveMsg" style="font-size:0.72rem;color:var(--primary);font-weight:500;display:none">Saved ✓</span>
+    </div>
+    <div class="dsb">
+      <div class="igrid">
+        <div class="iitem">
+          <label>Service / Operational Cost (₱)</label>
+          <input type="number" id="op-cost" value="${esc(String(cost))}" min="0" step="100"
+            placeholder="e.g. 5000"
+            style="width:100%;font-family:\'Rubik\',sans-serif;font-size:0.8125rem;padding:6px 9px;border:1.5px solid var(--border);border-radius:7px;color:var(--text);background:var(--bg);outline:none;transition:border-color .15s"
+            onfocus="this.style.borderColor=\'var(--primary)\'" onblur="this.style.borderColor=\'var(--border)\'"/>
+        </div>
+        <div class="iitem">
+          <label>Activity Date</label>
+          <input type="date" id="op-date" value="${adate}"
+            style="width:100%;font-family:\'Rubik\',sans-serif;font-size:0.8125rem;padding:6px 9px;border:1.5px solid var(--border);border-radius:7px;color:var(--text);background:var(--bg);outline:none;transition:border-color .15s"
+            onfocus="this.style.borderColor=\'var(--primary)\'" onblur="this.style.borderColor=\'var(--border)\'"/>
+        </div>
+        <div class="iitem">
+          <label>Cost Status</label>
+          <select id="op-status"
+            style="width:100%;font-family:\'Rubik\',sans-serif;font-size:0.8125rem;padding:6px 9px;border:1.5px solid var(--border);border-radius:7px;color:var(--text);background:var(--bg);outline:none">
+            ${statusOpts}
+          </select>
+        </div>
+        <div class="iitem" style="display:flex;align-items:flex-end">
+          <button onclick="saveOpDetails(\'${jk}\')"
+            style="font-family:\'Rubik\',sans-serif;font-size:0.8rem;font-weight:500;padding:7px 18px;border-radius:7px;cursor:pointer;border:none;background:var(--primary);color:#fff;transition:background .15s;width:100%"
+            onmouseover="this.style.background=\'var(--primary-dk)\'" onmouseout="this.style.background=\'var(--primary)\'">
+            Save
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+async function saveOpDetails(jiraKey) {
+  const cost   = document.getElementById('op-cost').value;
+  const date   = document.getElementById('op-date').value;
+  const status = document.getElementById('op-status').value;
+  const msgEl  = document.getElementById('opSaveMsg');
+  if (msgEl) { msgEl.style.display='none'; }
+
+  try {
+    const res = await fetch(GAS_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action:       'update',
+        jiraKey:      jiraKey,
+        serviceCost:  cost,
+        activityDate: date,
+        costStatus:   status,
+      })
+    });
+    const d = await res.json();
+    if (d.success) {
+      // Update local state
+      const entry = all.find(x => x.jiraKey === jiraKey);
+      if (entry) {
+        entry.serviceCost  = cost !== '' ? parseFloat(cost) : null;
+        entry.activityDate = date;
+        entry.costStatus   = status;
+      }
+      // Update cost badge in detail header
+      const cb = document.querySelector('.dh-meta .cost-badge');
+      if (cb) {
+        const cc = status==='Paid'?'cost-paid':status==='Waived'?'cost-waived':'cost-pending';
+        cb.className = 'cost-badge ' + cc;
+        cb.textContent = status;
+      }
+      // Update sidebar card badge too
+      render();
+      if (msgEl) { msgEl.style.display='inline'; setTimeout(()=>{ if(msgEl) msgEl.style.display='none'; },3000); }
+    } else {
+      alert('Save failed: ' + (d.error || 'Unknown error'));
+    }
+  } catch(e) {
+    alert('Save failed: ' + e.message);
+  }
+}
 </script>
 </body>
 </html>
