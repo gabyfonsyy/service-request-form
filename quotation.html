@@ -298,7 +298,7 @@ textarea { resize: vertical; min-height: 60px; }
   .print-doc-block .doc-title { font-size: 22px; font-weight: 700; color: #1a5c2e; letter-spacing: -.5px; }
   .print-doc-block .doc-sub   { font-size: 11px; color: #666; margin-top: 4px; }
 
-  .print-value { font-size: 13px; font-weight: 500; color: #131413; }
+  .print-value { display: block !important; font-size: 13px; font-weight: 500; color: #131413; white-space: pre-wrap; }
   .form-group label { color: #7a7b7a; font-size: 10px; }
   .form-grid, .form-grid-3 { gap: 10px; }
 
@@ -346,6 +346,10 @@ textarea { resize: vertical; min-height: 60px; }
   .print-sig-box .sig-role { font-size: 10px; color: #7a7b7a; }
 
   .col-act  { display: none !important; }
+  .items-table .print-value { display: inline !important; font-size: 11px; font-weight: 500; color: #131413; }
+  .input-prefix > span { display: none !important; }
+  .input-prefix { display: block !important; }
+  .form-group .input-prefix .print-value { display: block !important; }
   .col-num  { display: table-cell !important; }
   .col-desc { display: none !important; }
   .col-rate { display: none !important; }
@@ -354,7 +358,7 @@ textarea { resize: vertical; min-height: 60px; }
 
 /* Print-only elements hidden during screen */
 .print-header, .print-footer, .print-sig-row, .print-cost-title, .print-opnote { display: none; }
-.print-value { display: none; }
+.print-value { display: none; font-size: 13px; font-weight: 500; color: #131413; }
 
 @media screen {
   .print-value { display: none; }
@@ -616,6 +620,9 @@ textarea { resize: vertical; min-height: 60px; }
 
 <script>
 // ── STATE ─────────────────────────────────────────────────────
+// GAS endpoint — must match the deployed Web App URL in Code.gs
+var GAS_URL = 'https://script.google.com/macros/s/AKfycbxpNYlKZmKBkykfvWU-cbPbJyxHxyrcRY-Vx8_wKYsESJQSprAohRKqwrtUZBTg-0el3g/exec';
+
 var rows = [];
 var rowId = 0;
 var templates = [];
@@ -729,12 +736,47 @@ function recalc() {
 
 // ── TEMPLATES ─────────────────────────────────────────────────
 function loadTemplates() {
-  try { templates = JSON.parse(localStorage.getItem('sprout_quot_templates') || '[]'); } catch(e) { templates = []; }
-  renderTemplates();
+  var el = document.getElementById('templateList');
+  el.innerHTML = '<div class="sidebar-empty"><span style="opacity:.5">Loading templates…</span></div>';
+  fetch(GAS_URL + '?action=getTemplates')
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      templates = d.templates || [];
+      renderTemplates();
+    })
+    .catch(function(){
+      templates = [];
+      renderTemplates();
+      showStatus('Could not load templates from server.');
+    });
 }
 
-function saveTemplates() {
-  localStorage.setItem('sprout_quot_templates', JSON.stringify(templates));
+function saveTemplatesToServer(tmpl, callback) {
+  fetch(GAS_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'saveTemplate', template: tmpl })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    if (d.success) { if (callback) callback(); }
+    else showStatus('Save failed: ' + (d.error || 'Unknown error'));
+  })
+  .catch(function(){ showStatus('Could not save template to server.'); });
+}
+
+function deleteTemplateFromServer(name, callback) {
+  fetch(GAS_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'deleteTemplate', name: name })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    if (d.success) { if (callback) callback(); }
+    else showStatus('Delete failed: ' + (d.error || 'Unknown error'));
+  })
+  .catch(function(){ showStatus('Could not delete template from server.'); });
 }
 
 function renderTemplates() {
@@ -789,11 +831,15 @@ function saveTemplate() {
     // vat removed
   };
 
-  templates.unshift(tmpl);
-  saveTemplates();
-  renderTemplates();
-  closeSaveModal();
-  showStatus('Template "' + name + '" saved!');
+  var btn = document.querySelector('#saveModal .btn-primary');
+  if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+  saveTemplatesToServer(tmpl, function() {
+    if (btn) { btn.disabled = false; btn.textContent = 'Save Template'; }
+    closeSaveModal();
+    showStatus('Template "' + name + '" saved!');
+    loadTemplates(); // reload from server
+  });
+  if (btn) {} // async — don't close yet
 }
 
 function loadTemplate(idx) {
@@ -823,11 +869,13 @@ function loadTemplate(idx) {
 
 function deleteTemplate(idx) {
   if (!confirm('Delete this template?')) return;
-  templates.splice(idx, 1);
+  var name = templates[idx] ? templates[idx].name : '';
+  if (!name) return;
   if (activeTemplateIdx === idx) activeTemplateIdx = -1;
-  saveTemplates();
-  renderTemplates();
-  showStatus('Template deleted.');
+  deleteTemplateFromServer(name, function() {
+    showStatus('Template deleted.');
+    loadTemplates();
+  });
 }
 
 // ── NEW QUOTATION ─────────────────────────────────────────────
@@ -870,16 +918,49 @@ function exportPDF() {
 }
 
 function syncPrintValues() {
-  // For each input in card-body, inject a sibling print-value span
+  // Inject .print-value spans next to each input/select/textarea in card-body.
+  // No inline display style — visibility is controlled entirely by CSS
+  // (@media screen: display:none | @media print: display:block !important)
   document.querySelectorAll('.card-body input, .card-body select, .card-body textarea').forEach(function(el) {
-    // Remove old
     var old = el.parentNode.querySelector('.print-value');
     if (old) old.remove();
     var pv = document.createElement('span');
     pv.className = 'print-value';
-    pv.style.cssText = 'font-size:13px;font-weight:500;color:#131413;display:none';
-    pv.textContent = el.value || '—';
+    // For selects, use the visible text; for inputs/textareas use .value
+    var val = '';
+    if (el.tagName === 'SELECT') {
+      val = el.options[el.selectedIndex] ? el.options[el.selectedIndex].text : '';
+      if (val === '— Select —') val = '—';
+    } else {
+      val = el.value || '—';
+    }
+    pv.textContent = val;
     el.parentNode.insertBefore(pv, el.nextSibling);
+  });
+
+  // Also sync table row inputs — replace with data attributes read by CSS
+  // For each items table row, populate the print-visible td text
+  document.querySelectorAll('#itemsBody tr').forEach(function(tr) {
+    var stepInput   = tr.querySelector('.f-step');
+    var effortInput = tr.querySelector('.f-effort');
+    if (stepInput) {
+      var td = stepInput.closest('td');
+      var existing = td.querySelector('.print-value');
+      if (existing) existing.remove();
+      var pv = document.createElement('span');
+      pv.className = 'print-value';
+      pv.textContent = stepInput.value || '—';
+      td.appendChild(pv);
+    }
+    if (effortInput) {
+      var td2 = effortInput.closest('td');
+      var existing2 = td2.querySelector('.print-value');
+      if (existing2) existing2.remove();
+      var pv2 = document.createElement('span');
+      pv2.className = 'print-value';
+      pv2.textContent = effortInput.value || '0';
+      td2.appendChild(pv2);
+    }
   });
 }
 
