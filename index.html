@@ -273,7 +273,7 @@ tr:hover td{background:var(--bg)}
 <!-- GATE -->
 <div class="gate" id="gate">
   <div class="gate-card">
-    <img src="logo.svg" alt="Sprout Solutions" class="gate-logo"/>
+    <img src="whitetextlogo.svg" alt="Sprout Solutions" class="gate-logo"/>
     <h1>Service Request Portal</h1>
     <p class="gate-sub">Platform Operations · Sprout Solutions</p>
     <div class="gate-field">
@@ -299,7 +299,7 @@ tr:hover td{background:var(--bg)}
 <div class="app" id="app">
   <div class="shell-header">
     <div class="sh-left">
-      <img src="logo.svg" alt="Sprout Solutions" class="sh-logo"/>
+      <img src="whitetextlogo.svg" alt="Sprout Solutions" class="sh-logo"/>
       <div class="sh-divider"></div>
       <div>
         <div class="sh-title">Service Request Portal</div>
@@ -325,7 +325,7 @@ tr:hover td{background:var(--bg)}
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
       Analytics
     </button>
-    <button class="tab" id="tab-quotation" onclick="openQuotation()" style="display:none">
+    <button class="tab" id="tab-quotation" onclick="switchTab('quotation')" style="display:none">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
       Quotation Builder
     </button>
@@ -446,6 +446,16 @@ tr:hover td{background:var(--bg)}
         </div>
       </div>
     </div>
+    <!-- QUOTATION VIEW -->
+    <div class="view" id="view-quotation">
+      <div id="quotation-frame-wrap" style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+        <iframe id="quotation-iframe" src="quotation.html"
+          style="flex:1;border:none;width:100%;height:100%"
+          title="Quotation Builder">
+        </iframe>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -512,7 +522,6 @@ function initApp(email,role) {
 
 // ── NAVIGATION ─────────────────────────────────────────────
 function openForm(){window.open('form.html','_blank');}
-function openQuotation(){window.open('quotation.html','_blank');}
 function openView(name){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
   document.getElementById('view-'+name).classList.add('on');
@@ -522,6 +531,16 @@ function openView(name){
 }
 function switchTab(name){
   if(name==='form'){openForm();return;}
+  if(name==='quotation'){
+    openView('quotation');
+    // Lazy-load: set src only on first open
+    var iframe=document.getElementById('quotation-iframe');
+    if(iframe && !iframe.dataset.loaded){
+      iframe.src='quotation.html';
+      iframe.dataset.loaded='1';
+    }
+    return;
+  }
   openView(name);
   if(name==='tracker'&&!trackerInit){trackerInit=true;USER_EMAIL=userEmail;IS_INTERNAL=isInternal;init_tracker();}
   if(name==='analytics'&&!analyticsInit){
@@ -564,7 +583,7 @@ async function loadList(){
     clearTimeout(to); const d=await res.json();
     sessionStorage.setItem(cacheKey,JSON.stringify({data:d,ts:Date.now()}));
     all=d.submissions||[]; render();
-  }catch(e){document.getElementById('sbList').innerHTML='<div class="empty-sb">Failed to load. <span style="color:var(--primary);cursor:pointer;text-decoration:underline" onclick="loadList()">Retry</span></div>';}
+  }catch(e){document.getElementById('sbList').innerHTML='<div class="empty-sb">Failed to load requests.<br><span style="color:var(--primary);cursor:pointer;text-decoration:underline" onclick="loadList()">Retry</span><br><span style="font-size:0.7rem;color:var(--muted)">Check GAS deployment if error persists.</span></div>';}
 }
 async function refresh(){sessionStorage.removeItem('tracker_cache_'+USER_EMAIL);all=[];activeKey=null;document.getElementById('detail').innerHTML='<div class="state"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 9h6M9 12h6M9 15h4"/></svg><p>Select a request to view details</p></div>';await loadList();if(IS_INTERNAL)loadAnalytics();}
 async function loadAnalytics(){
@@ -709,8 +728,9 @@ async function load_analytics(from,to){
     document.getElementById('an-loadingState').style.display='none';
     document.getElementById('an-content').style.display='block';
   }catch(e){
+    console.error('load_analytics error:',e);
     const ls=document.getElementById('an-loadingState');
-    if(ls)ls.innerHTML='<p style="color:var(--muted)">Failed to load analytics. <span style="color:var(--primary);cursor:pointer;text-decoration:underline" onclick="load_analytics()">Retry</span></p>';
+    if(ls)ls.innerHTML='<p style="color:var(--muted)">Failed to load analytics data. <span style="color:var(--primary);cursor:pointer;text-decoration:underline" onclick="load_analytics()">Retry</span></p><p style="font-size:0.75rem;color:var(--muted);margin-top:8px">If this keeps happening, the GAS deployment may need to be updated.</p>';
   }
 }
 function render_analytics(data){
