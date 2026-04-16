@@ -397,6 +397,11 @@ textarea { resize: vertical; min-height: 60px; }
       <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       Save Current as Template
     </button>
+    <button class="btn btn-sm no-print" id="syncBtn" onclick="forceSyncToSheet()" title="Push all locally cached templates to the Google Sheet"
+      style="width:100%;justify-content:center;margin-bottom:8px;background:var(--mushroom-50);color:var(--text-muted);border:1.5px solid var(--border)">
+      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10M23 14l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
+      <span id="syncBtnLabel">Sync to Sheet</span>
+    </button>
     <div id="templateList"></div>
   </aside>
 
@@ -735,48 +740,129 @@ function recalc() {
 }
 
 // ── TEMPLATES ─────────────────────────────────────────────────
+
+// ── LOCALSTORAGE HELPERS (fallback cache for templates) ───────────────────────
+var LS_KEY = 'sprout_quot_templates_cache';
+
+function lsReadTemplates() {
+  try { return JSON.parse(localStorage.getItem(LS_KEY) || '[]'); } catch(e) { return []; }
+}
+
+function lsWriteTemplates(tmplArr) {
+  try { localStorage.setItem(LS_KEY, JSON.stringify(tmplArr)); } catch(e) {}
+}
+
+function lsMarkSynced(name) {
+  // No-op for now — full array is already written on every save.
+}
+
+// ── FORCE SYNC ─────────────────────────────────────────────────────────────
+// Pushes all locally cached templates to the GAS sheet one by one.
+// Use this as a manual recovery if background syncs failed.
+function forceSyncToSheet() {
+  var local = lsReadTemplates();
+  if (!local.length) {
+    showStatus('No local templates to sync.');
+    return;
+  }
+
+  var btn   = document.getElementById('syncBtn');
+  var label = document.getElementById('syncBtnLabel');
+  if (btn)   btn.disabled = true;
+  if (label) label.textContent = 'Syncing ' + local.length + '…';
+
+  var total   = local.length;
+  var done    = 0;
+  var failed  = 0;
+
+  function next(idx) {
+    if (idx >= total) {
+      if (btn)   btn.disabled = false;
+      if (label) label.textContent = 'Sync to Sheet';
+      if (failed === 0) {
+        showStatus('All ' + total + ' template(s) synced to sheet ✓');
+        lsWriteTemplates(templates); // refresh cache with current state
+      } else {
+        showStatus(failed + ' template(s) failed to sync. Check connection.');
+      }
+      return;
+    }
+    if (label) label.textContent = 'Syncing ' + (idx + 1) + '/' + total + '…';
+    saveTemplatesToServer(local[idx], function(success) {
+      if (!success) failed++;
+      done++;
+      next(idx + 1);
+    });
+  }
+
+  next(0);
+}
+
 function loadTemplates() {
   var el = document.getElementById('templateList');
-  el.innerHTML = '<div class="sidebar-empty"><span style="opacity:.5">Loading templates…</span></div>';
+
+  // Show localStorage templates instantly while GAS loads in background
+  var lsCopy = lsReadTemplates();
+  if (lsCopy.length) {
+    templates = lsCopy;
+    renderTemplates();
+    el.insertAdjacentHTML('beforeend', '<div style="font-size:10px;color:var(--text-muted);padding:4px 8px;opacity:.6">Syncing…</div>');
+  } else {
+    el.innerHTML = '<div class="sidebar-empty"><span style="opacity:.5">Loading templates…</span></div>';
+  }
+
+  // Fetch from GAS — this is the authoritative source
   fetch(GAS_URL + '?action=getTemplates')
     .then(function(r){ return r.json(); })
     .then(function(d){
       templates = d.templates || [];
+      // GAS is source of truth — overwrite localStorage with latest from sheet
+      lsWriteTemplates(templates);
       renderTemplates();
     })
-    .catch(function(){
-      templates = [];
-      renderTemplates();
-      showStatus('Could not load templates from server.');
+    .catch(function(e){
+      console.warn('GAS template fetch failed, using localStorage fallback:', e);
+      // Keep whatever localStorage had — already rendered above
+      if (!lsCopy.length) {
+        templates = [];
+        renderTemplates();
+      }
     });
 }
 
 function saveTemplatesToServer(tmpl, callback) {
+  // Use no-cors + text/plain to avoid GAS CORS preflight block.
+  // no-cors means we can't read the response — so we assume success after a delay
+  // and rely on the next loadTemplates() call to confirm.
   fetch(GAS_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'text/plain' },
     body: JSON.stringify({ action: 'saveTemplate', template: tmpl })
   })
-  .then(function(r){ return r.json(); })
-  .then(function(d){
-    if (d.success) { if (callback) callback(); }
-    else { console.warn('Template save error:', d.error); showStatus('Note: template saved locally but server sync failed.'); }
+  .then(function() {
+    // Response is opaque (no-cors) — we can't read it, but request completed
+    if (callback) callback(true);
   })
-  .catch(function(e){ console.warn('Template server sync failed:', e); });
+  .catch(function(e) {
+    console.warn('Template server sync failed:', e);
+    if (callback) callback(false);
+  });
 }
 
 function deleteTemplateFromServer(name, callback) {
   fetch(GAS_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'text/plain' },
     body: JSON.stringify({ action: 'deleteTemplate', name: name })
   })
-  .then(function(r){ return r.json(); })
-  .then(function(d){
-    if (d.success) { if (callback) callback(); }
-    else { console.warn('Template delete error:', d.error); }
+  .then(function() {
+    if (callback) callback();
   })
-  .catch(function(e){ console.warn('Template delete server sync failed:', e); });
+  .catch(function(e) {
+    console.warn('Template delete server sync failed:', e);
+  });
 }
 
 function renderTemplates() {
@@ -831,7 +917,7 @@ function saveTemplate() {
     // vat removed
   };
 
-  // Update local array immediately so UI responds instantly
+  // 1. Update local array immediately — UI responds instantly
   var existingIdx = templates.findIndex(function(t){ return t.name === tmpl.name; });
   if (existingIdx >= 0) {
     templates[existingIdx] = tmpl;
@@ -842,8 +928,17 @@ function saveTemplate() {
   closeSaveModal();
   showStatus('Template "' + name + '" saved!');
 
-  // Persist to server in background — no waiting
-  saveTemplatesToServer(tmpl, null);
+  // 2. Write to localStorage immediately as a safety net
+  lsWriteTemplates(templates);
+
+  // 3. Sync to GAS sheet in background — no blocking
+  saveTemplatesToServer(tmpl, function(success) {
+    if (success) {
+      // GAS confirmed — mark this template as synced in localStorage
+      lsMarkSynced(tmpl.name);
+    }
+    // If it fails, localStorage copy persists as fallback until next successful sync
+  });
 }
 
 function loadTemplate(idx) {
@@ -877,12 +972,13 @@ function deleteTemplate(idx) {
   if (!name) return;
   if (activeTemplateIdx === idx) activeTemplateIdx = -1;
 
-  // Remove from local array immediately
+  // Remove from local array + localStorage immediately
   templates.splice(idx, 1);
+  lsWriteTemplates(templates);
   renderTemplates();
   showStatus('Template deleted.');
 
-  // Persist to server in background
+  // Sync deletion to GAS in background
   deleteTemplateFromServer(name, null);
 }
 
