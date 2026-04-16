@@ -3,33 +3,28 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Service Request Form · Platform Operations</title>
-<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<title>Service Request Form</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --k900:#0d2a1a;--k800:#14401f;--k700:#1a5c2e;--k600:#217a3d;--k500:#2a9e50;
-    --k400:#4bbf6b;--k300:#7dd49a;--k100:#d4f5df;
-    --m900:#1c1d1c;--m700:#343534;--m600:#4a4b4a;--m400:#7a7b7a;
-    --m200:#c4c5c4;--m100:#e8e9e8;--m50:#f4f5f4;
-    --tomato:#c92a2a;
-    /* legacy aliases so unchanged body CSS still works */
-    --green: var(--k700);
-    --green-mid: var(--k600);
-    --green-light: var(--k100);
-    --green-muted: var(--k300);
-    --cream: var(--m50);
-    --ink: var(--m900);
-    --ink-muted: var(--m400);
-    --border: var(--m100);
-    --white: #ffffff;
-    --red: var(--tomato);
-    --sans: 'Rubik', system-ui, sans-serif;
+    --green: #1B4332;
+    --green-mid: #2D6A4F;
+    --green-light: #D8F3DC;
+    --green-muted: #95D5B2;
+    --cream: #FAFAF7;
+    --ink: #1A1A18;
+    --ink-muted: #6B6B60;
+    --border: #D4D4C8;
+    --white: #FFFFFF;
+    --red: #C0392B;
+    --serif: 'DM Serif Display', Georgia, serif;
+    --sans: 'DM Sans', system-ui, sans-serif;
   }
 
   body {
-    font-family: 'Rubik', sans-serif;
+    font-family: var(--sans);
     background: var(--cream);
     color: var(--ink);
     min-height: 100vh;
@@ -38,32 +33,37 @@
   }
 
   header {
-    background: var(--k800);
-    padding: 0 1.75rem;
-    height: 52px;
+    background: var(--green);
+    padding: 2rem 2.5rem;
     display: flex;
-    align-items: center;
-    gap: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,.25);
+    align-items: flex-end;
+    gap: 1.5rem;
+  }
+
+  .header-accent {
+    width: 4px;
+    height: 56px;
+    background: var(--green-muted);
+    border-radius: 2px;
     flex-shrink: 0;
   }
 
-  .header-logo { height: 28px; width: auto; }
-  .header-divider { width: 1px; height: 24px; background: var(--k600); }
-
   .header-text h1 {
-    font-size: 14px;
-    font-weight: 500;
-    color: #fff;
+    font-family: var(--serif);
+    font-size: 1.75rem;
+    color: var(--white);
+    font-weight: 400;
     line-height: 1.2;
+    letter-spacing: -0.01em;
   }
 
   .header-text p {
-    font-size: 10px;
-    color: var(--k300);
-    letter-spacing: 0.06em;
+    font-size: 0.8125rem;
+    color: var(--green-muted);
+    margin-top: 4px;
+    font-weight: 300;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
-    margin-top: 1px;
   }
 
   main {
@@ -74,12 +74,9 @@
     padding: 2.5rem 1.5rem 4rem;
   }
 
-  .notice p { margin-bottom: 0.5rem; }
-  .notice p:last-child { margin-bottom: 0; }
-  .notice strong { color: var(--m700); font-weight: 600; }
   .notice {
     border: 1px solid var(--border);
-    border-left: 3px solid var(--k600);
+    border-left: 3px solid var(--green-mid);
     background: var(--white);
     padding: 0.875rem 1rem;
     border-radius: 0 6px 6px 0;
@@ -101,11 +98,11 @@
   }
 
   .section-number {
-    font-size: 0.875rem;
-    font-weight: 700;
-    color: var(--k600);
+    font-family: var(--serif);
+    font-size: 0.9375rem;
+    color: var(--green-mid);
+    font-style: italic;
     min-width: 20px;
-    letter-spacing: 0.02em;
   }
 
   .section-title {
@@ -165,8 +162,8 @@
     font-size: 0.875rem;
     color: var(--ink);
     background: var(--white);
-    border: 1.5px solid var(--border);
-    border-radius: 8px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
     padding: 0.5625rem 0.75rem;
     outline: none;
     transition: border-color 0.15s, box-shadow 0.15s;
@@ -179,8 +176,8 @@
   input[type="date"]:focus,
   textarea:focus,
   select:focus {
-    border-color: var(--k600);
-    box-shadow: 0 0 0 3px rgba(33,122,61,0.12);
+    border-color: var(--green-mid);
+    box-shadow: 0 0 0 3px rgba(45, 106, 79, 0.12);
   }
 
   input::placeholder,
@@ -228,7 +225,7 @@
     font-weight: 400;
     padding: 0.625rem 0.5rem;
     border: 1px solid var(--border);
-    border-radius: 8px;
+    border-radius: 6px;
     cursor: pointer;
     transition: all 0.15s;
     background: var(--white);
@@ -238,11 +235,11 @@
   }
 
   .service-option input[type="radio"]:checked + label {
-    border-color: var(--k600);
-    background: var(--k100);
-    color: var(--k700);
+    border-color: var(--green-mid);
+    background: var(--green-light);
+    color: var(--green);
     font-weight: 500;
-    box-shadow: 0 0 0 2px rgba(33,122,61,0.15);
+    box-shadow: 0 0 0 2px rgba(45, 106, 79, 0.15);
   }
 
   .service-option label:hover {
@@ -288,7 +285,7 @@
 
   #urg-low:checked ~ .urgency-option label[for="urg-low"],
   .urgency-option:has(#urg-low:checked) label {
-    border-color: var(--k600); background: var(--k100); color: var(--k700);
+    border-color: #2D6A4F; background: #D8F3DC; color: #1B4332;
   }
   .urgency-option:has(#urg-med:checked) label {
     border-color: #B7791F; background: #FEFCBF; color: #744210;
@@ -322,12 +319,12 @@
   }
 
   .btn-reset {
-    font-family: 'Rubik', sans-serif;
+    font-family: var(--sans);
     font-size: 0.8125rem;
     color: var(--ink-muted);
     background: transparent;
-    border: 1.5px solid var(--border);
-    border-radius: 8px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
     padding: 0.625rem 1.25rem;
     cursor: pointer;
     transition: all 0.15s;
@@ -336,19 +333,20 @@
   .btn-reset:hover { border-color: var(--ink-muted); color: var(--ink); }
 
   .btn-submit {
-    font-family: 'Rubik', sans-serif;
+    font-family: var(--sans);
     font-size: 0.875rem;
     font-weight: 500;
-    color: #fff;
-    background: var(--k600);
+    color: var(--white);
+    background: var(--green);
     border: none;
-    border-radius: 8px;
+    border-radius: 6px;
     padding: 0.625rem 1.75rem;
     cursor: pointer;
     transition: background 0.15s;
+    letter-spacing: 0.01em;
   }
 
-  .btn-submit:hover { background: var(--k700); }
+  .btn-submit:hover { background: var(--green-mid); }
   .btn-submit:active { transform: scale(0.98); }
 
   .btn-submit:disabled {
@@ -368,7 +366,7 @@
   .success-icon {
     width: 56px;
     height: 56px;
-    background: var(--k100);
+    background: var(--green-light);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -379,8 +377,9 @@
   .success-icon svg { width: 24px; height: 24px; }
 
   .success-screen h2 {
-    font-size: 1.375rem;
-    font-weight: 600;
+    font-family: var(--serif);
+    font-size: 1.5rem;
+    font-weight: 400;
     color: var(--ink);
     margin-bottom: 0.5rem;
   }
@@ -419,8 +418,8 @@
   .migration-notice.visible { display: block; }
 
   .migration-notice-header {
-    background: var(--k800);
-    color: #fff;
+    background: var(--green);
+    color: var(--white);
     font-size: 0.75rem;
     font-weight: 500;
     letter-spacing: 0.08em;
@@ -466,7 +465,7 @@
 
   .mn-block ol li { margin-bottom: 6px; }
 
-  .mn-block a { color: var(--k600); text-decoration: underline; }
+  .mn-block a { color: var(--green-mid); text-decoration: underline; }
 
   .mn-legal {
     font-size: 0.7375rem;
@@ -515,13 +514,13 @@
   .sig-canvas-wrap {
     position: relative;
     border: 1px solid var(--border);
-    border-radius: 8px;
+    border-radius: 6px;
     background: var(--white);
     overflow: hidden;
     cursor: crosshair;
   }
 
-  .sig-canvas-wrap.signed { border-color: var(--k600); }
+  .sig-canvas-wrap.signed { border-color: var(--green-mid); }
   .sig-canvas-wrap.invalid-sig { border-color: var(--red); }
 
   #sigCanvas { display: block; width: 100%; height: 160px; touch-action: none; }
@@ -561,7 +560,7 @@
   .sig-note { font-size: 0.75rem; color: var(--ink-muted); }
 
   .btn-clear-sig {
-    font-family: 'Rubik', sans-serif;
+    font-family: var(--sans);
     font-size: 0.75rem;
     color: var(--ink-muted);
     background: transparent;
@@ -599,8 +598,7 @@
 <body>
 
 <header>
-  <img src="whitetextlogo.svg" alt="Sprout Solutions" class="header-logo"/>
-  <div class="header-divider"></div>
+  <div class="header-accent"></div>
   <div class="header-text">
     <h1>Service Request Form</h1>
     <p>Platform Operations · Sprout Solutions</p>
@@ -609,10 +607,7 @@
 
 <main>
   <div class="notice">
-    <p>Submitting this form does not guarantee approval or scheduling.</p>
-    <p>Once submitted, please allow us <strong>2 business days</strong> to review your request — we'll reach out if we need further clarification.</p>
-    <p>A final cost quotation may take <strong>up to 1 week</strong> to be provided, depending on the scope of work.</p>
-    <p>No activity begins until scope, cost, and timeline have been agreed upon and a signed Work Order has been received.</p>
+    Submitting this form does not guarantee approval or scheduling. Our team will review your request and reach out with a cost estimate and next steps before any work begins.
   </div>
 
   <form id="inquiryForm" novalidate>
@@ -654,6 +649,15 @@
           <input type="email" id="csmEmail" name="csmEmail" placeholder="csm@sprout.ph" autocomplete="off"/>
           <div class="error-msg">Please enter a valid CSM email address.</div>
         </div>
+      </div>
+
+      <div class="two-col">
+        <div class="field" id="f-mrr">
+          <label for="accountMrr">Account MRR <span class="opt">optional</span></label>
+          <div class="field-hint">Monthly Recurring Revenue of the client account.</div>
+          <input type="text" id="accountMrr" name="accountMrr" placeholder="e.g. ₱ 25,000"/>
+        </div>
+        <div></div>
       </div>
     </div>
 
@@ -873,7 +877,7 @@
     </div>
 
     <div class="disclaimer">
-      By submitting this form, you acknowledge that this is an initial service inquiry. Review timelines and cost estimates are subject to the scope and complexity of the request.
+      By submitting this form, you acknowledge that this is an initial inquiry only. No work will begin until scope, cost, and timeline have been agreed upon and a signed work order has been received.
     </div>
 
     <div class="form-actions">
@@ -885,12 +889,12 @@
 
   <div class="success-screen" id="successScreen">
     <div class="success-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="var(--k700)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#1B4332" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <polyline points="20 6 9 17 4 12"/>
       </svg>
     </div>
     <h2>Inquiry submitted</h2>
-    <p>Your request has been logged. Please allow us <strong>2 business days</strong> to review it — we'll reach out if we need further clarification. A cost quotation will be provided within <strong>1 week</strong>, depending on scope.</p>
+    <p>Thank you. Your request has been logged and a Jira ticket will be created shortly. Our team will reach out to discuss scope and cost.</p>
     <button class="btn-reset" onclick="resetForm()">Submit another request</button>
   </div>
 </main>
