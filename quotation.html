@@ -350,6 +350,18 @@ textarea { resize: vertical; min-height: 60px; }
   .input-prefix > span { display: none !important; }
   .input-prefix { display: block !important; }
   .form-group .input-prefix .print-value { display: block !important; }
+
+  /* Terms card — keep 3-column flex layout in print */
+  .terms-wrap { display: flex !important; gap: 20px; }
+  .terms-col  { flex: 1 !important; }
+  .terms-col label { display: block !important; font-size: 9px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .08em; color: #7a7b7a; margin-bottom: 4px; }
+  .terms-col .print-value { display: block !important; font-size: 11px;
+    font-weight: 500; color: #131413; white-space: pre-wrap; }
+  .terms-col textarea, .terms-col input { display: none !important; }
+
+  /* Hide the separate sig-row — Prepared By is already in the terms column */
+  .print-sig-row { display: none !important; }
   .col-num  { display: table-cell !important; }
   .col-desc { display: none !important; }
   .col-rate { display: none !important; }
@@ -557,7 +569,7 @@ textarea { resize: vertical; min-height: 60px; }
           </div>
           <div class="terms-col">
             <label>Additional Notes / Assumptions</label>
-            <textarea id="addlNotes" rows="4" placeholder="e.g. Scope is limited to...&#10;Client must provide read access to..."></textarea>
+            <textarea id="addlNotes" rows="4" placeholder="e.g. Scope is limited to...&#10;Client must provide read access to...">- This is actual operational cost.</textarea>
           </div>
           <div class="terms-col">
             <label>Prepared By</label>
@@ -954,7 +966,7 @@ function loadTemplate(idx) {
   if (t.serviceType) document.getElementById('serviceType').value = t.serviceType;
   if (t.scopeDesc)   document.getElementById('scopeDesc').value   = t.scopeDesc;
   if (t.paymentTerms)document.getElementById('paymentTerms').value= t.paymentTerms;
-  if (t.addlNotes)   document.getElementById('addlNotes').value   = t.addlNotes;
+  document.getElementById('addlNotes').value = t.addlNotes || '- This is actual operational cost.';
   document.getElementById('discountPct').value = t.discountPct || 0;
 
   // Add rows
@@ -987,9 +999,10 @@ function newQuotation() {
   if (!confirm('Start a new quotation? Unsaved changes will be lost.')) return;
   activeTemplateIdx = -1;
   ['clientName','hrUrl','payrollCodes','csm','jiraRef',
-   'scopeDesc','paymentTerms','addlNotes','preparedBy','preparedByRole'].forEach(function(id) {
+   'scopeDesc','paymentTerms','preparedBy','preparedByRole'].forEach(function(id) {
     document.getElementById(id).value = '';
   });
+  document.getElementById('addlNotes').value = '- This is actual operational cost.';
   document.getElementById('serviceType').value = '';
   document.getElementById('discountPct').value = 0;
   rows = []; rowId = 0;
