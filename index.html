@@ -574,7 +574,7 @@ async function loadList(){
   const cacheKey='tracker_cache_'+USER_EMAIL;
   const cached=sessionStorage.getItem(cacheKey);
   if(cached){
-    try{const{data}=JSON.parse(cached);all=data.submissions||[];render();}catch(e){}
+    try{const{data}=JSON.parse(cached);all=data.submissions||[];render();}catch(e){console.error('loadAnalytics exception:',e);}
     fetch(GAS_URL+'?action=list&email='+encodeURIComponent(USER_EMAIL)).then(r=>r.json())
       .then(d=>{sessionStorage.setItem(cacheKey,JSON.stringify({data:d,ts:Date.now()}));all=d.submissions||[];render();}).catch(()=>{});
     return;
@@ -594,14 +594,16 @@ async function loadAnalytics(){
   try{
     const res=await fetch(GAS_URL+'?action=analytics');
     const data=await res.json();
-    if(!data||data.error)return;
-    document.getElementById('sc-total').textContent=data.total||0;
-    document.getElementById('sc-fq').textContent=data.lifecycleCounts['For Quotation']||0;
-    document.getElementById('sc-or').textContent=data.lifecycleCounts['Ongoing Review']||0;
-    document.getElementById('sc-qp').textContent=data.lifecycleCounts['Quotation Provided']||0;
-    document.getElementById('sc-fe').textContent=data.lifecycleCounts['For Execution / Schedule']||0;
-    document.getElementById('sc-oe').textContent=data.lifecycleCounts['Ongoing Execution / Activity']||0;
-    document.getElementById('sc-rd').textContent=data.lifecycleCounts['Request Done']||0;
+    console.log('Analytics response:', JSON.stringify(data));
+    if(!data||data.error){console.warn('Analytics error:',data&&data.error);return;}
+    const lc=data.lifecycleCounts||{};
+    document.getElementById('sc-total').textContent=data.total!=null?data.total:'—';
+    document.getElementById('sc-fq').textContent=lc['For Quotation']!=null?lc['For Quotation']:'—';
+    document.getElementById('sc-or').textContent=lc['Ongoing Review']!=null?lc['Ongoing Review']:'—';
+    document.getElementById('sc-qp').textContent=lc['Quotation Provided']!=null?lc['Quotation Provided']:'—';
+    document.getElementById('sc-fe').textContent=lc['For Execution / Schedule']!=null?lc['For Execution / Schedule']:'—';
+    document.getElementById('sc-oe').textContent=lc['Ongoing Execution / Activity']!=null?lc['Ongoing Execution / Activity']:'—';
+    document.getElementById('sc-rd').textContent=lc['Request Done']!=null?lc['Request Done']:'—';
     const meta=document.getElementById('analyticsMeta');
     const pills=[];
     if(data.byCost){pills.push(`Paid: <span>${data.byCost['Paid']||0}</span>`);pills.push(`Waived: <span>${data.byCost['Waived']||0}</span>`);pills.push(`Cost TBD: <span>${data.byCost['Pending']||0}</span>`);}
@@ -738,6 +740,7 @@ async function load_analytics(from,to){
   }
 }
 function render_analytics(data){
+  console.log('render_analytics data:', JSON.stringify(data));
   const lc=data.lifecycleCounts||{};
   const svc=data.byService||{};
   const cost=data.byCost||{};
