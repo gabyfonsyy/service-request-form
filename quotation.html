@@ -329,12 +329,7 @@ textarea { resize: vertical; min-height: 60px; }
     color: #7a7b7a;
   }
   .print-opnote {
-    display: block !important;
-    font-size: 10px;
-    color: #7a7b7a !important;
-    font-style: italic;
-    margin-top: 4px;
-    margin-bottom: 16px;
+    display: none !important;
   }
   .print-sig-row {
     display: block !important;
@@ -572,10 +567,14 @@ textarea { resize: vertical; min-height: 60px; }
             <textarea id="addlNotes" rows="4" placeholder="e.g. Scope is limited to...&#10;Client must provide read access to...">- This is actual operational cost.</textarea>
           </div>
           <div class="terms-col">
-            <label>Prepared By</label>
-            <input type="text" id="preparedBy" placeholder="Your name" style="margin-bottom:10px"/>
-            <label>Designation</label>
-            <input type="text" id="preparedByRole" placeholder="e.g. Engineering Ops Lead"/>
+            <div class="form-group">
+              <label>Prepared By</label>
+              <input type="text" id="preparedBy" placeholder="Your name"/>
+            </div>
+            <div class="form-group" style="margin-top:10px">
+              <label>Designation</label>
+              <input type="text" id="preparedByRole" placeholder="e.g. Engineering Ops Lead"/>
+            </div>
           </div>
         </div>
       </div>
