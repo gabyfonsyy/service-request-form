@@ -443,6 +443,10 @@ tr:hover td{background:var(--bg)}
               </div>
             </div>
           </div>
+          <div class="chart-grid">
+            <div class="chart-card"><h3>Revenue over time</h3><div class="chart-wrap tall"><canvas id="an-chartRevTime"></canvas></div></div>
+            <div class="chart-card"><h3>Revenue by service type</h3><div class="chart-wrap tall"><canvas id="an-chartRevService"></canvas></div></div>
+          </div>
         </div>
       </div>
     </div>
@@ -764,6 +768,27 @@ function render_analytics(data){
     buildChart('an-chartService','doughnut',{labels:svcKeys,datasets:[{data:svcKeys.map(k=>svc[k]),backgroundColor:svcColors.slice(0,svcKeys.length),borderWidth:2,borderColor:'#fff'}]},{plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:12}}}});
     buildChart('an-chartCost','doughnut',{labels:['Paid','Waived','Pending'],datasets:[{data:[cost.Paid||0,cost.Waived||0,cost.Pending||0],backgroundColor:[COLORS.blue,COLORS.purple,COLORS.gray],borderWidth:2,borderColor:'#fff'}]},{plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:12}}}});
     buildChart('an-chartUrgency','bar',{labels:['High','Medium','Low'],datasets:[{label:'Requests',data:[urg.High||0,urg.Medium||0,urg.Low||0],backgroundColor:[COLORS.redL,COLORS.amberL,COLORS.greenL],borderColor:[COLORS.red,COLORS.amber,COLORS.green],borderWidth:1.5,borderRadius:4}]},{scales:{y:{beginAtZero:true,ticks:{stepSize:1}}},plugins:{legend:{display:false}}});
+
+    // Revenue over time — grouped bar: received vs lost by month
+    const revMonthly = data.revenueByMonth || [];
+    buildChart('an-chartRevTime','bar',{
+      labels: revMonthly.map(m=>fmtMonth(m.month)),
+      datasets:[
+        {label:'Received',data:revMonthly.map(m=>m.received||0),backgroundColor:COLORS.blueL,borderColor:COLORS.blue,borderWidth:1.5,borderRadius:4},
+        {label:'Lost (Waived)',data:revMonthly.map(m=>m.lost||0),backgroundColor:COLORS.purpleL,borderColor:COLORS.purple,borderWidth:1.5,borderRadius:4},
+      ]
+    },{scales:{y:{beginAtZero:true,ticks:{callback:function(v){return'₱'+v.toLocaleString();}}}},plugins:{legend:{display:true,labels:{font:{family:"'Rubik'"},boxWidth:12}}}});
+
+    // Revenue by service type — horizontal bar
+    const revSvc     = data.revenueByService || {};
+    const revSvcKeys = Object.keys(revSvc).sort((a,b)=>(revSvc[b].received+revSvc[b].lost)-(revSvc[a].received+revSvc[a].lost));
+    buildChart('an-chartRevService','bar',{
+      labels: revSvcKeys,
+      datasets:[
+        {label:'Received',data:revSvcKeys.map(k=>revSvc[k].received||0),backgroundColor:COLORS.blueL,borderColor:COLORS.blue,borderWidth:1.5,borderRadius:4},
+        {label:'Lost (Waived)',data:revSvcKeys.map(k=>revSvc[k].lost||0),backgroundColor:COLORS.purpleL,borderColor:COLORS.purple,borderWidth:1.5,borderRadius:4},
+      ]
+    },{indexAxis:'y',scales:{x:{beginAtZero:true,ticks:{callback:function(v){return'₱'+v.toLocaleString();}}}},plugins:{legend:{display:true,labels:{font:{family:"'Rubik'"},boxWidth:12}}}});
   },150);
 }
 function buildChart(id,type,data,options){if(charts[id])charts[id].destroy();const ctx=document.getElementById(id).getContext('2d');charts[id]=new Chart(ctx,{type,data,options:Object.assign({responsive:true,maintainAspectRatio:false,plugins:{legend:{display:type==='doughnut',labels:{font:{family:"'Rubik'"}}}},scales:type==='doughnut'?{}:{x:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{family:"'Rubik'",size:11}}},y:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{family:"'Rubik'",size:11}}}}},options||{})});}
